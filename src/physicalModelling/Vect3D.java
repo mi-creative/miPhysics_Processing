@@ -19,6 +19,10 @@ public class Vect3D {
         z = v.z;
     }
     
+    public double x() {return x;}
+    public double y() {return y;}
+    public double z() {return z;}
+
     public double dist(Vect3D v2) {
     	return Math.sqrt(Math.pow(v2.x-this.x,2)+ Math.pow(v2.y-this.y,2) + Math.pow(v2.z-this.z,2));
     }

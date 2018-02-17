@@ -49,6 +49,10 @@ abstract class Link {
     distR = dist;
     dist = d;
   }
+  
+  public void changeDRest(double d) {
+	  dRest = d;
+  }
 
   public double getSpeed() { 
     return dist-distR;

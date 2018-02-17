@@ -8,5 +8,6 @@ public enum linkModuleType {
     Rope3D, 
     Contact3D, 
     PlaneContact3D, 
+    Bubble3D,
     UNDEFINED
 }

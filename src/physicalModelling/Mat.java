@@ -73,4 +73,4 @@ abstract class Mat {
   private matModuleType type;
   public double invMass;
   Vect3D tmp;
-}
+  }

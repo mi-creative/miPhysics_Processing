@@ -29,13 +29,15 @@ public class PhysicalModel {
 
 	private Mat fakePlaneMat; // super dirty but works as a dummy for plane-based interactions
 
-	private Hashtable<String, Integer> matIndexList;
+	private ArrayList<String> matIndexList;
+	//private Hashtable<String, Integer> matIndexList;
 	// should always be the same as mats.size(), eventually get rid of this variable
-	private int numberOfMats;
+	//private int numberOfMats;
 	  
-	private Hashtable<String, Integer> linkIndexList;
+	private ArrayList<String> linkIndexList;
+	//private Hashtable<String, Integer> linkIndexList;
 	// should always be the same as links.size(), eventually get rid of this variable
-	private int numberOfLinks;
+	//private int numberOfLinks;
 
 	private int simRate;
 
@@ -68,11 +70,14 @@ public class PhysicalModel {
 	    Vect3D random = new Vect3D(0., 0., 0.);
 	    fakePlaneMat = new Ground3D(random);
 
-	    matIndexList = new Hashtable<String, Integer>();
-	    numberOfMats = 0;
+	    //matIndexList = new Hashtable<String, Integer>();
+	    matIndexList = new ArrayList<String>();
+	    //numberOfMats = 0;
 	    
-	    linkIndexList = new Hashtable<String, Integer>();
-	    numberOfLinks = 0;
+	    linkIndexList = new ArrayList<String>();
+
+	    //linkIndexList = new Hashtable<String, Integer>();
+	    //numberOfLinks = 0;
 
 	    g_vector = new Vect3D(0., 0., 1.);
 	    g_scaled = new Vect3D(0., 0., 0.);
@@ -125,21 +130,54 @@ public class PhysicalModel {
 	    System.out.println("Finished model init.\n");
 	  }
 
+	  
+	  private int getMatIndex(String name) {
+			return matIndexList.indexOf(name);
+	
+		    /*int mat_index = -1;
+		    try {
+		      mat_index = matIndexList.get(name);
+		    }
+		    catch (NullPointerException e) {
+		      System.out.println("Link Error: the connected mat " + name +" does not exist!");
+		      System.exit(1);
+		    }
+		    return mat_index;*/
+		  }
+	  
+	  private int getLinkIndex(String name) {
+			return linkIndexList.indexOf(name);
+		  }
 
+	  
 	  public Vect3D getMatPosition(String masName) {
-	    int mat_index = matIndexList.get(masName);
-	    return mats.get(mat_index).getPos();
+		  try {
+			int mat_index = getMatIndex(masName);
+			if (mat_index > -1) {
+				return mats.get(mat_index).getPos();
+			} else {
+		        throw new Exception ("The module name already exists!");
+			}
+		    //int mat_index = matIndexList.get(masName);
+		    //return mats.get(mat_index).getPos();
+		  } catch (Exception e) {
+		      System.out.println("Error accessing Module " + masName + ": " + e);
+		      System.exit(1);
+		  }
+		  return new Vect3D();
 	  }
-
+	  
+/*
 	  private void AddMatToList(String name) {
 	    matIndexList.put(name, numberOfMats);
 	    numberOfMats++;
 	  }
-	  
-	  private void AddLinkToList(String name) {
+*/  
+	/*  private void AddLinkToList(String name) {
 	    linkIndexList.put(name, numberOfLinks);
 	    numberOfLinks++;
-	  }
+	  }*/
+
 
 	  private Vect3D constructDelayedPos(Vect3D pos, Vect3D vel_mps) {
 	    // Convert the velocity in [distance unit]/[second] to [distance unit]/[sample]
@@ -157,25 +195,36 @@ public class PhysicalModel {
 	  }
 
 
-	  private int getMatIndex(String name) {
-	    int mat_index = -1;
-	    try {
-	      mat_index = matIndexList.get(name);
-	    }
-	    catch (NullPointerException e) {
-	      System.out.println("Link Error: the connected mat " + name +" does not exist!");
-	      System.exit(1);
-	    }
-	    return mat_index;
-	  }
+
 	  
 	  public int getNumberOfMats() { return mats.size(); }
 	  public int getNumberOfLinks() { return links.size(); }
 	  
+	  public boolean matExists(String mName) {
+		  if(getMatIndex(mName)<0)
+			  return false;
+		  else
+			  return true;
+		  }
+	  
+	  public boolean linkExists(String lName){
+		  if(getLinkIndex(lName)<0)
+			  return false;
+		  else
+			  return true;
+		  }
+	  
 	  public matModuleType getMatTypeAt(int i) { 
 	    if(getNumberOfMats() > i)
 	      return mats.get(i).getType();
-	    else return matModuleType.UNDEFINED;}
+	    else return matModuleType.UNDEFINED;}	  
+	  
+	  
+	  public String getMatNameAt(int i) { 
+		    if(getNumberOfMats() > i)
+			      return matIndexList.get(i);
+			    else return "None";}
+	  
 	  
 	  
 	  public Vect3D getMatPosAt(int i) { 
@@ -188,6 +237,11 @@ public class PhysicalModel {
 	    if(getNumberOfLinks() > i)
 	      return links.get(i).getType();
 	    else return linkModuleType.UNDEFINED;}
+	  
+	  public String getLinkNameAt(int i) { 
+		    if(getNumberOfLinks() > i)
+			      return linkIndexList.get(i);
+			    else return "None";}	  
 	  
 	  public Vect3D getLinkPos1At(int i) { 
 	        if(getNumberOfLinks() > i)
@@ -228,13 +282,16 @@ public class PhysicalModel {
 	  /* Add a 3D Mass module to the model */
 	  public int addMass3D(String name, double mass, Vect3D initPos, Vect3D initVel) {
 	    try {
-	      if (matIndexList.containsKey(name)== true) {
+	      //if (matIndexList.containsKey(name)== true) {
+		  if (matIndexList.contains(name)== true) {
+
 	        System.out.println("The module name already exists!");
 	        throw new Exception ("The module name already exists!");
 	      }
 	      mats.add(new Mass3D(mass, initPos, constructDelayedPos(initPos, initVel), 
 	        friction, g_scaled));
-	      AddMatToList(name);
+	      //AddMatToList(name);
+	      matIndexList.add(name);
 	    }
 	    catch (Exception e) {
 	      System.out.println("Error adding Module " + name + ": " + e);
@@ -246,12 +303,16 @@ public class PhysicalModel {
 
 	  public int addMass3DSimple(String name, double mass, Vect3D initPos, Vect3D initVel) {
 	    try {
-	      if (matIndexList.containsKey(name)== true) {
+	      //if (matIndexList.containsKey(name)== true) {
+	        if (matIndexList.contains(name)== true) {
+
 	        System.out.println("The module name already exists!");
 	        throw new Exception ("The module name already exists!");
 	      }
 	      mats.add(new Mass3DSimple(mass, initPos, constructDelayedPos(initPos, initVel)));
-	      AddMatToList(name);
+	      //AddMatToList(name);
+	      matIndexList.add(name);
+
 	    }
 	    catch (Exception e) {
 	      System.out.println("Error adding Module " + name + ": " + e);
@@ -262,12 +323,16 @@ public class PhysicalModel {
 
 	  public int addGround3D(String name, Vect3D initPos) {
 	    try {
-	      if (matIndexList.containsKey(name)== true) {
+	      //if (matIndexList.containsKey(name)== true) {
+		   if (matIndexList.contains(name)== true) {
+
 	        System.out.println("The module name already exists!");
 	        throw new Exception ("The module name already exists!");
 	      }
 	      mats.add(new Ground3D(initPos));
-	      AddMatToList(name);
+	      //AddMatToList(name);
+	      matIndexList.add(name);
+
 	    }
 	    catch (Exception e) {
 	      System.out.println("Error adding Module " + name + ": " + e);
@@ -278,13 +343,16 @@ public class PhysicalModel {
 	  
 	  public int addOsc3D(String name, double mass, double K, double Z, Vect3D initPos, Vect3D initVel) {
 	    try {
-	      if (matIndexList.containsKey(name)== true) {
+	    	if (matIndexList.contains(name)== true) {
+	      //if (matIndexList.containsKey(name)== true) {
 	        System.out.println("The module name already exists!");
 	        throw new Exception ("The module name already exists!");
 	      }
 	      mats.add(new Osc3D(mass, K, Z, initPos, constructDelayedPos(initPos, initVel), 
 	        friction, g_scaled));
-	      AddMatToList(name);
+	      //AddMatToList(name);
+	      matIndexList.add(name);
+
 	    }
 	    catch (Exception e) {
 	      System.out.println("Error adding Module " + name + ": " + e);
@@ -302,7 +370,8 @@ public class PhysicalModel {
 	    int mat2_index = getMatIndex(m2_Name);
 	    try {
 	      links.add(new Spring3D(dist, paramK, mats.get(mat1_index), mats.get(mat2_index)));
-	      AddLinkToList(name);
+	      linkIndexList.add(name);
+	      //AddLinkToList(name);
 	    }
 	    catch (Exception e) {
 	      System.out.println("Error allocating the Spring module");
@@ -319,7 +388,8 @@ public class PhysicalModel {
 	    int mat2_index = getMatIndex(m2_Name);
 	    try {
 	      links.add(new SpringDamper3D(dist, paramK, paramZ, mats.get(mat1_index), mats.get(mat2_index)));
-	      AddLinkToList(name);
+	      linkIndexList.add(name);
+	      //AddLinkToList(name);
 	    }
 	    catch (Exception e) {
 	      System.out.println("Error allocating the SpringDamper module");
@@ -337,7 +407,8 @@ public class PhysicalModel {
 	    int mat2_index = getMatIndex(m2_Name);
 	    try {
 	      links.add(new Rope3D(dist, paramK, paramZ, mats.get(mat1_index), mats.get(mat2_index)));
-	      AddLinkToList(name);
+	      linkIndexList.add(name);
+	      //AddLinkToList(name);
 
 	    }
 	    catch (Exception e) {
@@ -349,24 +420,41 @@ public class PhysicalModel {
 
 
 
-	  /* Add a 3D "rope-like" SpringDamper module to the model */
+	  /* Add a 3D contact module to the model */
 	  public int addContact3D(String name, double dist, double paramK, double paramZ, String m1_Name, String m2_Name) {
 
 	    int mat1_index = getMatIndex(m1_Name);
 	    int mat2_index = getMatIndex(m2_Name);
 	    try {
 	      links.add(new Contact3D(dist, paramK, paramZ, mats.get(mat1_index), mats.get(mat2_index)));
-	      AddLinkToList(name);
+	      linkIndexList.add(name);
+	      //AddLinkToList(name);
 
 	    }
 	    catch (Exception e) {
-	      System.out.println("Error allocating the SpringDamper module");
+	      System.out.println("Error allocating the Contact module");
 	      System.exit(1);
 	    }
 	    return 0;
 	  }
 	  
+	  /* Add a 3D bubble (enclosing circle) module to the model */
+	  public int addBubble3D(String name, double dist, double paramK, double paramZ, String m1_Name, String m2_Name) {
 
+	    int mat1_index = getMatIndex(m1_Name);
+	    int mat2_index = getMatIndex(m2_Name);
+	    try {
+	      links.add(new Bubble3D(dist, paramK, paramZ, mats.get(mat1_index), mats.get(mat2_index)));
+	      linkIndexList.add(name);
+	      //AddLinkToList(name);
+
+	    }
+	    catch (Exception e) {
+	      System.out.println("Error allocating the Bubble module");
+	      System.exit(1);
+	    }
+	    return 0;
+	  }
 
 	  /* Add a 3D Damper module to the model */
 	  public int addDamper3D(String name, double paramZ, String m1_Name, String m2_Name) {
@@ -375,7 +463,8 @@ public class PhysicalModel {
 	    int mat2_index = getMatIndex(m2_Name);
 	    try {
 	      links.add(new Damper3D(paramZ, mats.get(mat1_index), mats.get(mat2_index)));
-	      AddLinkToList(name);
+	      linkIndexList.add(name);
+	      //AddLinkToList(name);
 
 	    }
 	    catch (Exception e) {
@@ -393,7 +482,8 @@ public class PhysicalModel {
 	    int mat1_index = getMatIndex(m1_Name);
 	    try {
 	      links.add(new PlaneContact(l0, param_K, paramZ, mats.get(mat1_index), fakePlaneMat, or, pos));
-	      AddLinkToList(name);
+	      linkIndexList.add(name);
+	      //AddLinkToList(name);
 
 	    }
 	    catch (Exception e) {
@@ -403,6 +493,104 @@ public class PhysicalModel {
 	    return 0;
 	  }
 	  
+	  
+	  /***************************************************/
+	  
+	  private int removeMat(int mIndex) {
+		  // Risky business
+		  // find mat and remove from the mat array list.
+		    try {
+		    		// first check if the index can be in the list
+		    		if((mats.size() > mIndex) && (matIndexList.size() > mIndex))
+		    			mats.remove(mIndex);
+		    			matIndexList.remove(mIndex);
+			    }
+			    catch (Exception e) {
+			      System.out.println("Error removing mat Module at " + mIndex + ": " + e);
+			      System.exit(1);
+			    }
+			    return 0;		  
+	  }
+	  
+	  private int removeMat(String name) {
+		  int mat_index = getMatIndex(name);
+		  return removeMat(mat_index);
+	  }
+	  
+	  
+	  // Links can be removed without further steps: public function  
+	  public int removeLink(int lIndex) {
+		    try {
+	    		// first check if the index can be in the list
+	    		if((links.size() > lIndex) && (linkIndexList.size() > lIndex))
+	    			links.remove(lIndex);
+	    			linkIndexList.remove(lIndex);
+		    }
+		    catch (Exception e) {
+		      System.out.println("Error removing link Module at " + lIndex + ": " + e);
+		      System.exit(1);
+		    }
+		    return 0;			  
+	  }
+	  
+	  // Links can be removed without further steps: public function
+	  public int removeLink(String name) {
+		  int mat_index = getLinkIndex(name);
+		  return removeLink(mat_index);
+	  }
+	  
+	  
+	  public int removeMatAndConnectedLinks(int mIndex) {
+		  try {
+		   for (int i = links.size()-1 ; i >= 0 ; i--) {
+			  // Will this work? 
+		      if (links.get(i).getMat1() == mats.get(mIndex))
+		    	  removeLink(i);
+		      else if (links.get(i).getMat2() == mats.get(mIndex))
+		    	  removeLink(i);
+		   }
+		   removeMat(mIndex);
+		   return 0;
+
+		  } catch (Exception e){
+		      System.out.println("Issue removing connected links to mass!");
+		      System.exit(1);		  
+		  }
+		  return -1;  
+	  }
+	  
+	  public int removeMatAndConnectedLinks(String mName) {
+		  int mat_index = getMatIndex(mName);
+		  return removeMatAndConnectedLinks(mat_index);
+	  }
+	  
+	  
+	  public void setLinkDRest(String name, double d) {
+		  int link_index = getLinkIndex(name);
+		  try {
+		  links.get(link_index).changeDRest(d);
+		  } catch (Exception e) {
+			  System.out.println("Issue changing link distance!");
+		      System.exit(1);    
+		  }
+	  }
+	  
+	  
+	  
+	  /**************************************************/
+	  /*		Methods so that we can draw the model	*/
+	  /**************************************************/
+	  
+	  public void getAllMatsOfType(ArrayList<PVector> mArray, matModuleType m) {
+		  mArray.clear();
+		  Vect3D pos = new Vect3D();
+		  for (int i = 0; i < mats.size(); i++) {
+			      if (mats.get(i).getType() == m) {
+			        pos = mats.get(i).getPos();
+			        mArray.add(new PVector((float)pos.x, (float)pos.y, (float)pos.z));
+			      }
+		  }		  	  
+	  }
 	  
 
 	  /*************************************************/
@@ -430,7 +618,7 @@ public class PhysicalModel {
 
 	  public void triggerForceImpulse(String name, double fx, double fy, double fz){
 		  
-		  Vect3D force = new Vect3D(fx,fy,fz);
+		Vect3D force = new Vect3D(fx,fy,fz);
 	    try{
 	      int mat1_index = getMatIndex(name);
 	      mats.get(mat1_index).applyExtForce(force);
