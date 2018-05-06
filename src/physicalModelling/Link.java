@@ -53,6 +53,9 @@ abstract class Link {
   public void changeDRest(double d) {
 	  dRest = d;
   }
+  
+  public abstract void changeStiffness(double k);
+  public abstract void changeDamping(double z);  
 
   public double getSpeed() { 
     return dist-distR;

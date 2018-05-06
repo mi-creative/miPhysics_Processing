@@ -17,6 +17,14 @@ class Rope3D extends Link {
       this.applyForces(lnkFrc);
     }
   }
+  
+  public void changeStiffness(double stiff) {
+	  K = stiff;
+  }
+  
+  public void changeDamping(double damp) {
+	  Z = damp;
+  }
 
   public double K;
   public double Z;

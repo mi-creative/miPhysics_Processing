@@ -16,6 +16,14 @@ class Spring3D extends Link {
     double lnkFrc = -(d-dRest)*(K);
     this.applyForces(lnkFrc);
   }
+  
+  public void changeStiffness(double stiff) {
+	  K = stiff;
+  }
+  
+  public void changeDamping(double damp) {
+	  // no operation here
+  }
 
   public double K;
 }

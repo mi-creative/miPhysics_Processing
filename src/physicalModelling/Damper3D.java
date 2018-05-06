@@ -13,6 +13,13 @@ class Damper3D extends Link {
     double lnkFrc = - getSpeed() *  Z;
     this.applyForces(lnkFrc);
   }
+  
+  public void changeStiffness(double stiff) {
+	 	// nothing here...
+  } 
+  public void changeDamping(double damp) {
+	  Z = damp;
+  }
 
   public double Z;
 }

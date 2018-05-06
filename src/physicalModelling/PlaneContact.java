@@ -45,6 +45,15 @@ class PlaneContact extends Link {
         getMat1().frc.z += lnkFrc;
     }
   }
+  
+  public void changeStiffness(double stiff) {
+	  K = stiff;
+  }
+  
+  public void changeDamping(double damp) {
+	  Z = damp;
+  }
+  
 
   Mat fakePlaneMat;
   private double K;

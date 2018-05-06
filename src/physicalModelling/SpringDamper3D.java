@@ -15,6 +15,14 @@ class SpringDamper3D extends Link {
     double lnkFrc = -(d-dRest)*(K) - getSpeed() *  Z;
     this.applyForces(lnkFrc);
   }
+  
+  public void changeStiffness(double stiff) {
+	  K = stiff;
+  }
+  
+  public void changeDamping(double damp) {
+	  Z = damp;
+  }
 
   public double K;
   public double Z;

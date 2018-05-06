@@ -30,14 +30,7 @@ public class PhysicalModel {
 	private Mat fakePlaneMat; // super dirty but works as a dummy for plane-based interactions
 
 	private ArrayList<String> matIndexList;
-	//private Hashtable<String, Integer> matIndexList;
-	// should always be the same as mats.size(), eventually get rid of this variable
-	//private int numberOfMats;
-	  
 	private ArrayList<String> linkIndexList;
-	//private Hashtable<String, Integer> linkIndexList;
-	// should always be the same as links.size(), eventually get rid of this variable
-	//private int numberOfLinks;
 
 	private int simRate;
 
@@ -213,6 +206,34 @@ public class PhysicalModel {
 		  else
 			  return true;
 		  }
+	  
+	  // create and return a new list with links matching a name pattern
+	  // used for parameter modification
+	  private ArrayList<Link> findAllLinksContaining(String tag){
+		
+		  ArrayList<Link> newlist = new ArrayList<Link>();
+		  		  
+		  for (int i = 0; i < links.size(); i++) {
+			  if (linkIndexList.get(i).contains(tag))
+				  newlist.add(links.get(i));
+		    }
+		  return newlist;
+	  }
+	  
+	  // create and return a new list with mats matching a name pattern
+	  // used for parameter modification
+	  private ArrayList<Mat> findAllMatsContaining(String tag){
+		
+		  ArrayList<Mat> newlist = new ArrayList<Mat>();
+		  		  
+		  for (int i = 0; i < mats.size(); i++) {
+			  if (matIndexList.get(i).contains(tag))
+				  newlist.add(mats.get(i));
+		    }
+		  return newlist;
+	  }
+	  
+	  
 	  
 	  public matModuleType getMatTypeAt(int i) { 
 	    if(getNumberOfMats() > i)
@@ -576,6 +597,75 @@ public class PhysicalModel {
 	  }
 	  
 	  
+	  public void setLinkParamsForName(String tag, double stiff, double damp, double dist) {
+		  
+		  // Create a list with all the links to modify
+		  ArrayList<Link> tmplist = findAllLinksContaining(tag);
+		 
+		  // Update the parameters of all these links
+		  for(Link ln : tmplist) {
+			  ln.changeStiffness(stiff);
+			  ln.changeDamping(damp);
+			  ln.changeDRest(dist); 
+		  }
+	  }
+	  
+	  public void setMatParamsForName(String tag, double mass) {
+		  
+		  // Create a list with all the links to modify
+		  ArrayList<Mat> tmplist = findAllMatsContaining(tag);
+		 
+		  // Update the parameters of all these links
+		  for(Mat ma : tmplist) {
+			  ma.setMass(mass);
+		  }
+	  }
+	  
+	  
+	  
+	  public void setLinkParams(String name, double stiff, double damp, double dist) {
+		  int link_index = getLinkIndex(name);
+		  try {
+			  links.get(link_index).changeStiffness(stiff);
+			  links.get(link_index).changeDamping(damp);
+			  links.get(link_index).changeDRest(dist);
+		  } catch (Exception e) {
+			  System.out.println("Issue changing link params!");
+		      System.exit(1);    
+		  }
+	  }
+	  
+	  public void setLinkStiffness(String name, double stiff) {
+		  int link_index = getLinkIndex(name);
+		  try {
+			  links.get(link_index).changeStiffness(stiff);
+		  } catch (Exception e) {
+			  System.out.println("Issue changing link stiffness!");
+		      System.exit(1);    
+		  }
+	  }
+	  
+	  public void setLinkDamping(String name, double damp) {
+		  int link_index = getLinkIndex(name);
+		  try {
+			  links.get(link_index).changeDamping(damp);
+		  } catch (Exception e) {
+			  System.out.println("Issue changing link damping!");
+		      System.exit(1);    
+		  }
+	  }
+	  
+	  public void setMatMass(String name, double val) {
+		  int mas_index = getMatIndex(name);
+		  try {
+			  mats.get(mas_index).setMass(val);
+		  } catch (Exception e) {
+			  System.out.println("Issue changing link damping!");
+		      System.exit(1);    
+		  }
+	  }
+	  
+	  
 	  
 	  /**************************************************/
 	  /*		Methods so that we can draw the model	*/
@@ -583,14 +673,66 @@ public class PhysicalModel {
 	  
 	  public void getAllMatsOfType(ArrayList<PVector> mArray, matModuleType m) {
 		  mArray.clear();
+		  Mat mat;
 		  Vect3D pos = new Vect3D();
 		  for (int i = 0; i < mats.size(); i++) {
-			      if (mats.get(i).getType() == m) {
-			        pos = mats.get(i).getPos();
+		  	  	mat = mats.get(i);	
+			      if (mat.getType() == m) {
+			    	pos.set(mat.getPos());
 			        mArray.add(new PVector((float)pos.x, (float)pos.y, (float)pos.z));
 			      }
 		  }		  	  
 	  }
+	  
+	  
+	  public void getAllMatSpeedsOfType(ArrayList<PVector> pArray, ArrayList<PVector> vArray, matModuleType m) {
+		  pArray.clear();
+		  vArray.clear();
+		  Mat mat;
+		  Vect3D pos = new Vect3D();
+		  for (int i = 0; i < mats.size(); i++) {
+			  	  mat = mats.get(i);	
+			      if (mat.getType() == m) {
+			    	pos.set(mat.getPos());
+			    	pArray.add(new PVector((float)pos.x, (float)pos.y, (float)pos.z));
+			        pos.sub(mat.getPosR());
+			        vArray.add(new PVector((float)pos.x, (float)pos.y, (float)pos.z));
+			      }
+		  }		  	  
+	  }
+	  
+	  public void createPosSpeedArraysForModType(ArrayList<PVector> pArray, ArrayList<PVector> vArray, matModuleType m) {
+		  pArray.clear();
+		  vArray.clear();
+		  Mat mat;
+		  Vect3D pos = new Vect3D();
+		  for (int i = 0; i < mats.size(); i++) {
+			  	  mat = mats.get(i);	
+			      if (mat.getType() == m) {
+			    	pos.set(mat.getPos());
+			    	pArray.add(new PVector((float)pos.x, (float)pos.y, (float)pos.z));
+			        pos.sub(mat.getPosR());
+			        vArray.add(new PVector((float)pos.x, (float)pos.y, (float)pos.z));
+			      }
+		  }	  	  
+	  }
+	  
+	  public void updatePosSpeedArraysForModType(ArrayList<PVector> pArray, ArrayList<PVector> vArray, matModuleType m) {
+		  Mat mat;
+		  Vect3D pos = new Vect3D();
+		  int arrayIndex = 0;
+		  for (int i = 0; i < mats.size(); i++) {
+			  	  mat = mats.get(i);	
+			      if (mat.getType() == m) {
+			    	pos.set(mat.getPos());
+			    	pArray.set(arrayIndex, new PVector((float)pos.x, (float)pos.y, (float)pos.z));
+			        pos.sub(mat.getPosR());
+			    	vArray.set(arrayIndex, new PVector((float)pos.x, (float)pos.y, (float)pos.z));
+			        arrayIndex++;
+			      }
+		  }	  	  
+	  }	
+	  
 	  
 
 	  /*************************************************/

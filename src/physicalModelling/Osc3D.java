@@ -40,9 +40,6 @@ class Osc3D extends Mat {
     pos.x += p_Rest.x;
     pos.y += p_Rest.y;
     pos.z += p_Rest.z;
-    //posR.x -= p_Rest.x;
-    //posR.y -= p_Rest.y;
-    //posR.z -= p_Rest.z;
 
     // Bring old position to delayed position and reset force buffer
     posR.set(tmp);
