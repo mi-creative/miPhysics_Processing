@@ -1,7 +1,12 @@
 package physicalModelling;
 
 
-class SpringDamper3D extends Link {
+/**
+ * Spring-Damper interaction: viscoelastic interaction between two Mat elements.
+ * @author James Leonard / james.leonard@gipsa-lab.fr
+ *
+ */
+public class SpringDamper3D extends Link {
 
   public SpringDamper3D(double distance, double K_param, double Z_param, Mat m1, Mat m2) {
     super(distance, m1, m2);

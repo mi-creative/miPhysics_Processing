@@ -1,6 +1,12 @@
 package physicalModelling;
 
-class Damper3D extends Link {
+/**
+ * Damper interaction: viscous force between two Mat elements.
+ * 
+ * @author James Leonard / james.leonard@gipsa-lab.fr
+ *
+ */
+public class Damper3D extends Link {
 
   public Damper3D(double Z_param, Mat m1, Mat m2) {
     super(0., m1, m2);

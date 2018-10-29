@@ -1,7 +1,12 @@
 package physicalModelling;
 
 
-class Osc3D extends Mat {
+/**
+ * A 3D Mass Spring Oscillator with a given inertia, stiffness and damping, subject to potential gravity.
+ * @author James Leonard / james.leonard@gipsa-lab.fr
+ *
+ */
+public class Osc3D extends Mat {
 
   public Osc3D(double M, double K_param, double Z_param, Vect3D initPos, Vect3D initPosR, double friction, Vect3D grav) {   
     super(M, initPos, initPosR);

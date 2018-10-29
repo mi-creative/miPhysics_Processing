@@ -1,16 +1,30 @@
 package physicalModelling;
 
 
-class Contact3D extends Link {
+/**
+ * Contact interaction: collision between two Mat elements.
+ * When the distance is lower than the threshold distance, a viscoelastic force is applied.
+ * 
+ * @author James Leonard / james.leonard@gipsa-lab.fr
+ *
+ */
+public class Contact3D extends Link {
 
-  public Contact3D(double distance, double K_param, double Z_param, Mat m1, Mat m2) {
+  /**
+ * @param distance
+ * @param K_param
+ * @param Z_param
+ * @param m1
+ * @param m2
+ */
+public Contact3D(double distance, double K_param, double Z_param, Mat m1, Mat m2) {
     super(distance, m1, m2);
     setType(linkModuleType.Contact3D);
     K = K_param;
     Z = Z_param;
   }
 
-  public void compute() {
+public void compute() {
     double d = calcNewEuclidDist();
     if (d < dRest) {
       double lnkFrc = -(d-dRest)*(K) - getSpeed() *  Z;
@@ -19,14 +33,14 @@ class Contact3D extends Link {
   }
   
   
-  public void changeStiffness(double stiff) {
+public void changeStiffness(double stiff) {
 	  K = stiff;
   }
-  public void changeDamping(double damp) {
+
+public void changeDamping(double damp) {
 	  Z = damp;
   }
   
-
-  public double K;
-  public double Z;
+public double K;
+public double Z;
 }

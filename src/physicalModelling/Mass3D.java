@@ -1,9 +1,12 @@
 package physicalModelling;
 
 
-/* 3D MASS OBJECT */
-
-class Mass3D extends Mat {
+/**
+ * A regular 3D Mat module, with a given inertia, subject to potential gravity.
+ * @author James Leonard / james.leonard@gipsa-lab.fr
+ *
+ */
+public class Mass3D extends Mat {
 
   public Mass3D(double M, Vect3D initPos, Vect3D initPosR, double friction, Vect3D grav) {   
     super(M, initPos, initPosR);

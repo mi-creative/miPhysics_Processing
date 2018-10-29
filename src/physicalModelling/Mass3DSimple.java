@@ -1,7 +1,12 @@
 package physicalModelling;
 
 
-class Mass3DSimple extends Mat {
+/**
+ * A simplified 3D Mat module, with a given inertia, and no gravity.
+ * @author James Leonard / james.leonard@gipsa-lab.fr
+ *
+ */
+public class Mass3DSimple extends Mat {
 
   public Mass3DSimple(double M, Vect3D initPos, Vect3D initPosR) {   
     super(M, initPos, initPosR);

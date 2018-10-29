@@ -1,15 +1,23 @@
 package physicalModelling;
-
 import processing.core.PVector;
 
+/**
+ * Abstract class defining Material points.
+ * 
+ * @author James Leonard / james.leonard@gipsa-lab.fr
+ *
+ */
+public abstract class Mat {
 
-/* MAT Abstract class */
 
-
-abstract class Mat {
-
-
-  public Mat(double M, Vect3D initPos, Vect3D initPosR) {
+/**
+ * Constructor method.
+ * 
+ * @param M mass value.
+ * @param initPos initial position.
+ * @param initPosR delayed initial position.
+ */
+public Mat(double M, Vect3D initPos, Vect3D initPosR) {
     pos = new Vect3D(0., 0., 0.);
     posR = new Vect3D(0., 0., 0.);
     frc = new Vect3D(0., 0., 0.);
@@ -24,53 +32,96 @@ abstract class Mat {
     frc.set(0., 0., 0.);
   }
 
-  public void init(Vect3D X, Vect3D XR) { 
+/**
+ * Initialise the Mat module.
+ * @param X initial position.
+ * @param XR initial delayed position.
+ */
+protected void init(Vect3D X, Vect3D XR) { 
     this.pos = X; 
     this.posR = XR;
   }
 
-  public abstract void compute(); 
+/**
+ * Compute the physics of the Mat module.
+ * 
+ */
+public abstract void compute(); 
   
-  public void applyExtForce(Vect3D force){
+/**
+ * Apply external force to this Mat module.
+ * @param force force to apply.
+ */
+protected void applyExtForce(Vect3D force){
     frc.add(force);
   }
 
-  protected Vect3D getPos() { 
+/**
+ * Get the current position of this Mat module.
+ * @return the module position.
+ */
+protected Vect3D getPos() { 
 	  //PVector tmp =  new PVector((float)pos.x,(float)pos.y,(float)pos.z);
     return pos;
   }
   
-  public PVector getPosVector() {
+/**
+ * Get the current position of this Mat module (in a PVector format).
+ * @return the module position.
+ */
+protected PVector getPosVector() {
 	  PVector tmp =  new PVector((float)pos.x,(float)pos.y,(float)pos.z);
 	  return tmp;
   }
   
-  protected Vect3D getPosR() { 
+/**
+ * Get the delayed position of the module.
+ * @return the delayed position.
+ */
+protected Vect3D getPosR() { 
     return posR;
   }
-  protected Vect3D getFrc() { 
+
+/**
+ * Get the value in the force buffer.
+ * @return force value.
+ */
+protected Vect3D getFrc() { 
     return frc;
   }
 
-  public void setMass (double M) { 
+/**
+ * Set the mass parameter.
+ * @param M mass value.
+ */
+public void setMass (double M) { 
     invMass = 1 / M;
   }
   
   
-  public matModuleType getType(){
+/**
+ * Get the type of this Mat module.
+ * @return the type of the current Mat module.
+ */
+protected matModuleType getType(){
     return type;
   }
   
-  public void setType(matModuleType t){
+/**
+ * Set the module type for this Mat module.
+ * @param t the Mat type module to set.
+ */
+protected void setType(matModuleType t){
     type = t;
   }
 
   /* Class attributes */
-  public Vect3D pos;
-  public Vect3D posR;
-  public Vect3D frc;
 
-  private matModuleType type;
-  public double invMass;
-  Vect3D tmp;
-  }
+protected Vect3D pos;
+protected Vect3D posR;
+protected Vect3D frc;
+private matModuleType type;
+public double invMass;
+Vect3D tmp;
+  
+}

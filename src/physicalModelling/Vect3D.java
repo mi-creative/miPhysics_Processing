@@ -1,7 +1,10 @@
 package physicalModelling;
 
+import processing.core.PVector;
 
-// A simple vector class
+/* A simple vector class based on double precision floats
+ * as opposed to Processing's PVector class
+ */
 public class Vect3D {
     public double x, y, z;
 
@@ -67,6 +70,10 @@ public class Vect3D {
     	this.y = y_val;
     	this.z = z_val;
     	return this; 	
+    }
+    
+    public PVector toPVector() {
+    	return new PVector((float)x, (float)y, (float)z);
     }
     
 

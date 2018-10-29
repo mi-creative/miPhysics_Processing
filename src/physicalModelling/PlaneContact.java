@@ -5,8 +5,14 @@ package physicalModelling;
 /*          THIS MODULE IS A MESS !!             */
 /*************************************************/
 
-
-class PlaneContact extends Link {
+/**
+ * Plane interaction: contact interaction between a Mat module and a 2D plane.
+ * This module is a little weird, the physics need some more testing !
+ * 
+ * @author James Leonard / james.leonard@gipsa-lab.fr
+ *
+ */
+public class PlaneContact extends Link {
 
 
   public PlaneContact(double dist, double K_param, double Z_param, Mat m1, Mat m2, int or, double pos) {
