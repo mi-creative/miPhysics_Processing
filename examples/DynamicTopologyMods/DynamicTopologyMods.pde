@@ -1,9 +1,18 @@
+/*
+Model: Dynamic Topology Modifications.
+Author: James Leonard (james.leonard@gipsa-lab.fr)
+
+Draw a 2D Mesh of Osc modules (mass-spring-ground systems).
+
+Left-Click Drag across the surface to apply forces and create ripples.
+Right-Click Drag across the surface to remove masses (and connected links).
+
+Use UP and DOWN keys to add/decrease air friction in the model.
+Use LEFT and RIGHT keys to zoom the Z axis.
+*/
 import physicalModelling.*;
 import peasy.*;
 PeasyCam cam;
-
-// LEFT CLICK TO EXCITE THE MODEL
-// RIGHT CLICK TO REMOVE MATTER (Masses & Links)
 
 
 int displayRate = 60;
@@ -83,7 +92,6 @@ void engrave(float mX, float mY){
   if(mdl.matExists(matName))
     mdl.triggerForceImpulse(matName, 0. , 0., 15.);
 }
-
 
 void chisel(float mX, float mY){
   String matName = "osc" + floor(mX/ gridSpacing)+"_"+floor(mY/ gridSpacing);

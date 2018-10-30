@@ -1,12 +1,23 @@
+/*
+Model: PinScreen Cube
+Author: Jérôme Villeneuve
+
+A 3D mesh of oscillators (mass-spring-ground).
+
+Hit the space bar to excite random oscillators inside the cube,
+and see how the energy propagates, how the cube comes back to its form.
+
+Lots of different parameter spaces to explore, see in code below!
+*/
+
 import physicalModelling.*;
 import peasy.*;
 
 PeasyCam cam;
 
-
 // SOME GLOBAL DECLARATIONS AND REQUIRED ELEMENTS
 
-int displayRate = 25;
+int displayRate = 50;
 
 /*  "dimension" of the model - number of MAT modules */
 
@@ -45,10 +56,6 @@ void setup() {
 
   mdl.setGravity(0.000);
   mdl.setFriction(0.006);
-
-  //generateMembrane(mdl, dimX, dimY, "mass", "spring", 1., 20, 0.1, 0.1);
-  
-  //generateVolume(mdl, dimX, dimY, dimZ, "mass", "spring", 1., 20, 0.005, 0.003);
   
   
   //SERIE DE TEST POUR ECRAN EPINGLE 3D
@@ -97,13 +104,7 @@ void setup() {
   
   //Cut it free
   //generatePinScreen3D(mdl, dimX, dimY, dimZ, "osc", "spring", 1., 5, 0., 0.1, 0.005, 0.1);
-  
-  
-  
-  
-  //for (int i = 1; i <=mdl.getNumberOfMats(); i++)
-  //  mdl.addPlaneInteraction("plane"+i, 0, 0.1, 0.005, 2, -40, "mass"+i);
-
+ 
   // initialise the model before starting calculations.
   mdl.init();
 
@@ -128,8 +129,6 @@ void draw() {
 
   background(0);
 
-  // Drawing style
-  //drawPlane(2, -40, 800); 
   pushMatrix();
   translate(-dimX*5./2., -dimY*5./2., -dimY*5./2.); // les 5. est supposé être la variable dist envoyée dans les fonction de génération de modle
   
@@ -137,31 +136,13 @@ void draw() {
 
   popMatrix();
   
-  
-  if (mousePressed == true){
-    //fExt();
-  }
-
-  
-  
 }
 
 
 void fExt(){
-  //Vect3D frc = new Vect3D(random(100) , random(100), random(500));
   String matName = "osc" + floor(random(dimX))+"_"+ floor(random(dimY))+"_"+ floor(random(dimZ));
   mdl.triggerForceImpulse(matName, random(100) , random(100), random(500));
 }
-
-
-void mousePressed() {
-
-}
-
-void mouseReleased() {
-  
-}
-
 
 
 void keyPressed() {

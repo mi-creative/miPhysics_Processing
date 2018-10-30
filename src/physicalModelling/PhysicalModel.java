@@ -1400,6 +1400,12 @@ public class PhysicalModel {
 		return -1;
 	}
 	
+	/**
+	 * Add a Mat module to a given subset.
+	 * @param matIndex index of the Mat module.
+	 * @param subsetName the subset to add the module to.
+	 * @return 0 if success, -1 if fail.
+	 */
 	public int addMatToSubset(int matIndex, String subsetName) {
 		if(matIndex != -1) {
 			this.mat_subsets.get(subsetName).add(matIndex);
@@ -1408,6 +1414,12 @@ public class PhysicalModel {
 		return -1;
 	}
 	
+	/**
+	 * Add a Mat module to a given subset.
+	 * @param matName identifier of the Mat module.
+	 * @param subsetName the subset to add the module to.
+	 * @return 0 if success, -1 if fail.
+	 */
 	public int addMatToSubset(String matName, String subsetName) {
 		int matIndex = this.getMatIndex(matName);
 		return this.addMatToSubset(matIndex, subsetName);
@@ -1427,7 +1439,12 @@ public class PhysicalModel {
 		return -1;
 	}
 	
-	
+	/**
+	 * Add a Link module to a given subset.
+	 * @param linkIndex index of the Link module.
+	 * @param subsetName the subset to add the module to.
+	 * @return 0 if success, -1 if fail.
+	 */
 	public int addLinkToSubset(int linkIndex, String subsetName) {
 		if(linkIndex != -1) {
 			this.link_subsets.get(subsetName).add(linkIndex);
@@ -1436,32 +1453,55 @@ public class PhysicalModel {
 		return -1;
 	}
 	
+	/**
+	 * Add a Link module to a given subset.
+	 * @param linkName identifier of the Link module.
+	 * @param subsetName the subset to add the module to.
+	 * @return 0 if success, -1 if fail.
+	 */
 	public int addLinkToSubset(String linkName, String subsetName) {
 		int linkIndex = this.getLinkIndex(linkName);
 		return this.addLinkToSubset(linkIndex, subsetName);
 	}
 	
 	
-	
-	
+	/**
+	 * Change the mass parameters for a subset of Mat modules.
+	 * @param newParam the new mass value to apply.
+	 * @param subsetName the name of the subset of modules to address.
+	 */
 	public void changeMassParamOfSubset(double newParam, String subsetName) {
 		for (int matIndex : this.mat_subsets.get(subsetName)){
 			mats.get(matIndex).setMass(newParam);
 		}
 	}
-	
+
+	/**
+	 * Change the stiffness parameters for a subset of Link modules.
+	 * @param newParam the new stiffness value to apply.
+	 * @param subsetName the name of the subset of modules to address.
+	 */
 	public void changeStiffnessParamOfSubset(double newParam, String subsetName) {
 		for (int linkIndex : this.link_subsets.get(subsetName)){
 			links.get(linkIndex).changeStiffness(newParam);
 		}
 	}
-	
+
+	/**
+	 * Change the damping parameters for a subset of Link modules.
+	 * @param newParam the new damping value to apply.
+	 * @param subsetName the name of the subset of modules to address.
+	 */
 	public void changeDampingParamOfSubset(double newParam, String subsetName) {
 		for (int linkIndex : this.link_subsets.get(subsetName)){
 			links.get(linkIndex).changeDamping(newParam);
 		}
 	}
-	
+	/**
+	 * Change the resting distance parameters for a subset of Link modules.
+	 * @param newParam the new resting distance value to apply.
+	 * @param subsetName the name of the subset of modules to address.
+	 */
 	public void changeDistParamOfSubset(double newParam, String subsetName) {
 		for (int linkIndex : this.link_subsets.get(subsetName)){
 			links.get(linkIndex).changeDRest(newParam);

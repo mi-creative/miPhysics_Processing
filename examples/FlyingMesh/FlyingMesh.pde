@@ -1,3 +1,15 @@
+/*
+Model: Flying Mesh
+Author: James Leonard (james.leonard@gipsa-lab.fr)
+
+A 2D mesh of masses and springs that just sort of floats through the air,
+sometimes folding over itself.
+
+It collides with a 2D Plane.
+
+Press and release space bar to invert gravity.
+*/
+
 import physicalModelling.*;
 import peasy.*;
 

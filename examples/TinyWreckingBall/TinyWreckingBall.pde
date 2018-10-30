@@ -1,20 +1,18 @@
+/*
+Model: Tiny Wrecking Ball
+Author: James Leonard (james.leonard@gipsa-lab.fr)
+
+A chain of 3 masses attached to a fixed point.
+The last mass is heavy and collides with a 2D Plane.
+*/
+
 import physicalModelling.*;
 import peasy.*;
 
 PeasyCam cam;
-
-
-int displayRate = 20;
-
-/*  global physical model object : will contain the model and run calculations. */
 PhysicalModel mdl;
 
-/* elements to calculate the number of steps to simulate in each draw() method */
-float simDisplay_factor;
-int nbSteps;
-float residue = 0;
-
-// SETUP: THIS IS WHERE WE SETUP AND INITIALISE OUR MODEL
+int displayRate = 60;
 
 void setup() {
   frameRate(displayRate);
@@ -27,7 +25,7 @@ void setup() {
   background(0);
 
   // instantiate our physical model context
-  mdl = new PhysicalModel(1050);
+  mdl = new PhysicalModel(1050, displayRate);
 
   // some initial coordinates for the modules.
   Vect3D initPos = new Vect3D(300., 0., 200.);
@@ -44,33 +42,22 @@ void setup() {
   mdl.addMass3D("mass3", 1.0, initPos3, initV);
   mdl.addGround3D("ground1", initPos4);
 
-  mdl.addRope3D("rope1", 100.0, 0.01,0.05, "mass1", "mass2");
-  mdl.addRope3D("rope2", 100.0, 0.01,0.05, "mass2", "mass3");
-  mdl.addRope3D("rope3", 100.0, 0.01,0.05, "mass3", "ground1");
-
+  mdl.addRope3D("rope1", 100.0, 0.01,0.08, "mass1", "mass2");
+  mdl.addRope3D("rope2", 100.0, 0.01,0.08, "mass2", "mass3");
+  mdl.addRope3D("rope3", 100.0, 0.01,0.08, "mass3", "ground1");
 
   for(int i = 1; i <=3; i++)
     mdl.addPlaneInteraction("plane"+i, 50, 0.01, 0.1, 0, -160, "mass"+i);
 
   // initialise the model before starting calculations.
   mdl.init();
-
-  simDisplay_factor = (float) mdl.getSimRate() / (float) displayRate;
-  println("The simulation/display factor is :" + simDisplay_factor);
   
   cam.setDistance(500);  // distance from looked-at point
-
 } 
 
-// DRAW: THIS IS WHERE WE RUN THE MODEL SIMULATION AND DISPLAY IT
-
 void draw() {
-  float  floatingFramestoSim = simDisplay_factor + residue;
-  nbSteps = floor(floatingFramestoSim);
-  residue = floatingFramestoSim - nbSteps;
-  //println(" NbSteps: "+ nbSteps + ", residue: " + residue);
 
-  mdl.computeNSteps(nbSteps);
+  mdl.draw_physics();
 
   Vect3D pos1 = mdl.getMatPosition("mass1");
   Vect3D pos2 = mdl.getMatPosition("mass2");

@@ -25,7 +25,7 @@ line((float)pos1.x, (float)pos1.y, (float)pos1.z, (float)pos2.x, (float)pos2.y, 
 
 void drawPlane(int orientation, float position, float size){
   stroke(255);
-  fill(127);
+  fill(50);
   
   beginShape();
   if(orientation ==2){
@@ -122,34 +122,34 @@ void renderModelEllipse(PhysicalModel mdl, int matSize){
 
    stroke(255, 255, 0);
 
-  for( int i = 0; i < mdl.getNumberOfMats(); i++){
-    switch (mdl.getMatTypeAt(i)){
-      case Mass3D:
-        fill(0,150,200);
-        drawEllipse(mdl.getMatPosAt(i), matSize);
-        break;
-      case Ground3D:
-        fill(0,255,0);
-        drawEllipse(mdl.getMatPosAt(i), matSize);
-        break; 
-      case Mass3DSimple:
-        fill(180,150,200);
-        drawEllipse(mdl.getMatPosAt(i), matSize);
-        break;
-      default:
-        fill(180,150,200);
-        drawEllipse(mdl.getMatPosAt(i), matSize);
-        break;
-      case UNDEFINED:
-        break;
-    }
-  }
+  //for( int i = 0; i < mdl.getNumberOfMats(); i++){
+  //  switch (mdl.getMatTypeAt(i)){
+  //    case Mass3D:
+  //      fill(0,150,200);
+  //      drawEllipse(mdl.getMatPosAt(i), matSize);
+  //      break;
+  //    case Ground3D:
+  //      fill(0,255,0);
+  //      drawEllipse(mdl.getMatPosAt(i), matSize);
+  //      break; 
+  //    case Mass3DSimple:
+  //      fill(180,150,200);
+  //      drawEllipse(mdl.getMatPosAt(i), matSize);
+  //      break;
+  //    default:
+  //      fill(180,150,200);
+  //      drawEllipse(mdl.getMatPosAt(i), matSize);
+  //      break;
+  //    case UNDEFINED:
+  //      break;
+  //  }
+  //}
   
    strokeWeight(1);
   for( int i = 0; i < mdl.getNumberOfLinks(); i++){
     switch (mdl.getLinkTypeAt(i)){
       case Spring3D:
-        stroke(0, 255, 0);
+        stroke(0, 255, 0,125);
         drawLine(mdl.getLinkPos1At(i), mdl.getLinkPos2At(i));
         break;
       case Damper3D:

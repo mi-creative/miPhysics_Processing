@@ -1,3 +1,14 @@
+/*
+Model: Hello Mass
+Author: James Leonard (james.leonard@gipsa-lab.fr)
+
+A physical equivalent to a Hello World program!
+
+We create a mass, and attach it to six fixed points with spring-dampers.
+We then simulate the model, and can trigger forces on the mass by 
+hitting the space bar.
+*/
+
 import physicalModelling.*;
 import peasy.*;
 PeasyCam cam;

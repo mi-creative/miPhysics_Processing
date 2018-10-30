@@ -1,3 +1,16 @@
+/*
+Model: Generative Topology
+Author: James Leonard (james.leonard@gipsa-lab.fr)
+
+Starting from a fixed point, use 'a' to generate a tree of masses!
+The last masses of the tree spawn two new masses each and add springs.
+
+Use 'z' to remove the last masses of the tree (& associated springs).
+
+Hit the space bar to excite the last masses.
+*/
+
+
 import physicalModelling.*;
 import peasy.*;
 PeasyCam cam;
@@ -5,44 +18,30 @@ PeasyCam cam;
 int displayRate = 90;
 
 int iter = 0;
+int mass_cpt = 0;
 
 float m = 1.0;
 float k = 0.0001;
 float z = 0.01;
 float dist = 10;
-int mass_cpt = 0;
 
-/*  global physical model object : will contain the model and run calculations. */
 PhysicalModel mdl;
 
 void setup() {
   frameRate(displayRate);
   size(1000, 700, P3D);
+
   cam = new PeasyCam(this, 100);
   cam.setMinimumDistance(100);
   cam.setMaximumDistance(1500);
-  
-  mdl = new PhysicalModel(300, displayRate);
-  
+
+  mdl = new PhysicalModel(300, displayRate);  
   mdl.addGround3D("ground", new Vect3D(0., 0., 0.));
   
-  mdl.setFriction(0.00005);
-  mdl.setFriction(0.0001);
-  ///* Group modules into subsets for parameter modifications */
-  //mdl.createMatSubset("massmod");
-  //mdl.addMatToSubset("mass","massmod");
+  mdl.setFriction(0.0001);  
   
-  //mdl.createLinkSubset("X_springs");
-  //mdl.addLinkToSubset("spring1","X_springs");
-  //mdl.addLinkToSubset("spring2","X_springs");
-  
-  //mdl.createLinkSubset("Y_springs");
-  //mdl.addLinkToSubset("spring3","Y_springs");
-  //mdl.addLinkToSubset("spring4","Y_springs");
-  
-  //mdl.createLinkSubset("Z_springs");
-  //mdl.addLinkToSubset("spring5","Z_springs");
-  //mdl.addLinkToSubset("spring6","Z_springs");
+  // Try setting a gravity value here!
+  // mdl.setGravity(0.000001);  
   
   mdl.init(); 
 }
@@ -55,27 +54,24 @@ void draw() {
   
   /* Calculate Physics */
   mdl.draw_physics();
-  renderModel(mdl,3);  
+  renderModel(mdl,3);
   
 }
 
 void keyPressed() {
-  // Trigger a random force on the mass module
+  // Trigger a random force on last mass modules
   if (key == ' ')
     if(mass_cpt >0 && iter == 0)
       mdl.triggerForceImpulse("mass0",random(-5,5),random(-5,5),random(-5,5));
     else for(int i=0; i<iter;i++){
       mdl.triggerForceImpulse("mass" + (mass_cpt-1-iter+i),random(-1,1),random(-1,1),random(-1,1));
     }
-  // randomly modify the inertia of the mass module
   
   if (key == 'a'){
     if(mass_cpt ==0){
-     /* Create a mass, connected to fixed points via Spring Dampers */
      mdl.addMass3D("mass0", m, new Vect3D(0., 0., 0.), new Vect3D(0., 1., 0.));
      mdl.addSpringDamper3D("spring0", dist, k, z, "mass0", "ground");
      println("Step 0: Create module: mass0");
-     //iter++;
      mass_cpt++;
     }
    else{
@@ -92,6 +88,19 @@ void keyPressed() {
      }
      println("...");
      mass_cpt += 2*iter; 
+    }
+  }
+    if (key == 'z'){
+    if(mass_cpt ==0){
+    }
+   else{
+     for(int i = 0; i<2*iter; i++){
+       println("Remove mass"+ (mass_cpt-1-i));
+       mdl.removeMatAndConnectedLinks("mass"+ (mass_cpt-1-i));
+     }
+     mass_cpt -= 2*iter; 
+     iter--;
+     println("...");
     }
   }
 }

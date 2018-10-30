@@ -1,3 +1,13 @@
+/*
+Model: Engrave Mesh
+Author: James Leonard (james.leonard@gipsa-lab.fr)
+
+Draw a 2D Mesh of Osc modules (mass-spring-ground systems).
+
+Drag the mouse across the surface to apply forces and create ripples.
+Use UP and DOWN keys to add/decrease air friction in the model.
+*/
+
 import physicalModelling.*;
 import peasy.*;
 PeasyCam cam;

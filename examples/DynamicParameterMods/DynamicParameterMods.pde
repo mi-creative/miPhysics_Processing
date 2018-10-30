@@ -1,3 +1,18 @@
+/*
+Model: Dynamic Parameter Modifications.
+Author: James Leonard (james.leonard@gipsa-lab.fr)
+
+Variant on the HelloMass model.
+
+We create "subsets" for the mass and the different springs.
+We can then modify the physical parameters of modules in these subsets 
+in real time during the simulation.
+
+Trigger forces on the mass using the space bar.
+Hit 'a' to change the inertia of the mass
+Hit 'z', 'e' or 'r' to change the stiffness and damping of the springs.
+*/
+
 import physicalModelling.*;
 import peasy.*;
 PeasyCam cam;
