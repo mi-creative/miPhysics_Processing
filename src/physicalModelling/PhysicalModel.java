@@ -242,8 +242,7 @@ public class PhysicalModel {
 	/**
 	 * Get the position of a Mat module identified by its name.
 	 * 
-	 * @param masName
-	 *            identifier of the Mat module.
+	 * @param masName identifier of the Mat module.
 	 * @return a PVector containing the position (in float format).
 	 */
 	public PVector getMatPVector(String masName) {
@@ -256,6 +255,47 @@ public class PhysicalModel {
 			}
 		} catch (Exception e) {
 			System.out.println("Error accessing Module " + masName + ": " + e);
+			System.exit(1);
+		}
+		return new PVector();
+	}
+	
+	/**
+	 * Get the force of a Mat module identified by its index.
+	 * 
+	 * @param mat_index index of the Mat module.
+	 * @return a PVector containing the force (in float format).
+	 */
+	public PVector getMatForcePVector(int mat_index) {
+		try {
+			if (mat_index > -1) {
+				return mats.get(mat_index).getFrc().toPVector();
+			} else {
+				throw new Exception("The module name already exists!");
+			}
+		} catch (Exception e) {
+			System.out.println("Error accessing Module " + mat_index + ": " + e);
+			System.exit(1);
+		}
+		return new PVector();
+	}
+	
+	/**
+	 * Get the force of a Mat module identified by its index.
+	 * 
+	 * @param matName identifier of the Mat module.
+	 * @return a PVector containing the force (in float format).
+	 */
+	public PVector getMatForcePVector(String matName) {
+		try {
+			int mat_index = getMatIndex(matName);
+			if (mat_index > -1) {
+				return mats.get(mat_index).getFrc().toPVector();
+			} else {
+				throw new Exception("The module name already exists!");
+			}
+		} catch (Exception e) {
+			System.out.println("Error accessing Module " + matName + ": " + e);
 			System.exit(1);
 		}
 		return new PVector();
@@ -769,6 +809,31 @@ public class PhysicalModel {
 		int mat2_index = getMatIndex(m2_Name);
 		try {
 			links.add(new Contact3D(dist, paramK, paramZ, mats.get(mat1_index), mats.get(mat2_index)));
+			linkIndexList.add(name);
+		} catch (Exception e) {
+			System.out.println("Error allocating the Contact module");
+			System.exit(1);
+		}
+		return 0;
+	}
+	
+	/**
+	 * Create a non-orthonormal contact interaction between two Mat modules (EXPERIMENTAL).
+	 * @param name identifier of the module.
+	 * @param m1_r radius of the "sphere" associated to first Mat module.
+	 * @param m2_r radius of the "sphere" associated to second Mat module.
+	 * @param paramK stiffness.
+	 * @param paramZ damping.
+	 * @param m1_Name name of the first Mat module.
+	 * @param m2_Name name of the second Mat module.
+	 * @return
+	 */
+	public int addNonOrthContact3D(String name, double m1_r, double m2_r, double paramK, double paramZ, String m1_Name, String m2_Name) {
+
+		int mat1_index = getMatIndex(m1_Name);
+		int mat2_index = getMatIndex(m2_Name);
+		try {
+			links.add(new NonOrthContact3D(m1_r, m2_r, paramK, paramZ, mats.get(mat1_index), mats.get(mat2_index)));
 			linkIndexList.add(name);
 		} catch (Exception e) {
 			System.out.println("Error allocating the Contact module");
@@ -1385,6 +1450,18 @@ public class PhysicalModel {
 		return 0;
 	}
 	
+	/**
+	 * Force a Mat module to a given position (with null velocity).
+	 * @param matName identifier of the module.
+	 * @param newPos target position.
+	 */
+	public void setMatPosition(String matName, Vect3D newPos) {
+		int mat_index = getMatIndex(matName);
+		if (mat_index > -1)
+			this.mats.get(mat_index).setPos(newPos);	
+	}
+
+	
 	
 	/**
 	 * Create an empty Mat module subset item. 
@@ -1475,7 +1552,7 @@ public class PhysicalModel {
 			mats.get(matIndex).setMass(newParam);
 		}
 	}
-
+	
 	/**
 	 * Change the stiffness parameters for a subset of Link modules.
 	 * @param newParam the new stiffness value to apply.
@@ -1505,6 +1582,30 @@ public class PhysicalModel {
 	public void changeDistParamOfSubset(double newParam, String subsetName) {
 		for (int linkIndex : this.link_subsets.get(subsetName)){
 			links.get(linkIndex).changeDRest(newParam);
+		}
+	}
+	
+	public void setContactShapeMat1(String linkName, double x, double y, double z) {
+		int index = getLinkIndex(linkName);
+		NonOrthContact3D tmp;
+		if (links.get(index).getType() == linkModuleType.NonOrthContact3D) {
+			tmp = (NonOrthContact3D) links.get(index);
+			tmp.setContactShapeMat1(x, y, z);
+		}
+		else {
+			System.out.println("Not a non orthonormal contact module !");
+		}
+	}
+	
+	public void setContactShapeMat2(String linkName, double x, double y, double z) {
+		int index = getLinkIndex(linkName);
+		NonOrthContact3D tmp;
+		if (links.get(index).getType() == linkModuleType.NonOrthContact3D) {
+			tmp = (NonOrthContact3D) links.get(index);
+			tmp.setContactShapeMat2(x, y, z);
+		}
+		else {
+			System.out.println("Not a non orthonormal contact module !");
 		}
 	}
 	

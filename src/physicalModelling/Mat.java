@@ -64,6 +64,18 @@ protected Vect3D getPos() {
 	  //PVector tmp =  new PVector((float)pos.x,(float)pos.y,(float)pos.z);
     return pos;
   }
+
+/**
+ * Set the current position of this Mat module.
+ * @param newPos the target position to set.
+ * @return the module position.
+ */
+protected void setPos(Vect3D newPos) { 
+	pos.set(newPos);
+	posR.set(newPos);
+  }
+
+
   
 /**
  * Get the current position of this Mat module (in a PVector format).

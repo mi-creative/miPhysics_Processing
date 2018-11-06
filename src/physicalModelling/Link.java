@@ -76,6 +76,7 @@ protected void setType(linkModuleType t){
 
 /**
  * Initialise distance and delayed distance for this Link.
+ * 
  */
 protected void initDistances() {
     dist = mat1.getPos().dist(mat2.getPos());

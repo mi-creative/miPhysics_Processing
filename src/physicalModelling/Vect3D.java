@@ -28,6 +28,10 @@ public class Vect3D {
 
     public double dist(Vect3D v2) {
     	return Math.sqrt(Math.pow(v2.x-this.x,2)+ Math.pow(v2.y-this.y,2) + Math.pow(v2.z-this.z,2));
+    	//return Math.sqrt((v2.x-this.x)*(v2.x-this.x)
+    			//+ (v2.y-this.y)*(v2.y-this.y) + (v2.z-this.z)*(v2.z-this.z));
+ 
+
     }
     
     public Vect3D add(Vect3D v2) {
@@ -52,9 +56,10 @@ public class Vect3D {
     }
     
     public Vect3D div(double factor) {
-    	this.x = this.x / factor;
-    	this.y = this.y / factor;
-    	this.z = this.z / factor;
+    	double invFact = 1./factor;
+    	this.x = this.x * invFact;
+    	this.y = this.y * invFact;
+    	this.z = this.z * invFact;
     	return this;
     }
     
@@ -63,6 +68,12 @@ public class Vect3D {
     	this.y = v2.y;
     	this.z = v2.z;
     	return this; 	
+    }
+    
+    public void reset() {
+    	this.x = 0;
+    	this.y = 0;
+    	this.z = 0;
     }
     
     public Vect3D set(double x_val, double y_val, double z_val) {
@@ -82,3 +93,4 @@ public class Vect3D {
         return new String("["+x+", "+y+", "+z+"]");
     }
 }
+
