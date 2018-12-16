@@ -93,6 +93,27 @@ protected double calcNewEuclidDist() {
     return dist;
   }
 
+// Experimental stuff
+protected double calcDelayedDistance() {
+    return mat1.getPosR().dist(mat2.getPosR());
+  }
+
+protected double getDx() {
+    return mat1.getPos().x - mat2.getPos().x;
+  }
+
+protected double getDy() {
+    return mat1.getPos().y - mat2.getPos().y;
+  }
+
+protected double getDz() {
+    return mat1.getPos().z - mat2.getPos().z;
+  }
+
+
+protected double calcDist1D() {
+	return (mat1.getPos().z - mat2.getPos().z);
+}
 
 /**
  * Set the distance stored inside the link (and apply previous one to delayed distance).
@@ -150,10 +171,21 @@ protected void applyForces(double lnkFrc) {
     getMat2().frc.z -= lnkFrc * z_proj;
   }
 
+protected void applyForces(Vect3D frcVect) {
+    getMat1().frc.add(frcVect);
+    getMat2().frc.sub(frcVect);
+  }
+
+protected void applyForces1D(double lnkFrc) {
+	getMat2().frc.z += lnkFrc;
+	getMat1().frc.z -= lnkFrc;
+}
+
   /* Class attributes */
   private linkModuleType type;
   private Mat mat1;
   private Mat mat2;
+  
 
   private double dist;
   private double distR;

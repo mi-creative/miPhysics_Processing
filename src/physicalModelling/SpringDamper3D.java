@@ -13,13 +13,24 @@ public class SpringDamper3D extends Link {
     setType(linkModuleType.SpringDamper3D);
     K = K_param;
     Z = Z_param;
+    
+    // for experimental implementation
+    PrevD = calcDelayedDistance();
   }
-
+/*
   public void compute() {
     double d = calcNewEuclidDist();
     double lnkFrc = -(d-dRest)*(K) - getSpeed() *  Z;
     this.applyForces(lnkFrc);
-  }
+  }*/
+  
+  public void compute() {
+	    d = calcNewEuclidDist();
+	    double invD = 1./d;
+	    double f_algo = -K * (1 - dRest*invD) - Z * (1 - PrevD*invD);
+	    this.applyForces(new Vect3D(f_algo*getDx(), f_algo*getDy(), f_algo*getDz()));		
+	    PrevD = d;
+	  }
   
   public void changeStiffness(double stiff) {
 	  K = stiff;
@@ -31,4 +42,6 @@ public class SpringDamper3D extends Link {
 
   public double K;
   public double Z;
+  double d;
+  public double PrevD;
 }

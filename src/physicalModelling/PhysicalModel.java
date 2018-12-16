@@ -1,6 +1,7 @@
 package physicalModelling;
 
 import java.util.*;
+import java.awt.image.SampleModel;
 import java.lang.Math;
 
 import processing.core.*;
@@ -56,7 +57,9 @@ public class PhysicalModel {
 	private double friction;
 	private Vect3D g_vector;
 	private Vect3D g_scaled;
-	
+
+	private paramSystem unit_system;
+
 	private Map<String, ArrayList<Integer>> mat_subsets;
 	private Map<String, ArrayList<Integer>> link_subsets;
 
@@ -72,13 +75,13 @@ public class PhysicalModel {
 	 * @param displayRate
 	 *            the display Rate for the processing sketch
 	 */
-	public PhysicalModel(int sRate, int dRate) {
+	public PhysicalModel(int sRate, int dRate, paramSystem sys) {
 		/* Create empty Mat and Link arrays */
 		mats = new ArrayList<Mat>();
 		links = new ArrayList<Link>();
 		matIndexList = new ArrayList<String>();
 		linkIndexList = new ArrayList<String>();
-		
+
 		/* Initialise the Mat and Link subset groups */
 		mat_subsets = new HashMap<String, ArrayList<Integer>>();
 		link_subsets = new HashMap<String, ArrayList<Integer>>();
@@ -88,6 +91,8 @@ public class PhysicalModel {
 
 		g_vector = new Vect3D(0., 0., 1.);
 		g_scaled = new Vect3D(0., 0., 0.);
+
+		unit_system = sys;
 
 		if (sRate > 0)
 			setSimRate(sRate);
@@ -105,15 +110,41 @@ public class PhysicalModel {
 	}
 
 	/**
+	 * Constructor without specifying the parameter system (defaults to algo
+	 * parameters)
+	 * 
+	 * @param sRate
+	 *            the physics sample rate
+	 * 
+	 */
+	public PhysicalModel(int sRate, int displayRate) {
+		this(sRate, displayRate, paramSystem.ALGO_UNITS);
+		System.out.println("No specified display Rate: defaulting to 30 FPS");
+	}
+
+	/**
+	 * Constructor without specifying the sketch display rate (defaults to 30 FPS),
+	 * or the parameter system (defaults to algo parameters)
+	 * 
+	 * @param sRate
+	 *            the physics sample rate
+	 * 
+	 */
+	public PhysicalModel(int sRate) {
+		this(sRate, 30, paramSystem.ALGO_UNITS);
+		System.out.println("No specified display Rate: defaulting to 30 FPS");
+	}
+
+	/**
 	 * Constructor without specifying the sketch display rate (defaults to 30 FPS).
 	 * 
 	 * @param sRate
 	 *            the physics sample rate
+	 * 
 	 */
-	public PhysicalModel(int sRate) {
-		this(sRate, 30);
+	public PhysicalModel(int sRate, paramSystem sys) {
+		this(sRate, 30, sys);
 		System.out.println("No specified display Rate: defaulting to 30 FPS");
-
 	}
 
 	private void calculateSimDisplayFactor() {
@@ -242,7 +273,8 @@ public class PhysicalModel {
 	/**
 	 * Get the position of a Mat module identified by its name.
 	 * 
-	 * @param masName identifier of the Mat module.
+	 * @param masName
+	 *            identifier of the Mat module.
 	 * @return a PVector containing the position (in float format).
 	 */
 	public PVector getMatPVector(String masName) {
@@ -259,11 +291,12 @@ public class PhysicalModel {
 		}
 		return new PVector();
 	}
-	
+
 	/**
 	 * Get the force of a Mat module identified by its index.
 	 * 
-	 * @param mat_index index of the Mat module.
+	 * @param mat_index
+	 *            index of the Mat module.
 	 * @return a PVector containing the force (in float format).
 	 */
 	public PVector getMatForcePVector(int mat_index) {
@@ -279,11 +312,12 @@ public class PhysicalModel {
 		}
 		return new PVector();
 	}
-	
+
 	/**
 	 * Get the force of a Mat module identified by its index.
 	 * 
-	 * @param matName identifier of the Mat module.
+	 * @param matName
+	 *            identifier of the Mat module.
 	 * @return a PVector containing the force (in float format).
 	 */
 	public PVector getMatForcePVector(String matName) {
@@ -600,6 +634,64 @@ public class PhysicalModel {
 	}
 
 	/**
+	 * Add a 2D Mass module (constant on Z plane) to the model.
+	 * 
+	 * @param name
+	 *            the identifier of the Mass
+	 * @param mass
+	 *            the mass' inertia value.
+	 * @param initPos
+	 *            the mass' initial position
+	 * @param initVel
+	 *            the mass' initial velocity (in distance unit per second)
+	 * @return 0 if everything goes well.
+	 */
+	public int addMass2DPlane(String name, double mass, Vect3D initPos, Vect3D initVel) {
+		try {
+			if (matIndexList.contains(name) == true) {
+
+				System.out.println("The module name already exists!");
+				throw new Exception("The module name already exists!");
+			}
+			mats.add(new Mass2DPlane(mass, initPos, constructDelayedPos(initPos, initVel), friction, g_scaled));
+			matIndexList.add(name);
+		} catch (Exception e) {
+			System.out.println("Error adding Module " + name + ": " + e);
+			System.exit(1);
+		}
+		return 0;
+	}
+
+	/**
+	 * Add a 1D Mass module (that only moves along the Z axis) to the model
+	 * 
+	 * @param name
+	 *            the identifier of the Mass
+	 * @param mass
+	 *            the mass' inertia value.
+	 * @param initPos
+	 *            the mass' initial position
+	 * @param initVel
+	 *            the mass' initial velocity (in distance unit per second)
+	 * @return 0 if everything goes well.
+	 */
+	public int addMass1D(String name, double mass, Vect3D initPos, Vect3D initVel) {
+		try {
+			if (matIndexList.contains(name) == true) {
+
+				System.out.println("The module name already exists!");
+				throw new Exception("The module name already exists!");
+			}
+			mats.add(new Mass1D(mass, initPos, constructDelayedPos(initPos, initVel), friction, g_scaled));
+			matIndexList.add(name);
+		} catch (Exception e) {
+			System.out.println("Error adding Module " + name + ": " + e);
+			System.exit(1);
+		}
+		return 0;
+	}
+
+	/**
 	 * Add a 3D Simple Mass module to the model (this Mass not subject to gravity).
 	 * 
 	 * @param name
@@ -656,6 +748,23 @@ public class PhysicalModel {
 		return 0;
 	}
 
+	public int addGround1D(String name, Vect3D initPos) {
+		try {
+			if (matIndexList.contains(name) == true) {
+
+				System.out.println("The module name already exists!");
+				throw new Exception("The module name already exists!");
+			}
+			mats.add(new Ground1D(initPos));
+			matIndexList.add(name);
+
+		} catch (Exception e) {
+			System.out.println("Error adding Module " + name + ": " + e);
+			System.exit(1);
+		}
+		return 0;
+	}
+
 	/**
 	 * Add a 3D oscillator (mass-spring-ground) to the model model.
 	 * 
@@ -675,12 +784,40 @@ public class PhysicalModel {
 	 * @return 0 if everything goes well.
 	 */
 	public int addOsc3D(String name, double mass, double K, double Z, Vect3D initPos, Vect3D initVel) {
+
+		if (unit_system == paramSystem.REAL_UNITS) {
+			K = K / (simRate * simRate);
+			Z = Z / simRate;
+		}
+
 		try {
 			if (matIndexList.contains(name) == true) {
 				System.out.println("The module name already exists!");
 				throw new Exception("The module name already exists!");
 			}
 			mats.add(new Osc3D(mass, K, Z, initPos, constructDelayedPos(initPos, initVel), friction, g_scaled));
+			matIndexList.add(name);
+
+		} catch (Exception e) {
+			System.out.println("Error adding Module " + name + ": " + e);
+			System.exit(1);
+		}
+		return 0;
+	}
+
+	public int addOsc1D(String name, double mass, double K, double Z, Vect3D initPos, Vect3D initVel) {
+
+		if (unit_system == paramSystem.REAL_UNITS) {
+			K = K / (simRate * simRate);
+			Z = Z / simRate;
+		}
+
+		try {
+			if (matIndexList.contains(name) == true) {
+				System.out.println("The module name already exists!");
+				throw new Exception("The module name already exists!");
+			}
+			mats.add(new Osc1D(mass, K, Z, initPos, constructDelayedPos(initPos, initVel), friction, g_scaled));
 			matIndexList.add(name);
 
 		} catch (Exception e) {
@@ -707,6 +844,10 @@ public class PhysicalModel {
 	 * @return O if all goes well.
 	 */
 	public int addSpring3D(String name, double dist, double paramK, String m1_Name, String m2_Name) {
+
+		if (unit_system == paramSystem.REAL_UNITS) {
+			paramK = paramK / (simRate * simRate);
+		}
 
 		int mat1_index = getMatIndex(m1_Name);
 		int mat2_index = getMatIndex(m2_Name);
@@ -740,10 +881,35 @@ public class PhysicalModel {
 	public int addSpringDamper3D(String name, double dist, double paramK, double paramZ, String m1_Name,
 			String m2_Name) {
 
+		if (unit_system == paramSystem.REAL_UNITS) {
+			paramK = paramK / (simRate * simRate);
+			paramZ = paramZ / simRate;
+		}
+
 		int mat1_index = getMatIndex(m1_Name);
 		int mat2_index = getMatIndex(m2_Name);
 		try {
 			links.add(new SpringDamper3D(dist, paramK, paramZ, mats.get(mat1_index), mats.get(mat2_index)));
+			linkIndexList.add(name);
+		} catch (Exception e) {
+			System.out.println("Error allocating the SpringDamper module");
+			System.exit(1);
+		}
+		return 0;
+	}
+
+	public int addSpringDamper1D(String name, double dist, double paramK, double paramZ, String m1_Name,
+			String m2_Name) {
+
+		if (unit_system == paramSystem.REAL_UNITS) {
+			paramK = paramK / (simRate * simRate);
+			paramZ = paramZ / simRate;
+		}
+
+		int mat1_index = getMatIndex(m1_Name);
+		int mat2_index = getMatIndex(m2_Name);
+		try {
+			links.add(new SpringDamper1D(dist, paramK, paramZ, mats.get(mat1_index), mats.get(mat2_index)));
 			linkIndexList.add(name);
 		} catch (Exception e) {
 			System.out.println("Error allocating the SpringDamper module");
@@ -773,6 +939,11 @@ public class PhysicalModel {
 	 * @return O if all goes well.
 	 */
 	public int addRope3D(String name, double dist, double paramK, double paramZ, String m1_Name, String m2_Name) {
+
+		if (unit_system == paramSystem.REAL_UNITS) {
+			paramK = paramK / (simRate * simRate);
+			paramZ = paramZ / simRate;
+		}
 
 		int mat1_index = getMatIndex(m1_Name);
 		int mat2_index = getMatIndex(m2_Name);
@@ -805,6 +976,11 @@ public class PhysicalModel {
 	 */
 	public int addContact3D(String name, double dist, double paramK, double paramZ, String m1_Name, String m2_Name) {
 
+		if (unit_system == paramSystem.REAL_UNITS) {
+			paramK = paramK / (simRate * simRate);
+			paramZ = paramZ / simRate;
+		}
+
 		int mat1_index = getMatIndex(m1_Name);
 		int mat2_index = getMatIndex(m2_Name);
 		try {
@@ -816,19 +992,34 @@ public class PhysicalModel {
 		}
 		return 0;
 	}
-	
+
 	/**
-	 * Create a non-orthonormal contact interaction between two Mat modules (EXPERIMENTAL).
-	 * @param name identifier of the module.
-	 * @param m1_r radius of the "sphere" associated to first Mat module.
-	 * @param m2_r radius of the "sphere" associated to second Mat module.
-	 * @param paramK stiffness.
-	 * @param paramZ damping.
-	 * @param m1_Name name of the first Mat module.
-	 * @param m2_Name name of the second Mat module.
+	 * Create a non-orthonormal contact interaction between two Mat modules
+	 * (EXPERIMENTAL).
+	 * 
+	 * @param name
+	 *            identifier of the module.
+	 * @param m1_r
+	 *            radius of the "sphere" associated to first Mat module.
+	 * @param m2_r
+	 *            radius of the "sphere" associated to second Mat module.
+	 * @param paramK
+	 *            stiffness.
+	 * @param paramZ
+	 *            damping.
+	 * @param m1_Name
+	 *            name of the first Mat module.
+	 * @param m2_Name
+	 *            name of the second Mat module.
 	 * @return
 	 */
-	public int addNonOrthContact3D(String name, double m1_r, double m2_r, double paramK, double paramZ, String m1_Name, String m2_Name) {
+	public int addNonOrthContact3D(String name, double m1_r, double m2_r, double paramK, double paramZ, String m1_Name,
+			String m2_Name) {
+
+		if (unit_system == paramSystem.REAL_UNITS) {
+			paramK = paramK / (simRate * simRate);
+			paramZ = paramZ / simRate;
+		}
 
 		int mat1_index = getMatIndex(m1_Name);
 		int mat2_index = getMatIndex(m2_Name);
@@ -862,6 +1053,11 @@ public class PhysicalModel {
 	 */
 	public int addBubble3D(String name, double dist, double paramK, double paramZ, String m1_Name, String m2_Name) {
 
+		if (unit_system == paramSystem.REAL_UNITS) {
+			paramK = paramK / (simRate * simRate);
+			paramZ = paramZ / simRate;
+		}
+
 		int mat1_index = getMatIndex(m1_Name);
 		int mat2_index = getMatIndex(m2_Name);
 		try {
@@ -888,6 +1084,10 @@ public class PhysicalModel {
 	 * @return O if all goes well.
 	 */
 	public int addDamper3D(String name, double paramZ, String m1_Name, String m2_Name) {
+
+		if (unit_system == paramSystem.REAL_UNITS) {
+			paramZ = paramZ / simRate;
+		}
 
 		int mat1_index = getMatIndex(m1_Name);
 		int mat2_index = getMatIndex(m2_Name);
@@ -920,12 +1120,17 @@ public class PhysicalModel {
 	 *            name of the Mat module connected to this Plane.
 	 * @return
 	 */
-	public int addPlaneInteraction(String name, double l0, double param_K, double paramZ, int or, double pos,
+	public int addPlaneInteraction(String name, double l0, double paramK, double paramZ, int or, double pos,
 			String m1_Name) {
+
+		if (unit_system == paramSystem.REAL_UNITS) {
+			paramK = paramK / (simRate * simRate);
+			paramZ = paramZ / simRate;
+		}
 
 		int mat1_index = getMatIndex(m1_Name);
 		try {
-			links.add(new PlaneContact(l0, param_K, paramZ, mats.get(mat1_index), fakePlaneMat, or, pos));
+			links.add(new PlaneContact(l0, paramK, paramZ, mats.get(mat1_index), fakePlaneMat, or, pos));
 			linkIndexList.add(name);
 		} catch (Exception e) {
 			System.out.println("Error allocating the Bounce on Plane module");
@@ -1120,6 +1325,12 @@ public class PhysicalModel {
 	 *            distance value.
 	 */
 	public void setLinkParams(String name, double stiff, double damp, double dist) {
+
+		if (unit_system == paramSystem.REAL_UNITS) {
+			stiff = stiff / (simRate * simRate);
+			damp = damp / simRate;
+		}
+
 		int link_index = getLinkIndex(name);
 		try {
 			links.get(link_index).changeStiffness(stiff);
@@ -1140,6 +1351,11 @@ public class PhysicalModel {
 	 *            stiffness value.
 	 */
 	public void setLinkStiffness(int index, double stiff) {
+
+		if (unit_system == paramSystem.REAL_UNITS) {
+			stiff = stiff / (simRate * simRate);
+		}
+
 		try {
 			links.get(index).changeStiffness(stiff);
 		} catch (Exception e) {
@@ -1169,6 +1385,11 @@ public class PhysicalModel {
 	 *            damping parameter.
 	 */
 	public void setLinkDamping(int index, double damp) {
+
+		if (unit_system == paramSystem.REAL_UNITS) {
+			damp = damp / simRate;
+		}
+
 		try {
 			links.get(index).changeDamping(damp);
 		} catch (Exception e) {
@@ -1186,7 +1407,7 @@ public class PhysicalModel {
 	 *            damping parameter.
 	 */
 	public void setLinkDamping(String name, double damp) {
-		this.setLinkStiffness(getLinkIndex(name), damp);
+		this.setLinkDamping(getLinkIndex(name), damp);
 	}
 
 	/**
@@ -1343,19 +1564,35 @@ public class PhysicalModel {
 	 *            the friction value.
 	 */
 	public void setFriction(double frZ) {
+
+		if (unit_system == paramSystem.REAL_UNITS) {
+			frZ = frZ / simRate;
+		}
+
 		friction = frZ;
 
 		// Some shady typecasting going on here...
 		Mass3D tmp;
 		Osc3D tmp2;
+		Mass1D tmp3;
+		Osc1D tmp4;
+		Mass2DPlane tmp5;
 		for (int i = 0; i < mats.size(); i++) {
 			if (mats.get(i).getType() == matModuleType.Mass3D) {
 				tmp = (Mass3D) mats.get(i);
 				tmp.updateFriction(frZ);
-			}
-			if (mats.get(i).getType() == matModuleType.Osc3D) {
+			} else if (mats.get(i).getType() == matModuleType.Osc3D) {
 				tmp2 = (Osc3D) mats.get(i);
 				tmp2.updateFriction(frZ);
+			} else if (mats.get(i).getType() == matModuleType.Mass1D) {
+				tmp3 = (Mass1D) mats.get(i);
+				tmp3.updateFriction(frZ);
+			} else if (mats.get(i).getType() == matModuleType.Osc1D) {
+				tmp4 = (Osc1D) mats.get(i);
+				tmp4.updateFriction(frZ);
+			} else if (mats.get(i).getType() == matModuleType.Mass2DPlane) {
+				tmp5 = (Mass2DPlane) mats.get(i);
+				tmp5.updateFriction(frZ);
 			}
 		}
 	}
@@ -1424,10 +1661,26 @@ public class PhysicalModel {
 
 		// Some shady typecasting going on here...
 		Mass3D tmp;
+		Osc3D tmp2;
+		Mass1D tmp3;
+		Osc1D tmp4;
+		Mass2DPlane tmp5;
 		for (int i = 0; i < mats.size(); i++) {
 			if (mats.get(i).getType() == matModuleType.Mass3D) {
 				tmp = (Mass3D) mats.get(i);
 				tmp.updateGravity(g_scaled);
+			} else if (mats.get(i).getType() == matModuleType.Osc3D) {
+				tmp2 = (Osc3D) mats.get(i);
+				tmp2.updateGravity(g_scaled);
+			} else if (mats.get(i).getType() == matModuleType.Mass1D) {
+				tmp3 = (Mass1D) mats.get(i);
+				tmp3.updateGravity(g_scaled);
+			} else if (mats.get(i).getType() == matModuleType.Osc1D) {
+				tmp4 = (Osc1D) mats.get(i);
+				tmp4.updateGravity(g_scaled);
+			} else if (mats.get(i).getType() == matModuleType.Mass2DPlane) {
+				tmp5 = (Mass2DPlane) mats.get(i);
+				tmp5.updateGravity(g_scaled);
 			}
 		}
 	}
@@ -1449,24 +1702,27 @@ public class PhysicalModel {
 		}
 		return 0;
 	}
-	
+
 	/**
 	 * Force a Mat module to a given position (with null velocity).
-	 * @param matName identifier of the module.
-	 * @param newPos target position.
+	 * 
+	 * @param matName
+	 *            identifier of the module.
+	 * @param newPos
+	 *            target position.
 	 */
 	public void setMatPosition(String matName, Vect3D newPos) {
 		int mat_index = getMatIndex(matName);
 		if (mat_index > -1)
-			this.mats.get(mat_index).setPos(newPos);	
+			this.mats.get(mat_index).setPos(newPos);
 	}
 
-	
-	
 	/**
-	 * Create an empty Mat module subset item. 
-	 * Module indexes will be associated to this specific key later.
-	 * @param name the identifier for this subset.
+	 * Create an empty Mat module subset item. Module indexes will be associated to
+	 * this specific key later.
+	 * 
+	 * @param name
+	 *            the identifier for this subset.
 	 * @return 0 if success, -1 otherwise.
 	 */
 	public int createMatSubset(String name) {
@@ -1476,36 +1732,44 @@ public class PhysicalModel {
 		}
 		return -1;
 	}
-	
+
 	/**
 	 * Add a Mat module to a given subset.
-	 * @param matIndex index of the Mat module.
-	 * @param subsetName the subset to add the module to.
+	 * 
+	 * @param matIndex
+	 *            index of the Mat module.
+	 * @param subsetName
+	 *            the subset to add the module to.
 	 * @return 0 if success, -1 if fail.
 	 */
 	public int addMatToSubset(int matIndex, String subsetName) {
-		if(matIndex != -1) {
+		if (matIndex != -1) {
 			this.mat_subsets.get(subsetName).add(matIndex);
 			return 0;
 		}
 		return -1;
 	}
-	
+
 	/**
 	 * Add a Mat module to a given subset.
-	 * @param matName identifier of the Mat module.
-	 * @param subsetName the subset to add the module to.
+	 * 
+	 * @param matName
+	 *            identifier of the Mat module.
+	 * @param subsetName
+	 *            the subset to add the module to.
 	 * @return 0 if success, -1 if fail.
 	 */
 	public int addMatToSubset(String matName, String subsetName) {
 		int matIndex = this.getMatIndex(matName);
 		return this.addMatToSubset(matIndex, subsetName);
 	}
-	
+
 	/**
-	 * Create an empty Link module subset item. 
-	 * Module indexes will be associated to this specific key later.
-	 * @param name the identifier for this subset.
+	 * Create an empty Link module subset item. Module indexes will be associated to
+	 * this specific key later.
+	 * 
+	 * @param name
+	 *            the identifier for this subset.
 	 * @return 0 if success, -1 otherwise.
 	 */
 	public int createLinkSubset(String name) {
@@ -1515,100 +1779,170 @@ public class PhysicalModel {
 		}
 		return -1;
 	}
-	
+
 	/**
 	 * Add a Link module to a given subset.
-	 * @param linkIndex index of the Link module.
-	 * @param subsetName the subset to add the module to.
+	 * 
+	 * @param linkIndex
+	 *            index of the Link module.
+	 * @param subsetName
+	 *            the subset to add the module to.
 	 * @return 0 if success, -1 if fail.
 	 */
 	public int addLinkToSubset(int linkIndex, String subsetName) {
-		if(linkIndex != -1) {
+		if (linkIndex != -1) {
 			this.link_subsets.get(subsetName).add(linkIndex);
 			return 0;
 		}
 		return -1;
 	}
-	
+
 	/**
 	 * Add a Link module to a given subset.
-	 * @param linkName identifier of the Link module.
-	 * @param subsetName the subset to add the module to.
+	 * 
+	 * @param linkName
+	 *            identifier of the Link module.
+	 * @param subsetName
+	 *            the subset to add the module to.
 	 * @return 0 if success, -1 if fail.
 	 */
 	public int addLinkToSubset(String linkName, String subsetName) {
 		int linkIndex = this.getLinkIndex(linkName);
 		return this.addLinkToSubset(linkIndex, subsetName);
 	}
-	
-	
+
 	/**
 	 * Change the mass parameters for a subset of Mat modules.
-	 * @param newParam the new mass value to apply.
-	 * @param subsetName the name of the subset of modules to address.
+	 * 
+	 * @param newParam
+	 *            the new mass value to apply.
+	 * @param subsetName
+	 *            the name of the subset of modules to address.
 	 */
 	public void changeMassParamOfSubset(double newParam, String subsetName) {
-		for (int matIndex : this.mat_subsets.get(subsetName)){
+		for (int matIndex : this.mat_subsets.get(subsetName)) {
 			mats.get(matIndex).setMass(newParam);
 		}
 	}
-	
+
 	/**
 	 * Change the stiffness parameters for a subset of Link modules.
-	 * @param newParam the new stiffness value to apply.
-	 * @param subsetName the name of the subset of modules to address.
+	 * 
+	 * @param newParam
+	 *            the new stiffness value to apply.
+	 * @param subsetName
+	 *            the name of the subset of modules to address.
 	 */
 	public void changeStiffnessParamOfSubset(double newParam, String subsetName) {
-		for (int linkIndex : this.link_subsets.get(subsetName)){
+
+		if (unit_system == paramSystem.REAL_UNITS) {
+			newParam = newParam / (simRate * simRate);
+		}
+
+		for (int linkIndex : this.link_subsets.get(subsetName)) {
 			links.get(linkIndex).changeStiffness(newParam);
 		}
 	}
 
 	/**
 	 * Change the damping parameters for a subset of Link modules.
-	 * @param newParam the new damping value to apply.
-	 * @param subsetName the name of the subset of modules to address.
+	 * 
+	 * @param newParam
+	 *            the new damping value to apply.
+	 * @param subsetName
+	 *            the name of the subset of modules to address.
 	 */
 	public void changeDampingParamOfSubset(double newParam, String subsetName) {
-		for (int linkIndex : this.link_subsets.get(subsetName)){
+
+		if (unit_system == paramSystem.REAL_UNITS) {
+			newParam = newParam / (simRate * simRate);
+		}
+
+		for (int linkIndex : this.link_subsets.get(subsetName)) {
 			links.get(linkIndex).changeDamping(newParam);
 		}
 	}
+
 	/**
 	 * Change the resting distance parameters for a subset of Link modules.
-	 * @param newParam the new resting distance value to apply.
-	 * @param subsetName the name of the subset of modules to address.
+	 * 
+	 * @param newParam
+	 *            the new resting distance value to apply.
+	 * @param subsetName
+	 *            the name of the subset of modules to address.
 	 */
 	public void changeDistParamOfSubset(double newParam, String subsetName) {
-		for (int linkIndex : this.link_subsets.get(subsetName)){
+		for (int linkIndex : this.link_subsets.get(subsetName)) {
 			links.get(linkIndex).changeDRest(newParam);
 		}
 	}
-	
+
 	public void setContactShapeMat1(String linkName, double x, double y, double z) {
 		int index = getLinkIndex(linkName);
 		NonOrthContact3D tmp;
 		if (links.get(index).getType() == linkModuleType.NonOrthContact3D) {
 			tmp = (NonOrthContact3D) links.get(index);
 			tmp.setContactShapeMat1(x, y, z);
-		}
-		else {
+		} else {
 			System.out.println("Not a non orthonormal contact module !");
 		}
 	}
-	
+
 	public void setContactShapeMat2(String linkName, double x, double y, double z) {
 		int index = getLinkIndex(linkName);
 		NonOrthContact3D tmp;
 		if (links.get(index).getType() == linkModuleType.NonOrthContact3D) {
 			tmp = (NonOrthContact3D) links.get(index);
 			tmp.setContactShapeMat2(x, y, z);
-		}
-		else {
+		} else {
 			System.out.println("Not a non orthonormal contact module !");
 		}
 	}
-	
+
+	/* HAPTIC INPUT ELEMENTS */
+
+	public HapticInput3D addHapticInput3D(String name, Vect3D initPos, int smoothing) {
+		HapticInput3D inputMod;
+		try {
+			if (matIndexList.contains(name) == true) {
+
+				System.out.println("The module name already exists!");
+				throw new Exception("The module name already exists!");
+			}
+			inputMod = new HapticInput3D(initPos, smoothing);
+			mats.add(inputMod);
+			matIndexList.add(name);
+			return inputMod;
+
+		} catch (Exception e) {
+			System.out.println("Error adding Module " + name + ": " + e);
+			System.exit(1);
+		}
+		return null;
+	}
+
+	public void setHapticPosition(String matName, Vect3D newPos) {
+		int mat_index = getMatIndex(matName);
+		HapticInput3D tmp;
+		if (mats.get(mat_index).getType() == matModuleType.HapticInput3D) {
+			tmp = (HapticInput3D) mats.get(mat_index);
+			tmp.applyInputPosition(newPos);
+		} else {
+			System.out.println("The module is not a haptic input!");
+		}
+	}
+
+	public Vect3D getHapticForce(String matName) {
+		int mat_index = getMatIndex(matName);
+		HapticInput3D tmp;
+		if (mats.get(mat_index).getType() == matModuleType.HapticInput3D) {
+			tmp = (HapticInput3D) mats.get(mat_index);
+			return tmp.applyOutputForce();
+		} else {
+			System.out.println("The module is not a haptic input!");
+			return new Vect3D(0, 0, 0);
+		}
+	}
 
 	private void welcome() {
 		System.out.println("##library.name## ##library.prettyVersion## by ##author##");

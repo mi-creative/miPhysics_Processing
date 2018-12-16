@@ -27,11 +27,25 @@ public class Vect3D {
     public double z() {return z;}
 
     public double dist(Vect3D v2) {
-    	return Math.sqrt(Math.pow(v2.x-this.x,2)+ Math.pow(v2.y-this.y,2) + Math.pow(v2.z-this.z,2));
-    	//return Math.sqrt((v2.x-this.x)*(v2.x-this.x)
+    	// Avoid NaN problems !
+    	if(this.equals(v2)) {
+    		return 0.00000001;
+    	}
+    	else
+    	{
+    		return Math.sqrt(Math.pow(v2.x-this.x,2)+ Math.pow(v2.y-this.y,2) + Math.pow(v2.z-this.z,2));
+    		//return Math.sqrt((v2.x-this.x)*(v2.x-this.x)
     			//+ (v2.y-this.y)*(v2.y-this.y) + (v2.z-this.z)*(v2.z-this.z));
- 
+    	}
 
+    }
+    
+    public boolean equals(Vect3D v2) {
+    	if((this.x == v2.x) && (this.y == v2.y) && (this.z == v2.z)) {
+    		return true;
+    	}
+    	else return false;
+    	
     }
     
     public Vect3D add(Vect3D v2) {
