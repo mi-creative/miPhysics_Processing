@@ -1,4 +1,5 @@
-# **miPhysics**: Mass-Interaction Physics in Java/Processing
+# **miPhysics**
+# Mass-Interaction Physics in Java/Processing
 
 **miPhysics** is a mass-interaction physical modelling library, coded in Java and designed for the *Processing* sketching environment.
 
