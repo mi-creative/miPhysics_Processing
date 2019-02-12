@@ -1,7 +1,11 @@
-# miPhysics: Mass-Interaction Physics in Java/Processing
+# **miPhysics**: Mass-Interaction Physics in Java/Processing
 
 miPhysics is a mass-interaction physical modelling library, coded in Java and designed for the Processing sketching environment.
+
 Using elementary physical elements (such as masses, springs, dampers, contact interactions...) it allows modular design of any type of physical object for visual generation, audio synthesis or haptic interaction purposes - or even all three at the same time !
+
+![](miPhysics/data/mesh.gif)
+
 
 ## Getting Started
 
@@ -31,7 +35,10 @@ Examples are split into categories:
 
 * 3_Haptics: multi-sensory haptic interaction models! Some are purely haptic scenes, whereas others allow audio-haptic interaction with sound-producing virtual models (such as strings, etc.).
 
-The Haptic examples require the Haply system. For information and installation requirements, see: * [HaplyHaptics](https://github.com/HaplyHaptics)'s github page.
+The Haptic examples require the Haply system. For information and installation requirements, see: [HaplyHaptics](https://github.com/HaplyHaptics)'s github page.
+
+![](miPhysics/data/string.gif)
+
 
 
 ## Built With
@@ -60,4 +67,3 @@ This project is licensed under the GNU GENERAL PUBLIC LICENSE - see the [LICENSE
 ## Acknowledgments
 
 This work implements mass-interaction physical modelling, a concept originally developped at ACROE - and now widely used in sound synthesis, haptic interaction and visual creation.
-Bibliographic reference will be provided soon.
