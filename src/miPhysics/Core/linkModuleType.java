@@ -10,6 +10,5 @@ public enum linkModuleType {
   Contact3D, 
   PlaneContact3D, 
   Bubble3D,
-  NonOrthContact3D,
   UNDEFINED
 }

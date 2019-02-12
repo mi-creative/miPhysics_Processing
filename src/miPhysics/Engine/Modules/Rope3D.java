@@ -8,31 +8,33 @@ package miPhysics;
  * @author James Leonard / james.leonard@gipsa-lab.fr
  *
  */
+
+// TODO: This is identical to the bubble algorithm : REFACTOR
+// (but keep distinct versions in the model creation)
+
 public class Rope3D extends Link {
 
-  public Rope3D(double distance, double K_param, double Z_param, Mat m1, Mat m2) {
-    super(distance, m1, m2);
-    setType(linkModuleType.Rope3D);
-    K = K_param;
-    Z = Z_param;
-  }
-
-  public void compute() {
-    double d = calcNewEuclidDist();
-    if (d > dRest) {
-      double lnkFrc = -(d-dRest)*(K) - getSpeed() *  Z;
-      this.applyForces(lnkFrc);
+    public Rope3D(double distance, double K_param, double Z_param, Mat m1, Mat m2) {
+        super(distance, m1, m2);
+        setType(linkModuleType.Rope3D);
+        m_K = K_param;
+        m_Z = Z_param;
     }
-  }
-  
-  public void changeStiffness(double stiff) {
-	  K = stiff;
-  }
-  
-  public void changeDamping(double damp) {
-	  Z = damp;
-  }
 
-  public double K;
-  public double Z;
+    public void compute() {
+        updateEuclidDist();
+        if (m_dist > m_dRest)
+            applyForces( -(m_dist - m_dRest) * m_K - getVel() *  m_Z );
+    }
+
+    public void changeStiffness(double stiff) {
+        m_K = stiff;
+    }
+
+    public void changeDamping(double damp) {
+        m_Z = damp;
+    }
+
+    public double m_K;
+    public double m_Z;
 }

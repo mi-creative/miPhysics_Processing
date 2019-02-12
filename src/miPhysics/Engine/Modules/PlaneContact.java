@@ -1,74 +1,66 @@
 package miPhysics;
 
 
-/*************************************************/
-/*          THIS MODULE IS A MESS !!             */
-/*************************************************/
 
 /**
- * Plane interaction: contact interaction between a Mat module and a 2D plane.
- * This module is a little weird, the physics need some more testing !
- * 
+ * Plane Contact: contact interaction between a Mat module and a 2D plane.
+ * This module's implementation is a little weird, the physics seem OK though
+ *
  * @author James Leonard / james.leonard@gipsa-lab.fr
  *
  */
 public class PlaneContact extends Link {
 
 
-  public PlaneContact(double dist, double K_param, double Z_param, Mat m1, Mat m2, int or, double pos) {
+  public PlaneContact(double distance, double K_param, double Z_param, Mat m1, Mat m2, int or, double pos) {
     super(0., m1, m2);
     setType(linkModuleType.PlaneContact3D);
 
-    Z = Z_param;
-    K = K_param;
-    dRest = dist;
-    position = pos;
-    orientation = or;
+    m_Z = Z_param;
+    m_K = K_param;
+    m_dRest = distance;
+    m_position = pos;
+    m_orientation = or;
   }
 
   public void compute() {
 
-    dlyPosForPlane = posForPlane;
+    m_dlyPosForPlane = m_posForPlane;
 
-    if (orientation == 0)
-      posForPlane = getMat1().getPos().x;
-    else if (orientation == 1)
-      posForPlane = getMat1().getPos().y;
-    else if (orientation == 2)
-      posForPlane = getMat1().getPos().z;
+    if (m_orientation == 0)
+      m_posForPlane = getMat1().getPos().x;
+    else if (m_orientation == 1)
+      m_posForPlane = getMat1().getPos().y;
+    else if (m_orientation == 2)
+      m_posForPlane = getMat1().getPos().z;
 
-    double thresholdPos = posForPlane - position -dRest ;
-    double lnkFrc = - thresholdPos *(K) - (posForPlane - dlyPosForPlane) *  Z;
+    double thresholdPos = m_posForPlane - m_position - m_dRest ;
+    double lnkFrc = - thresholdPos *(m_K) - (m_posForPlane - m_dlyPosForPlane) *  m_Z;
 
     if (thresholdPos < 0) {
-      //println("Plane Interaction active");
-
-      if (orientation == 0)
-        getMat1().frc.x += lnkFrc;
-      else if (orientation == 1)
-        getMat1().frc.y += lnkFrc;
-      else if (orientation == 2)
-        getMat1().frc.z += lnkFrc;
+      if (m_orientation == 0)
+        getMat1().m_frc.x += lnkFrc;
+      else if (m_orientation == 1)
+        getMat1().m_frc.y += lnkFrc;
+      else if (m_orientation == 2)
+        getMat1().m_frc.z += lnkFrc;
     }
   }
-  
+
   public void changeStiffness(double stiff) {
-	  K = stiff;
+    m_K = stiff;
   }
-  
+
   public void changeDamping(double damp) {
-	  Z = damp;
+    m_Z = damp;
   }
-  
 
-  Mat fakePlaneMat;
-  private double K;
-  private double Z;
+  private double m_K;
+  private double m_Z;
 
-  private double dRest;
-  private double position;
-  private int orientation;
+  private double m_position;
+  private int m_orientation;
 
-  double posForPlane;
-  double dlyPosForPlane;
+  double m_posForPlane;
+  double m_dlyPosForPlane;
 }

@@ -8,40 +8,41 @@ package miPhysics;
  */
 public class Mass3D extends Mat {
 
-  public Mass3D(double M, Vect3D initPos, Vect3D initPosR, double friction, Vect3D grav) {   
+  public Mass3D(double M, Vect3D initPos, Vect3D initPosR, double friction, Vect3D grav) {
     super(M, initPos, initPosR);
     setType(matModuleType.Mass3D);
 
-    fricZ = friction;
-    g_frc = new Vect3D();
-    g_frc.set(grav);
+    m_fricZ = friction;
+    m_gFrc = new Vect3D();
+    m_gFrc.set(grav);
   }
 
-  public void compute() { 
-    tmp.set(pos);
+  public void compute() {
+    tmp.set(m_pos);
+
     // Calculate the update of the mass's position
-    frc.mult(invMass);
-    pos.mult(2 - invMass * fricZ);
-    posR.mult(1 -invMass * fricZ);
-    pos.sub(posR);
-    pos.add(frc);
+    m_frc.mult(m_invMass);
+    m_pos.mult(2 - m_invMass * m_fricZ);
+    m_posR.mult(1 -m_invMass * m_fricZ);
+    m_pos.sub(m_posR);
+    m_pos.add(m_frc);
 
     // Add gravitational force.
-    pos.sub(g_frc);
+    m_pos.sub(m_gFrc);
 
     // Bring old position to delayed position and reset force buffer
-    posR.set(tmp);
-    frc.set(0., 0., 0.);
+    m_posR.set(tmp);
+    m_frc.set(0., 0., 0.);
   }
 
-  public void updateGravity(Vect3D grav) { 
-    g_frc.set(grav);
+  public void updateGravity(Vect3D grav) {
+    m_gFrc.set(grav);
   }
-  public void updateFriction(double fric) { 
-    fricZ= fric;
+  public void updateFriction(double fric) {
+    m_fricZ= fric;
   }
 
   /* Class attributes */
-  private double fricZ;
-  private Vect3D g_frc;
+  private double m_fricZ;
+  private Vect3D m_gFrc;
 }

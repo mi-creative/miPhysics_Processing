@@ -11,64 +11,74 @@ public class Osc3D extends Mat {
   public Osc3D(double M, double K_param, double Z_param, Vect3D initPos, Vect3D initPosR, double friction, Vect3D grav) {   
     super(M, initPos, initPosR);
     setType(matModuleType.Osc3D);
-    p_Rest = new Vect3D();
-    p_Rest.set(initPos);
-    K = K_param;
-    Z = Z_param;
-    fricZ = friction;
-    g_frc = new Vect3D();
-    g_frc.set(grav);
+    m_pRest = new Vect3D();
+    m_pRest.set(initPos);
+
+    m_K = K_param;
+    m_Z = Z_param;
+
+    m_A = 2. - m_invMass * m_K - m_invMass * (m_Z+m_fricZ) ;
+    m_B = 1. -m_invMass * (m_fricZ + m_Z) ;
+
+    m_fricZ = friction;
+    m_gFrc = new Vect3D();
+    m_gFrc.set(grav);
   }
 
   public void compute() { 
-    tmp.set(pos);
+    tmp.set(m_pos);
     
-    // Remove the position offset of the module
-    pos.x -= p_Rest.x;
-    pos.y -= p_Rest.y;
-    pos.z -= p_Rest.z;
-    posR.x -= p_Rest.x;
-    posR.y -= p_Rest.y;
-    posR.z -= p_Rest.z;
+    // Remove the position offset of the module (calculate the oscillator around zero)
+    m_pos.x -= m_pRest.x;
+    m_pos.y -= m_pRest.y;
+    m_pos.z -= m_pRest.z;
+    m_posR.x -= m_pRest.x;
+    m_posR.y -= m_pRest.y;
+    m_posR.z -= m_pRest.z;
 
     // Calculate the oscillator algorithm, centered around zero.
-    frc.mult(invMass);
-    pos.mult(2 - invMass * K - invMass * (Z+fricZ));
-    posR.mult(1 -invMass * (fricZ + Z));
-    pos.sub(posR);
-    pos.add(frc);
+    m_frc.mult(m_invMass);
+    m_pos.mult(m_A);
+    m_posR.mult(m_B);
+    m_pos.sub(m_posR);
+    m_pos.add(m_frc);
 
     // Add gravitational force.
-    pos.sub(g_frc);
+    m_pos.sub(m_gFrc);
     
     // Restore the offset of the module
-    pos.x += p_Rest.x;
-    pos.y += p_Rest.y;
-    pos.z += p_Rest.z;
+    m_pos.x += m_pRest.x;
+    m_pos.y += m_pRest.y;
+    m_pos.z += m_pRest.z;
 
     // Bring old position to delayed position and reset force buffer
-    posR.set(tmp);
-    frc.set(0., 0., 0.);
+    m_posR.set(tmp);
+    m_frc.set(0., 0., 0.);
   }
 
   public void updateGravity(Vect3D grav) { 
-    g_frc.set(grav);
+    m_gFrc.set(grav);
   }
   public void updateFriction(double fric) { 
-    fricZ= fric;
+    m_fricZ= fric;
+
+    m_A = 2. - m_invMass * m_K - m_invMass * (m_Z+m_fricZ) ;
+    m_B = 1. -m_invMass * (m_fricZ + m_Z) ;
   }
   
   public double distRest() {  // AJOUT JV Permet de sortir le DeltaX relatif entre mas et sol d'une cel
-	    return this.pos.dist(p_Rest); 
+	    return m_pos.dist(m_pRest); 
 	  }
 
   /* Class attributes */
   
-  private double K;
-  private double Z;
-  private double fricZ;
-  private Vect3D g_frc;
+  private double m_A;
+  private double m_B;
   
-  private Vect3D p_Rest;
-  private Vect3D calcPos;
+  private double m_K;
+  private double m_Z;
+  private double m_fricZ;
+  private Vect3D m_gFrc;
+  
+  private Vect3D m_pRest;
 }

@@ -8,43 +8,45 @@ package miPhysics;
  */
 public class Mass2DPlane extends Mat {
 
-  public Mass2DPlane(double M, Vect3D initPos, Vect3D initPosR, double friction, Vect3D grav) {   
+  public Mass2DPlane(double M, Vect3D initPos, Vect3D initPosR, double friction, Vect3D grav) {
     super(M, initPos, initPosR);
     setType(matModuleType.Mass2DPlane);
-    
+
     // Make sure there is no initial velocity on the Z axis
-    posR.z = pos.z;
+    m_posR.z = m_pos.z;
 
-    fricZ = friction;
-    g_frc = new Vect3D();
-    g_frc.set(grav);
+    m_fricZ = friction;
+    m_gFrc = new Vect3D();
+    m_gFrc.set(grav);
   }
 
-  public void compute() { 
-    tmp.set(pos);
+  public void compute() {
+    tmp.set(m_pos);
+
     // Calculate the update of the mass's position
-    frc.mult(invMass);
-    pos.mult(2 - invMass * fricZ);
-    posR.mult(1 -invMass * fricZ);
-    pos.sub(posR);
-    pos.add(frc);
-    pos.sub(g_frc);
-    
+    m_frc.mult(m_invMass);
+    m_pos.mult(2 - m_invMass * m_fricZ);
+    m_posR.mult(1 -m_invMass * m_fricZ);
+    m_pos.sub(m_posR);
+    m_pos.add(m_frc);
+    m_pos.sub(m_gFrc);
+
     // Constrain to 2D Plane : keep Z axis value constant
-    pos.z = tmp.z;
+    m_pos.z = tmp.z;
 
-    posR.set(tmp);
-    frc.set(0., 0., 0.);
+    m_posR.set(tmp);
+    m_frc.set(0., 0., 0.);
   }
 
-  public void updateGravity(Vect3D grav) { 
-    g_frc.set(grav);
+  public void updateGravity(Vect3D grav) {
+    m_gFrc.set(grav);
   }
-  public void updateFriction(double fric) { 
-    fricZ= fric;
+  public void updateFriction(double fric) {
+    m_fricZ= fric;
   }
 
   /* Class attributes */
-  private double fricZ;
-  private Vect3D g_frc;
+
+  private double m_fricZ;
+  private Vect3D m_gFrc;
 }

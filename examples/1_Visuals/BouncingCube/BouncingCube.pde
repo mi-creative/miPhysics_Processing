@@ -56,7 +56,7 @@ void setup() {
   generateVolume(mdl, dimX, dimY, dimZ, "mass", "spring", 1., 25, 0.03, 0.03);
 
   for (int i = 1; i <=mdl.getNumberOfMats(); i++)
-    mdl.addPlaneInteraction("plane"+i, 0, 0.1, 0.005, 2, -40, "mass"+i);
+    mdl.addPlaneContact("plane"+i, 0, 0.1, 0.005, 2, -40, "mass"+i);
 
   mdl.init();
   

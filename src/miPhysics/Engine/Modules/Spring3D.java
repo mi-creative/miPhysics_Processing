@@ -13,22 +13,21 @@ public class Spring3D extends Link {
   public Spring3D(double distance, double K_param, Mat m1, Mat m2) {
     super(distance, m1, m2);
     setType(linkModuleType.Spring3D);
-    K = K_param;
+    m_K = K_param;
   }
 
   public void compute() {
-    double d = calcNewEuclidDist();
-    double lnkFrc = -(d-dRest)*(K);
-    this.applyForces(lnkFrc);
+    updateEuclidDist();
+    applyForces( -(m_dist - m_dRest) * m_K );
   }
   
   public void changeStiffness(double stiff) {
-	  K = stiff;
+	  m_K = stiff;
   }
   
   public void changeDamping(double damp) {
 	  // no operation here
   }
 
-  public double K;
+  public double m_K;
 }

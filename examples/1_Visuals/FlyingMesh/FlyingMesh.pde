@@ -48,7 +48,7 @@ void setup() {
   mdl.setFriction(0.0001);
 
   for (int i = 1; i <=mdl.getNumberOfMats(); i++)
-    mdl.addPlaneInteraction("plane"+i, 0, 0.01, 0.01, 2, -160, "mass"+i);
+    mdl.addPlaneContact("plane"+i, 0, 0.01, 0.01, 2, -160, "mass"+i);
 
   // initialise the model before starting calculations.
   mdl.init();

@@ -1,7 +1,6 @@
 package miPhysics;
 
 import java.util.*;
-import java.awt.image.SampleModel;
 import java.lang.Math;
 
 import processing.core.*;
@@ -12,23 +11,23 @@ import processing.core.PVector;
  * model. A global physical context is created, then populated with modules,
  * which can then be computed.
  * 
- * Within this physical context, modules can be accessed in two ways: - by using
- * their identification String (a unique name for each module) - by using their
- * index in the Mat and Link module tables. Although it is less clear, this
- * method is more efficient for many operations.
- * 
- * (the tag example followed by the name of an example included in folder
- * 'examples' will automatically include the example in the javadoc.)
+ * Within this physical context, modules can be accessed in two ways: by using
+ * their identification String (a unique name for each module) or by using their
+ * index in the Mat and Link module tables. See example: HelloMass
  *
- * @example HelloMass
+ *
+ *
  */
+
+// removed until sorting out taglet compile in new Java:
+// (the tag example followed by the name of an example included in folder
+// 'examples' will automatically include the example in the javadoc.)
+// @example HelloMass
 
 public class PhysicalModel {
 
 	// myParent is a reference to the parent sketch
 	PApplet myParent;
-
-	int myVariable = 0;
 
 	/* List of Mats and Links that compose the physical model */
 	private ArrayList<Mat> mats;
@@ -75,7 +74,7 @@ public class PhysicalModel {
 	 * @param displayRate
 	 *            the display Rate for the processing sketch
 	 */
-	public PhysicalModel(int sRate, int dRate, paramSystem sys) {
+	public PhysicalModel(int sRate, int displayRate, paramSystem sys) {
 		/* Create empty Mat and Link arrays */
 		mats = new ArrayList<Mat>();
 		links = new ArrayList<Link>();
@@ -101,7 +100,7 @@ public class PhysicalModel {
 			setSimRate(50);
 		}
 
-		this.displayRate = dRate;
+		this.displayRate = displayRate;
 		this.residue = 0;
 
 		this.calculateSimDisplayFactor();
@@ -862,7 +861,7 @@ public class PhysicalModel {
 	}
 
 	/**
-	 * Add a 3D Spring & Damper module to the model.
+	 * Add a 3D Spring and Damper module to the model.
 	 * 
 	 * @param name
 	 *            identifier of the Spring-Damper.
@@ -919,7 +918,7 @@ public class PhysicalModel {
 	}
 
 	/**
-	 * Add a 3D "rope-like" Spring & Damper module to the model. This interaction
+	 * Add a 3D "rope-like" Spring  and Damper module to the model. This interaction
 	 * will only be active in case of a positive elongation. If the rope is not
 	 * tight (elongation smaller than resting distance) the interaction does
 	 * nothing.
@@ -962,7 +961,7 @@ public class PhysicalModel {
 	 * 
 	 * @param name
 	 *            identifier of the Contact module.
-	 * @param distance
+	 * @param dist
 	 *            (threshold) below which the Contact becomes active.
 	 * @param paramK
 	 *            stiffness value.
@@ -993,53 +992,14 @@ public class PhysicalModel {
 		return 0;
 	}
 
-	/**
-	 * Create a non-orthonormal contact interaction between two Mat modules
-	 * (EXPERIMENTAL).
-	 * 
-	 * @param name
-	 *            identifier of the module.
-	 * @param m1_r
-	 *            radius of the "sphere" associated to first Mat module.
-	 * @param m2_r
-	 *            radius of the "sphere" associated to second Mat module.
-	 * @param paramK
-	 *            stiffness.
-	 * @param paramZ
-	 *            damping.
-	 * @param m1_Name
-	 *            name of the first Mat module.
-	 * @param m2_Name
-	 *            name of the second Mat module.
-	 * @return
-	 */
-	public int addNonOrthContact3D(String name, double m1_r, double m2_r, double paramK, double paramZ, String m1_Name,
-			String m2_Name) {
-
-		if (unit_system == paramSystem.REAL_UNITS) {
-			paramK = paramK / (simRate * simRate);
-			paramZ = paramZ / simRate;
-		}
-
-		int mat1_index = getMatIndex(m1_Name);
-		int mat2_index = getMatIndex(m2_Name);
-		try {
-			links.add(new NonOrthContact3D(m1_r, m2_r, paramK, paramZ, mats.get(mat1_index), mats.get(mat2_index)));
-			linkIndexList.add(name);
-		} catch (Exception e) {
-			System.out.println("Error allocating the Contact module");
-			System.exit(1);
-		}
-		return 0;
-	}
 
 	/**
 	 * Add a 3D Bubble (enclosing circle module to the model.
 	 * 
 	 * @param name
 	 *            identifier of the Bubble module.
-	 * @param radius
-	 *            of the circle (distance above which the interaction will become
+	 * @param dist
+	 *            radius of the circle (distance above which the interaction will become
 	 *            active).
 	 * @param paramK
 	 *            stiffness value.
@@ -1108,7 +1068,7 @@ public class PhysicalModel {
 	 *            name of the Plane Interaction module.
 	 * @param l0
 	 *            distance below which the interaction becomes active.
-	 * @param param_K
+	 * @param paramK
 	 *            stiffness value.
 	 * @param paramZ
 	 *            damping value.
@@ -1120,7 +1080,7 @@ public class PhysicalModel {
 	 *            name of the Mat module connected to this Plane.
 	 * @return
 	 */
-	public int addPlaneInteraction(String name, double l0, double paramK, double paramZ, int or, double pos,
+	public int addPlaneContact(String name, double l0, double paramK, double paramZ, int or, double pos,
 			String m1_Name) {
 
 		if (unit_system == paramSystem.REAL_UNITS) {
@@ -1151,7 +1111,6 @@ public class PhysicalModel {
 	 * @return 0 if success, throws error if Mat cannot be found or removed.
 	 */
 	private int removeMat(int mIndex) {
-		// Risky business
 		// find mat and remove from the mat array list.
 		try {
 			// first check if the index can be in the list
@@ -1600,7 +1559,7 @@ public class PhysicalModel {
 	/**
 	 * Trigger a force impulse on a given Mat module (identified by index).
 	 * 
-	 * @param name
+	 * @param index
 	 *            index of the module to apply a force to.
 	 * @param fx
 	 *            force in the X dimension.
@@ -1877,29 +1836,21 @@ public class PhysicalModel {
 		}
 	}
 
-	public void setContactShapeMat1(String linkName, double x, double y, double z) {
-		int index = getLinkIndex(linkName);
-		NonOrthContact3D tmp;
-		if (links.get(index).getType() == linkModuleType.NonOrthContact3D) {
-			tmp = (NonOrthContact3D) links.get(index);
-			tmp.setContactShapeMat1(x, y, z);
-		} else {
-			System.out.println("Not a non orthonormal contact module !");
-		}
-	}
 
-	public void setContactShapeMat2(String linkName, double x, double y, double z) {
-		int index = getLinkIndex(linkName);
-		NonOrthContact3D tmp;
-		if (links.get(index).getType() == linkModuleType.NonOrthContact3D) {
-			tmp = (NonOrthContact3D) links.get(index);
-			tmp.setContactShapeMat2(x, y, z);
-		} else {
-			System.out.println("Not a non orthonormal contact module !");
-		}
-	}
 
 	/* HAPTIC INPUT ELEMENTS */
+
+	/**
+	 * Add a haptic input "avatar" module (or any position input module) to the physical model.
+	 *
+	 * @param name
+	 *            the name of the module.
+	 * @param initPos
+	 *            the initial position of the module.
+	 * @param smoothing
+	 * 			  EWMA smoothing factor for incoming position data (1 = no smoothing)
+	 *
+	 */
 
 	public HapticInput3D addHapticInput3D(String name, Vect3D initPos, int smoothing) {
 		HapticInput3D inputMod;
@@ -1921,6 +1872,14 @@ public class PhysicalModel {
 		return null;
 	}
 
+	/**
+	 * Set the position of a haptic input module ("avatar") from the outside world
+	 *
+	 * @param matName
+	 * 			  the name of the haptic module
+	 * @param newPos
+	 * 			  the new position value.
+	 */
 	public void setHapticPosition(String matName, Vect3D newPos) {
 		int mat_index = getMatIndex(matName);
 		HapticInput3D tmp;
@@ -1932,6 +1891,14 @@ public class PhysicalModel {
 		}
 	}
 
+
+	/**
+	 * Get the force accumulated in a haptic "avatar" (to apply it to the haptic device)
+	 *
+	 * @param matName
+	 * 			  the name of the haptic module
+	 * @return the force vector.
+	 */
 	public Vect3D getHapticForce(String matName) {
 		int mat_index = getMatIndex(matName);
 		HapticInput3D tmp;
@@ -1948,12 +1915,6 @@ public class PhysicalModel {
 		System.out.println("##library.name## ##library.prettyVersion## by ##author##");
 	}
 
-	/**
-	 * @return
-	 */
-	public String sayHello() {
-		return "hello library.";
-	}
 
 	/**
 	 * return the version of the Library.

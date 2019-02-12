@@ -121,7 +121,7 @@ void setup(){
   
   for(int i = 0; i < nbMass ; i++){
     mdl.addBubble3D("bub"+i, 3., 0.1, 0.1, "gnd", "mass"+i);
-    mdl.addPlaneInteraction("plane"+i, 0, 0.01, 0.01, 2, 0, "mass"+i);
+    mdl.addPlaneContact("plane"+i, 0, 0.01, 0.01, 2, 0, "mass"+i);
     for(int j = 0; j < nbMass; j++){
       if(i != j)
         mdl.addContact3D("cont"+i+"_"+j, 0.2, 0.02, 0.01, "mass"+j, "mass"+i);

@@ -47,7 +47,7 @@ void setup() {
   mdl.addRope3D("rope3", 100.0, 0.01,0.08, "mass3", "ground1");
 
   for(int i = 1; i <=3; i++)
-    mdl.addPlaneInteraction("plane"+i, 50, 0.01, 0.1, 0, -160, "mass"+i);
+    mdl.addPlaneContact("plane"+i, 50, 0.01, 0.1, 0, -160, "mass"+i);
 
   // initialise the model before starting calculations.
   mdl.init();
