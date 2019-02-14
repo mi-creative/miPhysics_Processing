@@ -33,7 +33,7 @@ Examples are split into categories:
 
 * **1_Visuals**: some more elaborate models for generating visual behaviour, also showing some more advanced features (dynamic topology changes, grouped parameter modification, etc.)
 
-* **2_Audio**: models generating real-time sound synthesis with mass-interaction models. The code structure is a little different here, and uses the Minim library.
+* **2_Audio**: examples generating real-time sound synthesis with mass-interaction models. The code structure is a little different here (as the model runs in an audio thread, using the Minim library).
 
 * **3_Haptics**: multi-sensory haptic interaction models! Some are purely haptic scenes, whereas others allow audio-haptic interaction with sound-producing virtual models (such as strings, etc.).
 
@@ -133,7 +133,7 @@ void keyPressed() {
 
 Library built and documentation generated with IntelliJ IDEA.
 
-It is also possible to use the .jar library outside of Processing.
+It is also possible to use the .jar library outside of Processing (soon to be documented).
 
 ## Contributing
 
