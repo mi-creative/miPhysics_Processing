@@ -232,7 +232,7 @@ public class PhysicalModel {
 	 *            Mat module identifier.
 	 * @return
 	 */
-	private int getMatIndex(String name) {
+	public int getMatIndex(String name) {
 		return matIndexList.indexOf(name);
 	}
 
@@ -243,7 +243,7 @@ public class PhysicalModel {
 	 *            Link module identifier.
 	 * @return
 	 */
-	private int getLinkIndex(String name) {
+	public int getLinkIndex(String name) {
 		return linkIndexList.indexOf(name);
 	}
 

@@ -56,6 +56,10 @@
 	<property name="install.destination" location="${project.dist.version}/README.md" />
 	<property name="libprops.source" location="resources/library.properties" />
 
+
+	<property name="project.misc" location="resources/misc" />
+
+
 	<taskdef resource="net/sf/antcontrib/antcontrib.properties">
 		<classpath>
 			<pathelement location="./resources/code/ant-contrib-1.0b3.jar" />
@@ -171,6 +175,7 @@ ${line}
 		<mkdir dir="${project.tmp}/${project.name}/examples" />
 		<mkdir dir="${project.tmp}/${project.name}/reference" />
 		<mkdir dir="${project.tmp}/${project.name}/src" />
+		<mkdir dir="${project.tmp}/${project.name}/data" />
 		<copy todir="${project.tmp}/${project.name}/examples">
 			<fileset dir="${project.examples}">
 				<exclude name="**/*README*" />
@@ -182,6 +187,21 @@ ${line}
 		<copy todir="${project.tmp}/${project.name}/${folder}">
 			<fileset dir="${project.lib}" excludes="README" />
 		</copy>
+		<copy todir="${project.tmp}/${project.name}/data">
+			<fileset dir="${project.data}">
+				<exclude name="**/*README*" />
+			</fileset>
+		</copy>
+
+
+		<copy todir="${project.tmp}/${project.name}/">
+			<fileset dir="${project.misc}">
+				<!--exclude name="**/*README*" /-->
+			</fileset>
+		</copy>
+
+
+
 	</target>
 
 
