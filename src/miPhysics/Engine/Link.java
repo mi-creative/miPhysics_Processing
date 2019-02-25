@@ -162,6 +162,22 @@ public abstract class Link {
     }
 
     /**
+     * Get the distance between mat modules connected by the link
+     * @return distance value.
+     */
+    protected double getDist() {
+        return m_dist;
+    }
+
+    /**
+     * Get the elongation (distance minus resting length between mat modules connected by the link
+     * @return elongation value.
+     */
+    protected double getElong() {
+        return getDist() - m_dRest;
+    }
+
+    /**
      * Apply forces to the connected Mat modules
      * @param lnkFrc force to apply symetrically.
      */

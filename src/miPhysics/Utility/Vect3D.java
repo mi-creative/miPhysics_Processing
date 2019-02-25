@@ -26,6 +26,11 @@ public class Vect3D {
 	public double y() {return y;}
 	public double z() {return z;}
 
+	public double norm() {
+		return Math.sqrt(Math.pow(this.x,2)+ Math.pow(this.y,2) + Math.pow(this.z,2));
+	}
+
+
 	public double dist(Vect3D v2) {
 		// Avoid NaN problems !
 		if(this.equals(v2)) {
