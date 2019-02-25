@@ -63,7 +63,7 @@ public class PhysicalModel {
 	private Map<String, ArrayList<Integer>> link_subsets;
 
 	/* Library version */
-	public final static String VERSION = "1.0.3";
+	public final static String VERSION = "1.0.4";
 
 	/**
 	 * Constructor method. Call this in the setup to create a physical context with
@@ -1192,7 +1192,7 @@ public class PhysicalModel {
 			return 0;
 
 		} catch (Exception e) {
-			System.out.println("Issue removing connected links to mass!");
+			System.out.println("Issue removing connected links to mass!" + e);
 			System.exit(1);
 		}
 		return -1;
@@ -1209,6 +1209,37 @@ public class PhysicalModel {
 		int mat_index = getMatIndex(mName);
 		return removeMatAndConnectedLinks(mat_index);
 	}
+
+
+
+
+
+	/**
+	 * Quick module substitution (for boundary conditions).
+	 *
+	 * @param masName
+	 *            identifier of the Mat module.
+	 * @return
+	 */
+	public void changeToFixedPoint(String masName) {
+
+		int mat_index = getMatIndex(masName);
+
+		try {
+
+			Vect3D pos = new Vect3D(0,0,0);
+			pos = getMatPosAt(mat_index);
+
+			mats.set(mat_index, new Ground3D(pos));
+
+		} catch (Exception e) {
+			System.out.println("Couldn't change into fixed point:  " + masName + ": " + e);
+			System.exit(1);
+		}
+		return;
+	}
+
+
 
 	/**
 	 * Set (or change) the resting distance of a Link module.
@@ -1650,7 +1681,7 @@ public class PhysicalModel {
 	 * 
 	 * @param i
 	 *            index of the Osc Module to observe.
-	 * @return the Vect3D speed (differentiated position) of the module.
+	 * @return the speed (differentiated position) of the module.
 	 */
 	public double getOsc3DDeltaPos(int i) {
 		Osc3D tmp;
@@ -1661,6 +1692,38 @@ public class PhysicalModel {
 		}
 		return 0;
 	}
+
+	/**
+	 * Get the current distance (length) of a Link type module
+	 *
+	 * @param i
+	 *            index of the Link to observe.
+	 * @return the current distance value.
+	 */
+	public double getLinkDistanceAt(int i) {
+
+		if (getNumberOfLinks() > i)
+			return links.get(i).getDist();
+		else
+			return 0;
+	}
+
+
+	/**
+	 * Get the current elongation (length minus resting length) of a Link type module
+	 *
+	 * @param i
+	 *            index of the Link to observe.
+	 * @return the current elongation value.
+	 */
+	public double getLinkElongationAt(int i) {
+
+		if (getNumberOfLinks() > i)
+			return links.get(i).getElong();
+		else
+			return 0;
+	}
+
 
 	/**
 	 * Force a Mat module to a given position (with null velocity).
@@ -1674,6 +1737,20 @@ public class PhysicalModel {
 		int mat_index = getMatIndex(matName);
 		if (mat_index > -1)
 			this.mats.get(mat_index).setPos(newPos);
+	}
+
+
+	/**
+	 * Force a Mat module to a given position (with null velocity).
+	 *
+	 * @param index
+	 *            identifier of the mat module.
+	 * @param newPos
+	 *            target position.
+	 */
+	public void setMatPosAt(int index, Vect3D newPos) {
+		if ((index > -1) && index < mats.size())
+			this.mats.get(index).setPos(newPos);
 	}
 
 	/**
@@ -1912,7 +1989,7 @@ public class PhysicalModel {
 	}
 
 	private void welcome() {
-		System.out.println("Mass Interaction Physics 1.0.3 by James Leonard http://yoururl.com");
+		System.out.println("Mass Interaction Physics 1.0.4 by James Leonard http://yoururl.com");
 	}
 
 
