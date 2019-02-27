@@ -1,20 +1,19 @@
 
-## A Mass-Interaction physical modelling library for the Processing Environment
+# A Mass-Interaction physical modelling library for the Processing Environment
 
-This package is a physical modelling system for Processing. It can be used to create 3D networks of masses, springs, collisions... in order to build complex dynamic structures, that can be rendered and interacted with.
+This package is a physical modelling system for Processing.
+
+It can be used to create 3D networks of masses, springs, collisions... in order to build complex dynamic structures, that can be rendered and interacted with.
 
 It is based on established lumped mass-interaction schemes, notably the CORDIS-ANIMA system [ref].
 Models are a network of material points (with inertial behaviour) and links (springs, collisions, etc.) that define physical interactions between two material points.
 
-In the setup() phase, the model can be defined by creating a physical model "context" (with a given simulation rate, etc.), then creating physical modules, setting up their parameters and connecting them together.
-At the end of the initialisation phase, the init() method is used to prepare the model for "simulation mode".
+This repository is for the development, compilation and generation of library distributions.
 
-In the draw() method, the draw_physics() method computes the adequate number of simulation steps depending on the Processing Sketch's display rate.
-The positions of the material points of the model can then be accessed in order to render them in any way seen fit by the user !
 
 -----
 
-Below: guidelines for importing the project into Eclipse.
+***Below***: guidelines for importing the project into Eclipse (from the template used to build this library).
 
 ## Import to Eclipse
 
