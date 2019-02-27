@@ -1753,6 +1753,7 @@ public class PhysicalModel {
 			this.mats.get(index).setPos(newPos);
 	}
 
+
 	/**
 	 * Create an empty Mat module subset item. Module indexes will be associated to
 	 * this specific key later.

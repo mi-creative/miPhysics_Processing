@@ -19,6 +19,8 @@ public class TopoGenerator {
         rotX = rotY = rotZ = 0;
         tX = tY = tZ = 0;
 
+        plane2D = false;
+
         bCond = EnumSet.noneOf(Bound.class);
         //bCond.addAll(EnumSet.range(Bound.X_LEFT, Bound.Z_RIGHT)); // enable all constants
         bCond.removeAll(EnumSet.of(Bound.X_LEFT, Bound.FIXED_CENTRE)); // disable a couple
@@ -34,6 +36,9 @@ public class TopoGenerator {
         neighbors = span;
     }
 
+    public void set2DPlane(boolean val){
+        plane2D = val;
+    }
     public void setParams(double mParam, double kParam, double zParam) {
         M = mParam;
         K = kParam;
@@ -63,6 +68,8 @@ public class TopoGenerator {
         String masName;
         Vect3D V0, U1;
 
+        int nbBefore = mdl.getNumberOfMats();
+
         for (int i = 0; i < dimX; i++) {
             for (int j = 0; j < dimY; j++) {
                 for (int k = 0; k < dimZ; k++) {
@@ -71,10 +78,15 @@ public class TopoGenerator {
 
                     masName = mLabel + "_" +(i+"_"+j+"_"+k);
 
-                    mdl.addMass3D(masName, M, new Vect3D(i*dist,
+                    if(plane2D){
+                    mdl.addMass2DPlane(masName, M, new Vect3D(i*dist,
                                                          j*dist,
                                                          k*dist),
-                                                         V0);
+                                                         V0);}
+                    else {mdl.addMass3D(masName, M, new Vect3D(i*dist,
+                                    j*dist,
+                                    k*dist),
+                            V0);}
                     System.out.println("Created mass: " + masName);
                 }
             }
@@ -85,6 +97,50 @@ public class TopoGenerator {
         int idx = 0, idy = 0, idz = 0;
 
         for (int i = 0; i < dimX; i++) {
+            for (int j = 0; j < dimY; j++) {
+                for (int k = 0; k < dimZ; k++) {
+
+                    //println("Looking at: " + mLabel +(i+"_"+j+"_"+k));
+                    masName1 = mLabel + "_" +(i+"_"+j+"_"+k);
+
+                    for (int l = 0; l < neighbors+1; l++) {
+                        for (int m = -neighbors; m < neighbors+1; m++) {
+                            for (int n = -neighbors; n < neighbors+1; n++) {
+                                idx = i+l;
+                                idy = j+m;
+                                idz = k+n;
+
+                                if((l==0) && (m<0) && (n < 0))
+                                    break;
+
+                                else if ((idx < dimX) && (idy < dimY) && (idz < dimZ)) {
+                                    if ((idx>=0) && (idy>=0) && (idz>=0)) {
+                                        if ((idx==i) && (idy == j) && (idz == k)) {
+                                            //println("Superposed at same point" + idx + " " + idy + " " + idz);
+                                            break;
+                                        } else {
+
+                                            U1 = new Vect3D(l, m, n);
+
+                                            double d = U1.norm() * l0;
+
+                                            //println("distance: " + d + ", " + l + " " + m + " " + n);
+
+                                            masName2 = mLabel + "_" +(idx+"_"+idy+"_"+idz);
+                                            String ln = iLabel + "_" + (i+"_"+j+"_"+k) + "_" + (idx+"_"+idy+"_"+idz) ;
+                                            mdl.addSpringDamper3D(mLabel + "1_" +i+j+k, d, K, Z, masName1, masName2);
+                                            System.out.println("Created interaction: " + ln);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        /*for (int i = 0; i < dimX; i++) {
             for (int j = 0; j < dimY; j++) {
                 for (int k = 0; k < dimZ; k++) {
 
@@ -120,9 +176,9 @@ public class TopoGenerator {
                     }
                 }
             }
-        }
+        }*/
 
-        this.translateAndRotate(tX, tY, tZ, rotX, rotY, rotZ);
+        this.translateAndRotate(nbBefore, tX, tY, tZ, rotX, rotY, rotZ);
         this.applyBoundaryConditions();
     }
 
@@ -252,12 +308,13 @@ public class TopoGenerator {
 
 
     // Currently a problem with rotations along Y and Z, need to sort this...
-    private void translateAndRotate(float tx, float ty, float tz, float x_angle, float y_angle, float z_angle){
+    private void translateAndRotate(int nbBefore, float tx, float ty, float tz, float x_angle, float y_angle, float z_angle){
 
         Vect3D newPos = new Vect3D();
         Vect3D mdlPos = new Vect3D();
 
-        for (int i = 0; i < mdl.getNumberOfMats(); i++) {
+        for (int i = nbBefore; i < mdl.getNumberOfMats(); i++) {
+
 
             mdlPos = mdl.getMatPosAt(i);
 
@@ -310,6 +367,8 @@ public class TopoGenerator {
     private float tX;
     private float tY;
     private float tZ;
+
+    private boolean plane2D ;
 
     private EnumSet<Bound> bCond;
 
