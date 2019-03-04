@@ -84,12 +84,6 @@ void draw()
   directionalLight(126, 126, 126, 100, 0, -1);
   ambientLight(182, 182, 182);
   
-  
-  pushMatrix();
-  rotateX(PI/2);
-  translate(0,1000,0);
-  drawHemisphere();
-  popMatrix();
 
   strokeWeight(1);
   renderModelShapes(simUGen.mdl);
@@ -117,17 +111,17 @@ void keyPressed() {
   simUGen.mdl.setGravity(-grav);
   
   if (key == 'a'){
-      simUGen.mdl.triggerForceImpulse("pebbleA_3_2_1", 0, 0.1, 0.1);
+      simUGen.mdl.triggerForceImpulse("pebbleA_1_1_0", 0, 0.1, 0.1);
   }
   else if (key == 'z'){
-      simUGen.mdl.triggerForceImpulse("pebbleB_3_2_1", 0,-0.1, 0.1);
+      simUGen.mdl.triggerForceImpulse("pebbleB_1_2_0", 0,-0.1, 0.1);
       }
   else if (key =='e'){
-      simUGen.mdl.triggerForceImpulse("pebbleA_3_2_1", 0.1,0, 0.1);
+      simUGen.mdl.triggerForceImpulse("pebbleA_1_1_0", 0.1,0, 0.1);
 
   }
   else if (key =='r'){
-      simUGen.mdl.triggerForceImpulse("pebbleB_3_2_1", -0.1,0, 0.1);
+      simUGen.mdl.triggerForceImpulse("pebbleB_1_2_0", -0.1,0, 0.1);
   }
   else if (key == 'q'){
     grav = 0.001;
@@ -135,8 +129,10 @@ void keyPressed() {
   }
   else if (key=='s'){
     grav = 0.003;
-    simUGen.mdl.setGravity(grav);
-  }
+    simUGen.mdl.setGravity(grav);    
+  } 
+  else if (key =='w')
+      simUGen.mdl.triggerForceImpulse("gnd", 0,0, random(10,30));
 }
 
 void keyReleased() {

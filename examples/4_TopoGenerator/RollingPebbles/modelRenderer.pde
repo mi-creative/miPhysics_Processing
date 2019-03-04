@@ -47,7 +47,7 @@ void createShapeArray(PhysicalModel mdl) {
       addColoredShape(mdl.getMatPosAt(i).toPVector(), color(255, 10, 10), 40);
       break; 
     case Osc3D:
-      addColoredShape(mdl.getMatPosAt(i).toPVector(), color(30, 0, 230), 40);
+      addColoredShape(mdl.getMatPosAt(i).toPVector(), color(30, 0, 230), 4);
       break;
     case UNDEFINED:
       break;
@@ -58,7 +58,17 @@ void createShapeArray(PhysicalModel mdl) {
 
 void renderModelShapes(PhysicalModel mdl) {
   PVector v;
-  synchronized(lock) { 
+  synchronized(lock) {
+    
+      
+  pushMatrix();
+  rotateX(PI/2);
+  PVector test = simUGen.mdl.getMatPVector("gnd");
+  translate(test.x,test.z,test.y);
+  drawHemisphere();
+  popMatrix();
+    
+    
     for ( int i = 0; i < mdl.getNumberOfMats(); i++) {
       v = mdl.getMatPosAt(i).toPVector().mult(1.);
       massShapes.get(i).moveTo(v.x, v.y, v.z);

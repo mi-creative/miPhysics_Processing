@@ -8,7 +8,7 @@ import miPhysics.*;
 int dimX = 4;
 int dimY = 4;
 int dimZ = 3;
-int overlap = 1;
+int overlap = 2;
 
 
 double grav = 0.000004;
@@ -46,8 +46,10 @@ public class PhyUGen extends UGen
 
     TopoGenerator q = new TopoGenerator(mdl, "pebbleA", "springA");
     q.setDim(dimX, dimY, dimZ, overlap);
-    q.setParams(1, 0.01, 0.0001);
+    q.setParams(1, 0.05, 0.0001);
     q.setGeometry(25, 25);
+    
+    q.setTranslation(1, 1,0);
 
     q.generate();
     
@@ -59,7 +61,7 @@ public class PhyUGen extends UGen
     
     TopoGenerator q2 = new TopoGenerator(mdl, "pebbleB", "springB");
     q2.setDim(dimX, dimY, dimZ, overlap);
-    q2.setParams(1, 0.012, 0.0001);
+    q2.setParams(1, 0.05, 0.0001);
     q2.setGeometry(25, 25);
     //q2.setTranslation(100,100,100);
     q2.generate();
@@ -70,7 +72,7 @@ public class PhyUGen extends UGen
     int secondPebbleEnd = mdl.getNumberOfMats();
 
 
-    mdl.addGround3D("gnd", new Vect3D(0, 0, 1000));
+    mdl.addOsc3D("gnd", 500, 0.0001, 0.07, new Vect3D(0, 0, 1000), new Vect3D(0, 0, 0));
 
 
 
@@ -121,9 +123,9 @@ public class PhyUGen extends UGen
 
       // calculate the sample value
       if (simUGen.mdl.matExists(listeners[i])) {
-        sample =(float)(listenPos.x)* 0.5
-               + (float)(listenPos.y)* 0.5
-               + (float)(listenPos.z)* 0.5;
+        sample =(float)(listenPos.x)* 0.2
+               + (float)(listenPos.y)* 0.2
+               + (float)(listenPos.z)* 0.8;
 
         /* High pass filter to remove the DC offset */
         audioOut[i] = (sample - prevAudio[i] + 0.85 * audioOut[i]) * audioRamp;
