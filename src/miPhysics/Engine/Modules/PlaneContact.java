@@ -47,17 +47,6 @@ public class PlaneContact extends Link {
     }
   }
 
-  public void changeStiffness(double stiff) {
-    m_K = stiff;
-  }
-
-  public void changeDamping(double damp) {
-    m_Z = damp;
-  }
-
-  private double m_K;
-  private double m_Z;
-
   private double m_position;
   private int m_orientation;
 

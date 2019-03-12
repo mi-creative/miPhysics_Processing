@@ -2,7 +2,7 @@ package miPhysics;
 
 
 /**
- * A regular 3D Mat module, with a given inertia, subject to potential gravity.
+ * A regular 2D Mat module (constrained to the XY plane), with a given inertia, subject to potential gravity.
  * @author James Leonard / james.leonard@gipsa-lab.fr
  *
  */

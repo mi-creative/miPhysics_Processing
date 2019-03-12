@@ -27,14 +27,4 @@ public class Rope3D extends Link {
             applyForces( -(m_dist - m_dRest) * m_K - getVel() *  m_Z );
     }
 
-    public void changeStiffness(double stiff) {
-        m_K = stiff;
-    }
-
-    public void changeDamping(double damp) {
-        m_Z = damp;
-    }
-
-    public double m_K;
-    public double m_Z;
 }

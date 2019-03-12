@@ -11,6 +11,8 @@ in real time during the simulation.
 Trigger forces on the mass using the space bar.
 Hit 'a' to change the inertia of the mass
 Hit 'z', 'e' or 'r' to change the stiffness and damping of the springs.
+
+Press 'w' to print the model state.
 */
 
 import miPhysics.*;
@@ -102,6 +104,30 @@ void draw() {
   text("X Springs:  k =  " + k + ",z = " + z, 15, 30, 15);
   text("Y Springs:  k =  " + k2 + ",z = " + z2, 15, 45, 15);
   text("Z Springs:  k =  " + k3 + ",z = " + z3, 15, 60, 15);
+
+}
+
+
+
+void printModelState(){
+  
+  println("---");
+  println("Population of the physical model:");
+  
+  for (int i= 0; i < mdl.getNumberOfMats();i++){
+    print("Mat at index " + i +":\t");
+    print(mdl.getMatNameAt(i) +"\ttype: " + mdl.getMatTypeAt(i) +"\t");
+    println("Mass = " + mdl.getMatMassAt(i) +", ");
+  }
+  
+  for (int i= 0; i < mdl.getNumberOfLinks();i++){
+    print("Link at index " + i +":\t");
+    print(mdl.getLinkNameAt(i) +"\ttype: " + mdl.getLinkTypeAt(i) +"\t");
+    print("Stiffness = " + mdl.getLinkStiffnessAt(i) +", ");
+    println("Damping = " + mdl.getLinkDampingAt(i));
+  }
+  println("---");
+
 }
 
 void keyPressed() {
@@ -130,5 +156,8 @@ void keyPressed() {
     mdl.changeStiffnessParamOfSubset(k3,"Z_springs");
     z3 = random(0.001, 0.1);
     mdl.changeDampingParamOfSubset(z3,"Z_springs");
+  }
+  if (key == 'w'){
+    printModelState();
   }
 }

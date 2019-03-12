@@ -33,23 +33,12 @@ public class Contact3D extends Link {
     }
 
 
-    public void changeStiffness(double stiff) {
-        m_K = stiff;
-    }
-
-    public void changeDamping(double damp) {
-        m_Z = damp;
-    }
-
     /* Reimplement in order to store squared distance */
-    public void changeDRest(double d) {
+    public boolean changeDRest(double d) {
         m_dRest = d;
         m_dRsquared = m_dRest * m_dRest;
+        return true;
     }
-
-
-    public double m_K;
-    public double m_Z;
 
     private double m_dRsquared;
 }

@@ -26,7 +26,7 @@ public abstract class Mat {
 
         m_type = matModuleType.UNDEFINED;
 
-        setMass(M);
+        changeMass(M);
         m_pos.set(initPos);
         m_posR.set(initPosR);
 
@@ -104,9 +104,20 @@ public abstract class Mat {
     /**
      * Set the mass parameter.
      * @param M mass value.
+     * @return true if set the mass val
      */
-    public void setMass (double M) {
+    public boolean changeMass (double M) {
         m_invMass = 1 / M;
+        return true;
+    }
+
+
+    /**
+     * Get the mass parameter.
+     * @return the mass value
+     */
+    public double getMass () {
+        return  1. / m_invMass;
     }
 
 

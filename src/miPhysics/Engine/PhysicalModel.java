@@ -491,6 +491,22 @@ public class PhysicalModel {
 			return new Vect3D(0., 0., 0.);
 	}
 
+
+	/**
+	 * Get the 3D force of Mat module at index i. Returns a zero filled 3D Vector
+	 * is the Mat is not found.
+	 *
+	 * @param i
+	 *            the index of the Mat module
+	 * @return the 3D X,Y,Z coordinates of the module.
+	 */
+	public Vect3D getMatFrcAt(int i) {
+		if (getNumberOfMats() > i)
+			return mats.get(i).getFrc();
+		else
+			return new Vect3D(0., 0., 0.);
+	}
+
 	/**
 	 * Check the type (spring, rope, contact...) of Link module at index i
 	 * 
@@ -1298,7 +1314,7 @@ public class PhysicalModel {
 
 		// Update the parameters of all these links
 		for (Mat ma : tmplist) {
-			ma.setMass(mass);
+			ma.changeMass(mass);
 		}
 	}
 
@@ -1338,9 +1354,9 @@ public class PhysicalModel {
 	 * @param index
 	 *            index of the Link module to modify
 	 * @param stiff
-	 *            stiffness value.
+	 *            stiffness value.setMatMass
 	 */
-	public void setLinkStiffness(int index, double stiff) {
+	public void setLinkStiffnessAt(int index, double stiff) {
 
 		if (unit_system == paramSystem.REAL_UNITS) {
 			stiff = stiff / (simRate * simRate);
@@ -1354,6 +1370,27 @@ public class PhysicalModel {
 		}
 	}
 
+
+	/**
+	 * Get stiffness of a link module at given index
+	 * @param index
+	 * @return the stiffness parameter
+	 */
+	public double getLinkStiffnessAt(int index) {
+
+		if (index >= links.size()) {
+			System.out.println("Trying to get stiffness in out of bounds link.");
+			return 0;
+		}
+
+		double stiff = links.get(index).getStiffness();
+
+		if (unit_system == paramSystem.REAL_UNITS)
+			return stiff / (simRate * simRate);
+		else
+			return stiff;
+	}
+
 	/**
 	 * Set the stiffness value for a Link module with given identifier.
 	 * 
@@ -1363,7 +1400,8 @@ public class PhysicalModel {
 	 *            stiffness value.
 	 */
 	public void setLinkStiffness(String name, double stiff) {
-		this.setLinkStiffness(getLinkIndex(name), stiff);
+
+		this.setLinkStiffnessAt(getLinkIndex(name), stiff);
 	}
 
 	/**
@@ -1374,7 +1412,7 @@ public class PhysicalModel {
 	 * @param damp
 	 *            damping parameter.
 	 */
-	public void setLinkDamping(int index, double damp) {
+	public void setLinkDampingAt(int index, double damp) {
 
 		if (unit_system == paramSystem.REAL_UNITS) {
 			damp = damp / simRate;
@@ -1388,6 +1426,27 @@ public class PhysicalModel {
 		}
 	}
 
+
+	/**
+	 * Get damping of a link module at given index
+	 * @param index
+	 * @return the damping parameter
+	 */
+	public double getLinkDampingAt(int index) {
+
+		if (index >= links.size()) {
+			System.out.println("Trying to get damping in out of bounds link.");
+			return 0;
+		}
+
+		double damp = links.get(index).getDamping();
+
+		if (unit_system == paramSystem.REAL_UNITS)
+			return damp / simRate;
+		else
+			return damp;
+	}
+
 	/**
 	 * Set the damping value for a Link module with given name.
 	 * 
@@ -1397,7 +1456,8 @@ public class PhysicalModel {
 	 *            damping parameter.
 	 */
 	public void setLinkDamping(String name, double damp) {
-		this.setLinkDamping(getLinkIndex(name), damp);
+
+		this.setLinkDampingAt(getLinkIndex(name), damp);
 	}
 
 	/**
@@ -1408,14 +1468,31 @@ public class PhysicalModel {
 	 * @param mass
 	 *            the mass value to change
 	 */
-	public void setMatMass(int index, double mass) {
+	public void setMatMassAt(int index, double mass) {
 		try {
-			mats.get(index).setMass(mass);
+			mats.get(index).changeMass(mass);
 		} catch (Exception e) {
 			System.out.println("Issue changing mass inertia!");
 			System.exit(1);
 		}
 	}
+
+	/**
+	 * Get stiffness of a link module at given index
+	 * @param index
+	 * @return the stiffness parameter
+	 */
+	public double getMatMassAt(int index) {
+
+		if (index >= mats.size()) {
+			System.out.println("Trying to get mass in out of bounds mat.");
+			return 0;
+		}
+
+		return mats.get(index).getMass();
+
+	}
+
 
 	/**
 	 * Change mass parameter for a given Mat module identified by name.
@@ -1426,7 +1503,8 @@ public class PhysicalModel {
 	 *            mass value.
 	 */
 	public void setMatMass(String name, double mass) {
-		this.setMatMass(getMatIndex(name), mass);
+
+		this.setMatMassAt(getMatIndex(name), mass);
 	}
 
 	/**************************************************/
@@ -1858,7 +1936,7 @@ public class PhysicalModel {
 	 */
 	public void changeMassParamOfSubset(double newParam, String subsetName) {
 		for (int matIndex : this.mat_subsets.get(subsetName)) {
-			mats.get(matIndex).setMass(newParam);
+			mats.get(matIndex).changeMass(newParam);
 		}
 	}
 
