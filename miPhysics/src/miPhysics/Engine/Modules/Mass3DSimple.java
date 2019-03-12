@@ -2,7 +2,7 @@ package miPhysics;
 
 
 /**
- * A regular 3D Mat module, with a given inertia, subject to potential gravity.
+ * A 3D Mat module, with a given inertia and no gravity (should remove this module).
  * @author James Leonard / james.leonard@gipsa-lab.fr
  *
  */

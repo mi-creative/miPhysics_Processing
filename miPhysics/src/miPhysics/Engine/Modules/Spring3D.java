@@ -20,14 +20,13 @@ public class Spring3D extends Link {
     updateEuclidDist();
     applyForces( -(m_dist - m_dRest) * m_K );
   }
+
   
-  public void changeStiffness(double stiff) {
-	  m_K = stiff;
-  }
-  
-  public void changeDamping(double damp) {
-	  // no operation here
+  public boolean changeDamping(double damp) {
+      // damping is unused in this module...
+      this.m_Z = 0;
+      return false;
   }
 
-  public double m_K;
+  //public double m_K;
 }

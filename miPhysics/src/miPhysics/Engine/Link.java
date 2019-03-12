@@ -24,6 +24,9 @@ public abstract class Link {
         m_mat2 = m2;
         m_type = linkModuleType.UNDEFINED;
 
+        m_K = 0;
+        m_Z = 0;
+
         m_invDist = 0;
     }
 
@@ -136,22 +139,38 @@ public abstract class Link {
     /**
      * Change resting distance for this Link.
      * @param d new resting distance.
+     *  @return true if succesfully changed
      */
-    public void changeDRest(double d) {
+    public boolean changeDRest(double d) {
         m_dRest = d;
+        return true;
     }
 
     /**
      * Change the stiffness of this Link.
      * @param k stiffness value.
+     * @return true if succesfully changed
      */
-    public abstract void changeStiffness(double k);
+    public boolean changeStiffness(double k) {m_K = k; return true;}
 
     /**
      * Change the damping of this Link.
      * @param z the damping value.
+     * @return true if succesfully changed
      */
-    public abstract void changeDamping(double z);
+    public boolean changeDamping(double z){m_Z = z; return true;}
+
+    /**
+     * Get the stiffness of this link element
+     * @return the stiffness parameter
+     */
+    public double getStiffness(){return m_K;}
+
+    /**
+     * Get the damping of this link element
+     * @return the damping parameter
+     */
+    public double getDamping(){return m_Z;}
 
     /**
      * Get delayed velocity (per sample) between the two connected Mat modules
@@ -217,6 +236,9 @@ public abstract class Link {
     protected double m_dist;
     protected double m_distR;
     protected double m_dRest;
+
+    protected double m_K;
+    protected double m_Z;
 
     private double m_invDist;
 

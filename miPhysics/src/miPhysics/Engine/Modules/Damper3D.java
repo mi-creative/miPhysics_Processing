@@ -19,12 +19,10 @@ public class Damper3D extends Link {
     applyForces( - getVel() *  m_Z );
   }
   
-  public void changeStiffness(double stiff) {
-	 	// nothing here...
-  } 
-  public void changeDamping(double damp) {
-	  m_Z = damp;
+  public boolean changeStiffness(double stiff) {
+    // stiffness is unused in this module...
+    this.m_K = 0;
+    return false;
   }
 
-  public double m_Z;
 }

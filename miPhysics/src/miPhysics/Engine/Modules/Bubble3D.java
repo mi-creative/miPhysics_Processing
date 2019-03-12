@@ -34,19 +34,4 @@ public class Bubble3D extends Link {
             applyForces( -(m_dist - m_dRest) * m_K - getVel() *  m_Z );
     }
 
-    /* (non-Javadoc)
-     * @see physicalModelling.Link#changeStiffness(double)
-     */
-    public void changeStiffness(double stiff) {
-        m_K = stiff;
-    }
-    /* (non-Javadoc)
-     * @see physicalModelling.Link#changeDamping(double)
-     */
-    public void changeDamping(double damp) {
-        m_Z = damp;
-    }
-
-    public double m_K;
-    public double m_Z;
 }

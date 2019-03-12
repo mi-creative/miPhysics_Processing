@@ -24,14 +24,6 @@ public class SpringDamper1D extends Link {
 	}
 
 
-	public void changeStiffness(double stiff) {
-		m_K = stiff;
-	}
-
-	public void changeDamping(double damp) {
-		m_Z = damp;
-	}
-
 	protected void initDistances() {
 		m_dist_1D = this.getMat1().getPos().z - this.getMat2().getPos().z;
 		m_distR_1D = this.getMat1().getPosR().z - this.getMat2().getPosR().z;
@@ -44,6 +36,4 @@ public class SpringDamper1D extends Link {
 	public double m_dist_1D;
 	public double m_distR_1D;
 
-	public double m_K;
-	public double m_Z;
 }

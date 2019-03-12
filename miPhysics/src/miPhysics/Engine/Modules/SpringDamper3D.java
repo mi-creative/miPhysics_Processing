@@ -23,7 +23,8 @@ public class SpringDamper3D extends Link {
         applyForces( -(m_dist-m_dRest)*(m_K) - getVel() *  m_Z );
     }
   
-  /*public void compute() {
+    // Experimental alternate computation algorithm
+    /*public void compute() {
 	    d = updateEuclidDist();
 	    double invD = 1./d;
 	    double f_algo = -K * (1 - dRest*invD) - Z * (1 - PrevD*invD);
@@ -31,15 +32,5 @@ public class SpringDamper3D extends Link {
 	    PrevD = d;
 	  }*/
 
-    public void changeStiffness(double stiff) {
-        m_K = stiff;
-    }
-
-    public void changeDamping(double damp) {
-        m_Z = damp;
-    }
-
-    public double m_K;
-    public double m_Z;
     public double m_PrevD;
 }
