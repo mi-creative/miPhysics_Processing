@@ -56,6 +56,17 @@ public class Osc3D extends Mat {
     m_frc.set(0., 0., 0.);
   }
 
+  public double getStiffness(){return m_K;}
+  public double getDamping(){return m_Z;}
+
+  public void setStiffness(double K){
+    m_K = K;
+  }
+
+  public void setDamping(double Z){
+    m_Z = Z;
+  }
+
   public void updateGravity(Vect3D grav) { 
     m_gFrc.set(grav);
   }

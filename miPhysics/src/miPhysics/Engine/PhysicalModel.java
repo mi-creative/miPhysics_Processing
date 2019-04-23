@@ -563,6 +563,60 @@ public class PhysicalModel {
 			return new Vect3D(0., 0., 0.);
 	}
 
+
+	/**
+	 * Get the index of the Mat connected to the first input of a Link Module
+	 * @param i index of the Link Module.
+	 * @return the index of the Mat module (in the Mat list)
+	 */
+	public int getLinkMat1IdxAt(int i) {
+		if (getNumberOfLinks() > i) {
+			Mat theMat1 = links.get(i).getMat1();
+			return mats.indexOf(theMat1);
+		}
+		else
+			return -1;
+	}
+
+	/**
+	 * Get the index of the Mat connected to the second input of a Link Module
+	 * @param i index of the Link Module.
+	 * @return the index of the Mat module (in the Mat list)
+	 */
+	public int getLinkMat2IdxAt(int i) {
+		if (getNumberOfLinks() > i) {
+			Mat theMat2 = links.get(i).getMat2();
+			return mats.indexOf(theMat2);
+		}
+		else
+			return -1;
+	}
+
+	/**
+	 * Get the name of the Mat connected to the first input of a Link Module
+	 * @param i index of the Link Module
+	 * @return the name of the Mat
+	 */
+	public String getLinkMat1NameAt(int i) {
+		if (getLinkMat1IdxAt(i) > -1)
+			return getMatNameAt(getLinkMat1IdxAt(i));
+		else
+			return "";
+	}
+
+	/**
+	 * Get the name of the Mat connected to the second input of a Link Module
+	 * @param i index of the Link Module
+	 * @return the name of the Mat
+	 */
+	public String getLinkMat2NameAt(int i) {
+		if (getLinkMat2IdxAt(i) > -1)
+			return getMatNameAt(getLinkMat2IdxAt(i));
+		else
+			return "";
+	}
+
+
 	/*************************************************/
 	/* Compute simulation steps */
 	/*************************************************/
@@ -1115,6 +1169,34 @@ public class PhysicalModel {
 		return 0;
 	}
 
+
+
+
+	/**
+	 * Add a 3D Attractor module to the model.
+
+	 * @return O if all goes well.
+	 */
+	public int addAttractor3D(String name, double dLim, double attr, String m1_Name, String m2_Name) {
+
+		/*if (unit_system == paramSystem.REAL_UNITS) {
+			paramK = paramK / (simRate * simRate);
+			paramZ = paramZ / simRate;
+		}*/
+
+		int mat1_index = getMatIndex(m1_Name);
+		int mat2_index = getMatIndex(m2_Name);
+		try {
+			links.add(new Attractor3D(dLim, attr, mats.get(mat1_index), mats.get(mat2_index)));
+			linkIndexList.add(name);
+		} catch (Exception e) {
+			System.out.println("Error allocating the Attractor module: " + e);
+			System.exit(1);
+		}
+		return 0;
+	}
+
+
 	/***************************************************/
 
 	/**
@@ -1478,7 +1560,7 @@ public class PhysicalModel {
 	}
 
 	/**
-	 * Get stiffness of a link module at given index
+	 * Get mass of a Mat module at given index
 	 * @param index
 	 * @return the stiffness parameter
 	 */
@@ -1493,6 +1575,54 @@ public class PhysicalModel {
 
 	}
 
+	/**
+	 * Get stiffness of a Mat module at given index (if it has a stiffness value)
+	 * @param index
+	 * @return the stiffness parameter
+	 */
+	public double getMatStiffnessAt(int index) {
+
+		if (index >= mats.size()) {
+			System.out.println("Trying to get stiffness value in out of bounds mat.");
+			return 0;
+		}
+
+		matModuleType type = getMatTypeAt(index);
+
+		if (type == matModuleType.Osc3D)
+			return ((Osc3D) mats.get(index)).getStiffness();
+		else if (type == matModuleType.Osc1D)
+			return ((Osc1D) mats.get(index)).getStiffness();
+		else{
+			System.out.println("The module does not have a stiffness value!");
+			return 0;
+		}
+	}
+
+//	/**
+//	 * Get damping of a Mat module at given index (if it has a stiffness value)
+//	 * @param index
+//	 * @return the damping parameter
+//	 */
+//	public double getMatDampingAt(int index) {
+//
+//		if (index >= mats.size()) {
+//			System.out.println("Trying to get damping value in out of bounds mat.");
+//			return 0;
+//		}
+//
+//		matModuleType type = getMatTypeAt(index);
+//
+//		if (type == matModuleType.Osc3D)
+//			return ((Osc3D) mats.get(index)).getDamping();
+//		else if (type == matModuleType.Osc1D)
+//			return ((Osc1D) mats.get(index)).getDamping();
+//		else{
+//			System.out.println("The module does not have a damping value!");
+//			return 0;
+//		}
+//	}
+
 
 	/**
 	 * Change mass parameter for a given Mat module identified by name.
@@ -1506,6 +1636,89 @@ public class PhysicalModel {
 
 		this.setMatMassAt(getMatIndex(name), mass);
 	}
+
+
+	/**
+	 * Set stiffness of a Mat module at given index (if it has a stiffness value)
+	 * @param index index of the module
+	 * @param stiffness stiffness parameter to set
+	 */
+	public void setMatStiffnessAt(int index, double paramK) {
+
+		if (unit_system == paramSystem.REAL_UNITS) {
+			paramK = paramK / (simRate * simRate);
+		}
+
+		if (index >= mats.size()) {
+			System.out.println("Trying to set stiffness value in out of bounds mat.");
+			return;
+		}
+
+		matModuleType type = getMatTypeAt(index);
+
+		if (type == matModuleType.Osc3D)
+			((Osc3D) mats.get(index)).setStiffness(paramK);
+		else if (type == matModuleType.Osc1D)
+			((Osc1D) mats.get(index)).setStiffness(paramK);
+		else{
+			System.out.println("The module does not have a stiffness value!");
+			return;
+		}
+	}
+
+	/**
+	 * Get damping of a Mat module at given index (if it has a stiffness value)
+	 * @param index
+	 * @return the damping parameter
+	 */
+	public double getMatDampingAt(int index) {
+
+		if (index >= mats.size()) {
+			System.out.println("Trying to get damping value in out of bounds mat.");
+			return 0;
+		}
+
+		matModuleType type = getMatTypeAt(index);
+
+		if (type == matModuleType.Osc3D)
+			return ((Osc3D) mats.get(index)).getDamping();
+		else if (type == matModuleType.Osc1D)
+			return ((Osc1D) mats.get(index)).getDamping();
+		else{
+			System.out.println("The module does not have a damping value!");
+			return 0;
+		}
+	}
+
+	/**
+	 * Set damping of a Mat module at given index (if it has a stiffness value)
+	 * @param index index of the module
+	 * @param damping stiffness parameter to set
+	 */
+	public void setMatDampingAt(int index, double paramZ) {
+
+		if (unit_system == paramSystem.REAL_UNITS) {
+			paramZ = paramZ / simRate;
+		}
+
+		if (index >= mats.size()) {
+			System.out.println("Trying to set damping value in out of bounds mat.");
+			return;
+		}
+
+		matModuleType type = getMatTypeAt(index);
+
+		if (type == matModuleType.Osc3D)
+			((Osc3D) mats.get(index)).setDamping(paramZ);
+		else if (type == matModuleType.Osc1D)
+			((Osc1D) mats.get(index)).setDamping(paramZ);
+		else{
+			System.out.println("The module does not have a damping value!");
+			return;
+		}
+	}
+
+
 
 	/**************************************************/
 	/* Methods so that we can draw the model */
