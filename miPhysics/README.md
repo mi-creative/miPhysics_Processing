@@ -21,7 +21,7 @@ Any up to date version of Processing should do the trick (the library is unteste
 
 See above.
 
-A few libraries are necessary to run the different examples (peasycam, minim, shapes3D): you can get these from Processing's library manager.
+A few libraries are necessary to run the different examples (peasycam, minim, shapes3D, midiBus): you can get these from Processing's library manager.
 
 ## Running the examples
 
