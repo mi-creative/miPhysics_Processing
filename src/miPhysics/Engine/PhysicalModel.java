@@ -54,7 +54,9 @@ public class PhysicalModel {
 
 	/* Global friction and gravity characteristics for the model */
 	private double friction;
+
 	private Vect3D g_vector;
+	private double g_magnitude;
 	private Vect3D g_scaled;
 
 	private paramSystem unit_system;
@@ -478,7 +480,7 @@ public class PhysicalModel {
 
 	/**
 	 * Get the 3D position of Mat module at index i. Returns a zero filled 3D Vector
-	 * is the Mat is not found.
+	 * if the Mat is not found.
 	 * 
 	 * @param i
 	 *            the index of the Mat module
@@ -491,6 +493,21 @@ public class PhysicalModel {
 			return new Vect3D(0., 0., 0.);
 	}
 
+
+	/**
+	 * Get the 3D delayed position of the Mat module at index i. Returns a zero filled 3D Vector
+	 * if the Mat is not found.
+	 *
+	 * @param i
+	 *            the index of the Mat module
+	 * @return the delayed 3D X,Y,Z coordinates of the module.
+	 */
+	public Vect3D getMatDelayedPosAt(int i) {
+		if (getNumberOfMats() > i)
+			return mats.get(i).getPosR();
+		else
+			return new Vect3D(0., 0., 0.);
+	}
 
 	/**
 	 * Get the 3D force of Mat module at index i. Returns a zero filled 3D Vector
@@ -1720,6 +1737,56 @@ public class PhysicalModel {
 
 
 
+	/**
+	 * DIRTY !!
+	 * Get orientation of a plane contact module at given index
+	 * @param index
+	 * @return the orientation parameter
+	 */
+	public int getPlaneOrientationAt(int index) {
+
+		if (index >= links.size()) {
+			System.out.println("Trying to get orientation value in out of bounds link.");
+			return 0;
+		}
+
+		linkModuleType type = getLinkTypeAt(index);
+
+		if (type == linkModuleType.PlaneContact3D)
+			return ((PlaneContact) links.get(index)).getOrientation();
+
+		else{
+			System.out.println("The module does not have an orientation value (not a Plane Contact)!");
+			return 0;
+		}
+	}
+
+
+	/**
+	 * DIRTY !!
+	 * Get position of a plane contact module at given index
+	 * @param index
+	 * @return the position parameter
+	 */
+	public double getPlanePositionAt(int index) {
+
+		if (index >= links.size()) {
+			System.out.println("Trying to get position value in out of bounds link.");
+			return 0;
+		}
+
+		linkModuleType type = getLinkTypeAt(index);
+
+		if (type == linkModuleType.PlaneContact3D)
+			return ((PlaneContact) links.get(index)).getPosition();
+
+		else{
+			System.out.println("The module does not have an position value (not a Plane Contact)!");
+			return 0;
+		}
+	}
+
+
 	/**************************************************/
 	/* Methods so that we can draw the model */
 	/**************************************************/
@@ -1878,6 +1945,11 @@ public class PhysicalModel {
 		}
 	}
 
+
+	public double getFriction(){
+		return friction;
+	}
+
 	/**
 	 * Trigger a force impulse on a given Mat module (identified by index).
 	 * 
@@ -1919,25 +1991,38 @@ public class PhysicalModel {
 
 	/**
 	 * Set the gravity direction for this model (using a 3D vector)
-	 * 
+	 *
 	 * @param grav
 	 *            The PVector defining the orientation of the gravity.
 	 */
 	public void setGravityDirection(PVector grav) {
 		Vect3D gravDir = new Vect3D(grav.x, grav.y, grav.z);
-		g_vector.set(gravDir);
+		g_vector.set(gravDir.div(gravDir.norm()));
+	}
+
+	/**
+	 * Get the normalised gravity vector for this physical model
+	 * @return the gravity direction vector
+	 */
+	public Vect3D getGravityDirection(){
+		return g_vector;
 	}
 
 	/**
 	 * Set the value of the gravity for the model (scalar value).
-	 * 
+	 *
 	 * @param grav
 	 *            the scalar value of the gravity applied to Mat modules within the
 	 *            model.
 	 */
 	public void setGravity(double grav) {
+
+		g_magnitude = grav;
+
+		//Vect3D g_scaled = new Vect3D();
+
 		g_scaled.set(g_vector);
-		g_scaled.mult(grav);
+		g_scaled.mult(g_magnitude);
 		System.out.println("G scaled: " + g_scaled);
 
 		// Some shady typecasting going on here...
@@ -1964,6 +2049,23 @@ public class PhysicalModel {
 				tmp5.updateGravity(g_scaled);
 			}
 		}
+	}
+
+	/**
+	 * Get the gravity magnitude for this model
+	 * @return the magnitude
+	 */
+	public double getGravity(){
+		return g_magnitude;
+	}
+
+
+	public void setParamSystem(paramSystem sys){
+		unit_system = sys;
+	}
+
+	public paramSystem getParamSystem(){
+		return unit_system;
 	}
 
 	/**
@@ -2011,6 +2113,21 @@ public class PhysicalModel {
 
 		if (getNumberOfLinks() > i)
 			return links.get(i).getElong();
+		else
+			return 0;
+	}
+
+	/**
+	 * Get the resting distance of a Link type module
+	 *
+	 * @param i
+	 *            index of the Link to observe.
+	 * @return the resting distance value.
+	 */
+	public double getLinkDRestAt(int i) {
+
+		if (getNumberOfLinks() > i)
+			return links.get(i).getDRest();
 		else
 			return 0;
 	}

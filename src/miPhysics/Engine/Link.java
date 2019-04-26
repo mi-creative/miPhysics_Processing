@@ -147,6 +147,14 @@ public abstract class Link {
     }
 
     /**
+     * Get the resting distance of this link
+     * @return the resting distance parameter
+     */
+    public double getDRest(){
+        return m_dRest;
+    }
+
+    /**
      * Change the stiffness of this Link.
      * @param k stiffness value.
      * @return true if succesfully changed

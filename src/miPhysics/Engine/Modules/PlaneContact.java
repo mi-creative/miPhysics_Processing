@@ -47,6 +47,9 @@ public class PlaneContact extends Link {
     }
   }
 
+  public int getOrientation(){return m_orientation;}
+  public double getPosition(){return m_position;}
+
   private double m_position;
   private int m_orientation;
 
