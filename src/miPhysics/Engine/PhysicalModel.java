@@ -510,7 +510,7 @@ public class PhysicalModel {
 	}
 
 	/**
-	 * Get the 3D velocity of the Mat module at index i. Returns a zero filled 3D Vector
+	 * Get the velocity of the Mat module at index i. Returns a zero filled 3D Vector
 	 * if the Mat is not found.
 	 *
 	 * @param i
