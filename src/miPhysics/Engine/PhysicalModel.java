@@ -10,7 +10,7 @@ import processing.core.PVector;
  * This is the main class in which to create a 3D mass-interaction physical
  * model. A global physical context is created, then populated with modules,
  * which can then be computed.
- * 
+ *
  * Within this physical context, modules can be accessed in two ways: by using
  * their identification String (a unique name for each module) or by using their
  * index in the Mat and Link module tables. See example: HelloMass
@@ -70,7 +70,7 @@ public class PhysicalModel {
 	/**
 	 * Constructor method. Call this in the setup to create a physical context with
 	 * a given simulation rate.
-	 * 
+	 *
 	 * @param sRate
 	 *            the sample rate for the physics simulation
 	 * @param displayRate
@@ -113,10 +113,10 @@ public class PhysicalModel {
 	/**
 	 * Constructor without specifying the parameter system (defaults to algo
 	 * parameters)
-	 * 
+	 *
 	 * @param sRate
 	 *            the physics sample rate
-	 * 
+	 *
 	 */
 	public PhysicalModel(int sRate, int displayRate) {
 		this(sRate, displayRate, paramSystem.ALGO_UNITS);
@@ -126,10 +126,10 @@ public class PhysicalModel {
 	/**
 	 * Constructor without specifying the sketch display rate (defaults to 30 FPS),
 	 * or the parameter system (defaults to algo parameters)
-	 * 
+	 *
 	 * @param sRate
 	 *            the physics sample rate
-	 * 
+	 *
 	 */
 	public PhysicalModel(int sRate) {
 		this(sRate, 30, paramSystem.ALGO_UNITS);
@@ -138,10 +138,10 @@ public class PhysicalModel {
 
 	/**
 	 * Constructor without specifying the sketch display rate (defaults to 30 FPS).
-	 * 
+	 *
 	 * @param sRate
 	 *            the physics sample rate
-	 * 
+	 *
 	 */
 	public PhysicalModel(int sRate, paramSystem sys) {
 		this(sRate, 30, sys);
@@ -158,7 +158,7 @@ public class PhysicalModel {
 
 	/**
 	 * Get the simulation's sample rate.
-	 * 
+	 *
 	 * @return the simulation rate
 	 */
 	public int getSimRate() {
@@ -167,7 +167,7 @@ public class PhysicalModel {
 
 	/**
 	 * Set the simulation's sample rate.
-	 * 
+	 *
 	 * @param rate
 	 *            the rate to set the simulation to (physics frame-per-second).
 	 */
@@ -178,7 +178,7 @@ public class PhysicalModel {
 
 	/**
 	 * Get the simulation's display rate (should be same as Sketch's frame rate).
-	 * 
+	 *
 	 * @return the simulation rate
 	 */
 	public int getDisplayRate() {
@@ -187,7 +187,7 @@ public class PhysicalModel {
 
 	/**
 	 * Set the simulation's display rate (should be same as Sketch's frame rate).
-	 * 
+	 *
 	 * @param rate
 	 *            the rate to set the display to (FPS).
 	 */
@@ -229,7 +229,7 @@ public class PhysicalModel {
 
 	/**
 	 * Get the index of a Mat module identified by a given string.
-	 * 
+	 *
 	 * @param name
 	 *            Mat module identifier.
 	 * @return
@@ -240,7 +240,7 @@ public class PhysicalModel {
 
 	/**
 	 * Get the index of a Link module identified by a given string.
-	 * 
+	 *
 	 * @param name
 	 *            Link module identifier.
 	 * @return
@@ -251,7 +251,7 @@ public class PhysicalModel {
 
 	/**
 	 * Get the position of a Mat module identified by its name.
-	 * 
+	 *
 	 * @param masName
 	 *            identifier of the Mat module.
 	 * @return a Vect3D containing the position (in double format)
@@ -273,7 +273,7 @@ public class PhysicalModel {
 
 	/**
 	 * Get the position of a Mat module identified by its name.
-	 * 
+	 *
 	 * @param masName
 	 *            identifier of the Mat module.
 	 * @return a PVector containing the position (in float format).
@@ -295,7 +295,7 @@ public class PhysicalModel {
 
 	/**
 	 * Get the force of a Mat module identified by its index.
-	 * 
+	 *
 	 * @param mat_index
 	 *            index of the Mat module.
 	 * @return a PVector containing the force (in float format).
@@ -316,7 +316,7 @@ public class PhysicalModel {
 
 	/**
 	 * Get the force of a Mat module identified by its index.
-	 * 
+	 *
 	 * @param matName
 	 *            identifier of the Mat module.
 	 * @return a PVector containing the force (in float format).
@@ -341,7 +341,7 @@ public class PhysicalModel {
 	 * velocity. Converts the velocity in [distance unit]/[second] to [distance
 	 * unit]/[sample] then calculates the delayed position for the initialisation of
 	 * the masses.
-	 * 
+	 *
 	 * @param pos
 	 *            initial position
 	 * @param vel_mps
@@ -363,7 +363,7 @@ public class PhysicalModel {
 
 	/**
 	 * Get number of Mat modules in current model.
-	 * 
+	 *
 	 * @return the number of Mat modules in this model.
 	 */
 	public int getNumberOfMats() {
@@ -372,7 +372,7 @@ public class PhysicalModel {
 
 	/**
 	 * get number of Link modules in current model.
-	 * 
+	 *
 	 * @return the number of Link modules in this model.
 	 */
 	public int getNumberOfLinks() {
@@ -381,7 +381,7 @@ public class PhysicalModel {
 
 	/**
 	 * Check if a Mat module with a given identifier exists in the current model.
-	 * 
+	 *
 	 * @param mName
 	 *            the identifier of the Mat module.
 	 * @return True of the module exists, False otherwise.
@@ -395,7 +395,7 @@ public class PhysicalModel {
 
 	/**
 	 * Check if a Link module with a given identifier exists in the current model.
-	 * 
+	 *
 	 * @param lName
 	 *            the identifier of the Link module.
 	 * @return True of the module exists, False otherwise.
@@ -412,7 +412,7 @@ public class PhysicalModel {
 	 * This can be used to group modules with a given label in order to manipulate
 	 * them together (modify parameters, etc.) Note: This method is probably very
 	 * slooooow.
-	 * 
+	 *
 	 * @param tag
 	 *            the String that is searched for within the link name tags.
 	 * @return the Link ArrayList of all the modules that contain the identifier
@@ -434,7 +434,7 @@ public class PhysicalModel {
 	 * This can be used to group modules with a given label in order to manipulate
 	 * them together (modify parameters, etc.) Note: This method is probably very
 	 * slooooow.
-	 * 
+	 *
 	 * @param tag
 	 *            the String that is searched for within the Mat name tags.
 	 * @return the Mat ArrayList of all the modules that contain the identifier tag.
@@ -452,7 +452,7 @@ public class PhysicalModel {
 
 	/**
 	 * Check the type (mass, ground, osc) of Mat module at index i
-	 * 
+	 *
 	 * @param i
 	 *            the index of the Mat module.
 	 * @return the type of the Mat module.
@@ -466,7 +466,7 @@ public class PhysicalModel {
 
 	/**
 	 * Get the name (identifier) of the Mat module at index i
-	 * 
+	 *
 	 * @param i
 	 *            the index of the Mat module.
 	 * @return the identifier String.
@@ -481,7 +481,7 @@ public class PhysicalModel {
 	/**
 	 * Get the 3D position of Mat module at index i. Returns a zero filled 3D Vector
 	 * if the Mat is not found.
-	 * 
+	 *
 	 * @param i
 	 *            the index of the Mat module
 	 * @return the 3D X,Y,Z coordinates of the module.
@@ -510,6 +510,24 @@ public class PhysicalModel {
 	}
 
 	/**
+	 * Get the 3D velocity of the Mat module at index i. Returns a zero filled 3D Vector
+	 * if the Mat is not found.
+	 *
+	 * @param i
+	 *            the index of the Mat module
+	 * @return the 3D X,Y,Z velocity coordinates of the module.
+	 */
+	public Vect3D getMatVelAt(int i) {
+		if (getNumberOfMats() > i) {
+			Vect3D vel = new Vect3D();
+			vel.set(mats.get(i).getPos());
+			return (vel.sub(mats.get(i).getPosR()).mult(simRate));
+		}
+		else
+			return new Vect3D(0., 0., 0.);
+	}
+
+	/**
 	 * Get the 3D force of Mat module at index i. Returns a zero filled 3D Vector
 	 * is the Mat is not found.
 	 *
@@ -526,7 +544,7 @@ public class PhysicalModel {
 
 	/**
 	 * Check the type (spring, rope, contact...) of Link module at index i
-	 * 
+	 *
 	 * @param i
 	 *            index of the Link module.
 	 * @return the module type.
@@ -540,7 +558,7 @@ public class PhysicalModel {
 
 	/**
 	 * Get the name (identifier) of the Link module at index i
-	 * 
+	 *
 	 * @param i
 	 *            index of the Link module.
 	 * @return the identifier String for the module.
@@ -554,7 +572,7 @@ public class PhysicalModel {
 
 	/**
 	 * Get the position of the Mat connected to the 1st end of the Link at index i.
-	 * 
+	 *
 	 * @param i
 	 *            the index of the Link.
 	 * @return the 3D position of the Mat connected to the 1st end of this Link.
@@ -568,7 +586,7 @@ public class PhysicalModel {
 
 	/**
 	 * Get the position of the Mat connected to the 2nd end of the Link at index i.
-	 * 
+	 *
 	 * @param i
 	 *            the index of the Link.
 	 * @return the 3D position of the Mat connected to the 2nd end of this Link.
@@ -643,7 +661,7 @@ public class PhysicalModel {
 	 * computes the correct number of steps depending on the simulation rate /
 	 * display rate ratio. Should be called once the model creation is finished and
 	 * the init() method has been called.
-	 * 
+	 *
 	 */
 	public void draw_physics() {
 		double floatFrames = this.simDisplayFactor + this.residue;
@@ -663,7 +681,7 @@ public class PhysicalModel {
 	/**
 	 * Explicitly compute N steps of the physical simulation. Should be called once
 	 * the model creation is finished and the init() method has been called.
-	 * 
+	 *
 	 * @param N
 	 *            number of steps to compute.
 	 */
@@ -692,7 +710,7 @@ public class PhysicalModel {
 
 	/**
 	 * Add a 3D Mass module to the model (this Mass is subject to gravity).
-	 * 
+	 *
 	 * @param name
 	 *            the identifier of the Mass
 	 * @param mass
@@ -721,7 +739,7 @@ public class PhysicalModel {
 
 	/**
 	 * Add a 2D Mass module (constant on Z plane) to the model.
-	 * 
+	 *
 	 * @param name
 	 *            the identifier of the Mass
 	 * @param mass
@@ -750,7 +768,7 @@ public class PhysicalModel {
 
 	/**
 	 * Add a 1D Mass module (that only moves along the Z axis) to the model
-	 * 
+	 *
 	 * @param name
 	 *            the identifier of the Mass
 	 * @param mass
@@ -779,7 +797,7 @@ public class PhysicalModel {
 
 	/**
 	 * Add a 3D Simple Mass module to the model (this Mass not subject to gravity).
-	 * 
+	 *
 	 * @param name
 	 *            the identifier of the Mass
 	 * @param mass
@@ -810,7 +828,7 @@ public class PhysicalModel {
 	/**
 	 * Add a fixed point to the model (a Mat module that will never move from it's
 	 * initial position).
-	 * 
+	 *
 	 * @param name
 	 *            the name of the Ground module.
 	 * @param initPos
@@ -853,7 +871,7 @@ public class PhysicalModel {
 
 	/**
 	 * Add a 3D oscillator (mass-spring-ground) to the model model.
-	 * 
+	 *
 	 * @param name
 	 *            the name of the Oscillator module.
 	 * @param mass
@@ -916,7 +934,7 @@ public class PhysicalModel {
 	/* Add a 3D Spring module to the model */
 	/**
 	 * Add a 3D Spring to the model.
-	 * 
+	 *
 	 * @param name
 	 *            identifier of the Spring.
 	 * @param dist
@@ -949,7 +967,7 @@ public class PhysicalModel {
 
 	/**
 	 * Add a 3D Spring and Damper module to the model.
-	 * 
+	 *
 	 * @param name
 	 *            identifier of the Spring-Damper.
 	 * @param dist
@@ -965,7 +983,7 @@ public class PhysicalModel {
 	 * @return O if all goes well.
 	 */
 	public int addSpringDamper3D(String name, double dist, double paramK, double paramZ, String m1_Name,
-			String m2_Name) {
+								 String m2_Name) {
 
 		if (unit_system == paramSystem.REAL_UNITS) {
 			paramK = paramK / (simRate * simRate);
@@ -985,7 +1003,7 @@ public class PhysicalModel {
 	}
 
 	public int addSpringDamper1D(String name, double dist, double paramK, double paramZ, String m1_Name,
-			String m2_Name) {
+								 String m2_Name) {
 
 		if (unit_system == paramSystem.REAL_UNITS) {
 			paramK = paramK / (simRate * simRate);
@@ -1009,7 +1027,7 @@ public class PhysicalModel {
 	 * will only be active in case of a positive elongation. If the rope is not
 	 * tight (elongation smaller than resting distance) the interaction does
 	 * nothing.
-	 * 
+	 *
 	 * @param name
 	 *            identifier of the Rope.
 	 * @param dist
@@ -1045,7 +1063,7 @@ public class PhysicalModel {
 
 	/**
 	 * Add a 3D Contact module to the model.
-	 * 
+	 *
 	 * @param name
 	 *            identifier of the Contact module.
 	 * @param dist
@@ -1082,7 +1100,7 @@ public class PhysicalModel {
 
 	/**
 	 * Add a 3D Bubble (enclosing circle module to the model.
-	 * 
+	 *
 	 * @param name
 	 *            identifier of the Bubble module.
 	 * @param dist
@@ -1119,7 +1137,7 @@ public class PhysicalModel {
 
 	/**
 	 * Add a 3D Friction-based Damper module to the model.
-	 * 
+	 *
 	 * @param name
 	 *            identifier of the Damper.
 	 * @param paramZ
@@ -1150,7 +1168,7 @@ public class PhysicalModel {
 
 	/**
 	 * Add an interaction with a 2D plane.
-	 * 
+	 *
 	 * @param name
 	 *            name of the Plane Interaction module.
 	 * @param l0
@@ -1168,7 +1186,7 @@ public class PhysicalModel {
 	 * @return
 	 */
 	public int addPlaneContact(String name, double l0, double paramK, double paramZ, int or, double pos,
-			String m1_Name) {
+							   String m1_Name) {
 
 		if (unit_system == paramSystem.REAL_UNITS) {
 			paramK = paramK / (simRate * simRate);
@@ -1220,7 +1238,7 @@ public class PhysicalModel {
 	 * Remove Mat module at index mIndex from the model. This function is private: a
 	 * Mat module cannot safely be removed without removing associated Links,
 	 * therefore a higher level function is provided for the user.
-	 * 
+	 *
 	 * @param mIndex
 	 *            index of the Mat module to remove.
 	 * @return 0 if success, throws error if Mat cannot be found or removed.
@@ -1243,7 +1261,7 @@ public class PhysicalModel {
 	 * Remove Mat module (identified by name) from the Model This function is
 	 * private: a Mat module cannot safely be removed without removing associated
 	 * Links, therefore a higher level function is provided for the user.
-	 * 
+	 *
 	 * @param name
 	 *            identifier of the Mat module to remove.
 	 * @return 0 if success, throws error otherwise.
@@ -1256,7 +1274,7 @@ public class PhysicalModel {
 	// Links can be removed without further steps: public function
 	/**
 	 * Remove a Link module from the Model (at lIndex)
-	 * 
+	 *
 	 * @param lIndex
 	 *            the index of the Link module to remove
 	 * @return 0 if success, throws error otherwise.
@@ -1277,7 +1295,7 @@ public class PhysicalModel {
 	// Links can be removed without further steps: public function
 	/**
 	 * Remove a Link module from the Model (by name)
-	 * 
+	 *
 	 * @param name
 	 *            identifier of the Link module to remove.
 	 * @return 0 if success, throws error otherwise.
@@ -1289,7 +1307,7 @@ public class PhysicalModel {
 
 	/**
 	 * Remove a Mat module along with any connected Links.
-	 * 
+	 *
 	 * @param mIndex
 	 *            the index of the Mat module to remove.
 	 * @return 0 if success, throws error otherwise.
@@ -1315,7 +1333,7 @@ public class PhysicalModel {
 
 	/**
 	 * Remove a Mat module along with any connected Links.
-	 * 
+	 *
 	 * @param mName
 	 *            name of the Mat module to remove.
 	 * @return 0 if success, throw error otherwise.
@@ -1358,7 +1376,7 @@ public class PhysicalModel {
 
 	/**
 	 * Set (or change) the resting distance of a Link module.
-	 * 
+	 *
 	 * @param name
 	 *            the identifier of the module.
 	 * @param d
@@ -1376,7 +1394,7 @@ public class PhysicalModel {
 
 	/**
 	 * Set all parameters of a Link module with given name identifier.
-	 * 
+	 *
 	 * @param tag
 	 *            the identifier tag for the modules.
 	 * @param stiff
@@ -1400,7 +1418,7 @@ public class PhysicalModel {
 
 	/**
 	 * Set mass parameters for Mat modules with a given name pattern.
-	 * 
+	 *
 	 * @param tag
 	 *            the name pattern to match.
 	 * @param mass
@@ -1419,7 +1437,7 @@ public class PhysicalModel {
 
 	/**
 	 * Set Link parameters for the module with a given identifier
-	 * 
+	 *
 	 * @param name
 	 *            name of the module to search for.
 	 * @param stiff
@@ -1449,7 +1467,7 @@ public class PhysicalModel {
 
 	/**
 	 * Set the stiffness value for a Link module at a given index.
-	 * 
+	 *
 	 * @param index
 	 *            index of the Link module to modify
 	 * @param stiff
@@ -1492,7 +1510,7 @@ public class PhysicalModel {
 
 	/**
 	 * Set the stiffness value for a Link module with given identifier.
-	 * 
+	 *
 	 * @param name
 	 *            name of the Link module.
 	 * @param stiff
@@ -1505,7 +1523,7 @@ public class PhysicalModel {
 
 	/**
 	 * Set the damping value for a Link module with given identifier.
-	 * 
+	 *
 	 * @param index
 	 *            identifier of the Link module.
 	 * @param damp
@@ -1548,7 +1566,7 @@ public class PhysicalModel {
 
 	/**
 	 * Set the damping value for a Link module with given name.
-	 * 
+	 *
 	 * @param name
 	 *            name of the Link module.
 	 * @param damp
@@ -1561,7 +1579,7 @@ public class PhysicalModel {
 
 	/**
 	 * Change mass parameter for a given Mat module identified by index.
-	 * 
+	 *
 	 * @param index
 	 *            the index of the Mat module.
 	 * @param mass
@@ -1643,7 +1661,7 @@ public class PhysicalModel {
 
 	/**
 	 * Change mass parameter for a given Mat module identified by name.
-	 * 
+	 *
 	 * @param name
 	 *            identifier of the mat module.
 	 * @param mass
@@ -1793,7 +1811,7 @@ public class PhysicalModel {
 
 	/**
 	 * Fill an ArrayList with the positions of all masses of a given type.
-	 * 
+	 *
 	 * @param mArray
 	 *            the ArrayList (that will be cleared and refilled).
 	 * @param m
@@ -1816,7 +1834,7 @@ public class PhysicalModel {
 	 * Create and fill two Array Lists with the positions and velocities (per
 	 * sample) of all modules of a given type. DEPRECEATED FUNCTION, use
 	 * createPosSpeedArraysForModType and update instead.
-	 * 
+	 *
 	 * @param pArray
 	 *            the position ArrayList (that will be cleared and refilled).
 	 * @param vArray
@@ -1845,9 +1863,9 @@ public class PhysicalModel {
 	 * sample) of all modules of a given type. Use this for creating the new arrays
 	 * before the simulation is launched. Once the simulation is running, use the
 	 * updatePosSpeedArraysForModType method to update the existing ArrayLists.
-	 * 
+	 *
 	 * Quite inefficient method (checks all Mat modules for a given type)
-	 * 
+	 *
 	 * @param pArray
 	 *            the position ArrayList (that will be cleared and refilled).
 	 * @param vArray
@@ -1875,9 +1893,9 @@ public class PhysicalModel {
 	 * Update two Array Lists with the positions and velocities (per sample) of all
 	 * modules of a given type. Use this after createPosSpeedArraysForModType, once
 	 * the simulation is running to update existing arrays.
-	 * 
+	 *
 	 * Quite inefficient method (checks all Mat modules for a given type)
-	 * 
+	 *
 	 * @param pArray
 	 *            the position ArrayList.
 	 * @param vArray
@@ -1907,7 +1925,7 @@ public class PhysicalModel {
 
 	/**
 	 * Set the friction (globally) for the complete model.
-	 * 
+	 *
 	 * @param frZ
 	 *            the friction value.
 	 */
@@ -1952,7 +1970,7 @@ public class PhysicalModel {
 
 	/**
 	 * Trigger a force impulse on a given Mat module (identified by index).
-	 * 
+	 *
 	 * @param index
 	 *            index of the module to apply a force to.
 	 * @param fx
@@ -1974,7 +1992,7 @@ public class PhysicalModel {
 
 	/**
 	 * Trigger a force impulse on a given Mat module.
-	 * 
+	 *
 	 * @param name
 	 *            the name of the module to apply a force to.
 	 * @param fx
@@ -2071,7 +2089,7 @@ public class PhysicalModel {
 	/**
 	 * Get the differentiated position of an Osc module at a given index. (This is a
 	 * prototype function, should ideally be removed or replaced).
-	 * 
+	 *
 	 * @param i
 	 *            index of the Osc Module to observe.
 	 * @return the speed (differentiated position) of the module.
@@ -2135,7 +2153,7 @@ public class PhysicalModel {
 
 	/**
 	 * Force a Mat module to a given position (with null velocity).
-	 * 
+	 *
 	 * @param matName
 	 *            identifier of the module.
 	 * @param newPos
@@ -2165,7 +2183,7 @@ public class PhysicalModel {
 	/**
 	 * Create an empty Mat module subset item. Module indexes will be associated to
 	 * this specific key later.
-	 * 
+	 *
 	 * @param name
 	 *            the identifier for this subset.
 	 * @return 0 if success, -1 otherwise.
@@ -2180,7 +2198,7 @@ public class PhysicalModel {
 
 	/**
 	 * Add a Mat module to a given subset.
-	 * 
+	 *
 	 * @param matIndex
 	 *            index of the Mat module.
 	 * @param subsetName
@@ -2197,7 +2215,7 @@ public class PhysicalModel {
 
 	/**
 	 * Add a Mat module to a given subset.
-	 * 
+	 *
 	 * @param matName
 	 *            identifier of the Mat module.
 	 * @param subsetName
@@ -2212,7 +2230,7 @@ public class PhysicalModel {
 	/**
 	 * Create an empty Link module subset item. Module indexes will be associated to
 	 * this specific key later.
-	 * 
+	 *
 	 * @param name
 	 *            the identifier for this subset.
 	 * @return 0 if success, -1 otherwise.
@@ -2227,7 +2245,7 @@ public class PhysicalModel {
 
 	/**
 	 * Add a Link module to a given subset.
-	 * 
+	 *
 	 * @param linkIndex
 	 *            index of the Link module.
 	 * @param subsetName
@@ -2244,7 +2262,7 @@ public class PhysicalModel {
 
 	/**
 	 * Add a Link module to a given subset.
-	 * 
+	 *
 	 * @param linkName
 	 *            identifier of the Link module.
 	 * @param subsetName
@@ -2258,7 +2276,7 @@ public class PhysicalModel {
 
 	/**
 	 * Change the mass parameters for a subset of Mat modules.
-	 * 
+	 *
 	 * @param newParam
 	 *            the new mass value to apply.
 	 * @param subsetName
@@ -2272,7 +2290,7 @@ public class PhysicalModel {
 
 	/**
 	 * Change the stiffness parameters for a subset of Link modules.
-	 * 
+	 *
 	 * @param newParam
 	 *            the new stiffness value to apply.
 	 * @param subsetName
@@ -2291,7 +2309,7 @@ public class PhysicalModel {
 
 	/**
 	 * Change the damping parameters for a subset of Link modules.
-	 * 
+	 *
 	 * @param newParam
 	 *            the new damping value to apply.
 	 * @param subsetName
@@ -2310,7 +2328,7 @@ public class PhysicalModel {
 
 	/**
 	 * Change the resting distance parameters for a subset of Link modules.
-	 * 
+	 *
 	 * @param newParam
 	 *            the new resting distance value to apply.
 	 * @param subsetName
@@ -2404,7 +2422,7 @@ public class PhysicalModel {
 
 	/**
 	 * return the version of the Library.
-	 * 
+	 *
 	 * @return String
 	 */
 	public static String version() {
