@@ -26,6 +26,8 @@ import processing.core.PVector;
 
 public class PhysicalModel {
 
+	// dummy comment
+
 	// myParent is a reference to the parent sketch
 	PApplet myParent;
 
