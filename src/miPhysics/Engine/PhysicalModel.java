@@ -31,6 +31,8 @@ public class PhysicalModel {
 	// myParent is a reference to the parent sketch
 	PApplet myParent;
 
+	private Object m_lock;
+
 	/* List of Mats and Links that compose the physical model */
 	private ArrayList<Mat> mats;
 	private ArrayList<Link> links;
@@ -108,6 +110,9 @@ public class PhysicalModel {
 		this.residue = 0;
 
 		this.calculateSimDisplayFactor();
+
+		m_lock = new Object();
+
 
 		System.out.println("Initialised the Phsical Model Class");
 	}
@@ -666,16 +671,18 @@ public class PhysicalModel {
 	 *
 	 */
 	public void draw_physics() {
-		double floatFrames = this.simDisplayFactor + this.residue;
-		int nbSteps = (int) Math.floor(floatFrames);
-		this.residue = floatFrames - (double) nbSteps;
+		synchronized (m_lock) {
+			double floatFrames = this.simDisplayFactor + this.residue;
+			int nbSteps = (int) Math.floor(floatFrames);
+			this.residue = floatFrames - (double) nbSteps;
 
-		for (int j = 0; j < nbSteps; j++) {
-			for (int i = 0; i < mats.size(); i++) {
-				mats.get(i).compute();
-			}
-			for (int i = 0; i < links.size(); i++) {
-				links.get(i).compute();
+			for (int j = 0; j < nbSteps; j++) {
+				for (int i = 0; i < mats.size(); i++) {
+					mats.get(i).compute();
+				}
+				for (int i = 0; i < links.size(); i++) {
+					links.get(i).compute();
+				}
 			}
 		}
 	}
@@ -688,12 +695,14 @@ public class PhysicalModel {
 	 *            number of steps to compute.
 	 */
 	public void computeNSteps(int N) {
-		for (int j = 0; j < N; j++) {
-			for (int i = 0; i < mats.size(); i++) {
-				mats.get(i).compute();
-			}
-			for (int i = 0; i < links.size(); i++) {
-				links.get(i).compute();
+		synchronized (m_lock) {
+			for (int j = 0; j < N; j++) {
+				for (int i = 0; i < mats.size(); i++) {
+					mats.get(i).compute();
+				}
+				for (int i = 0; i < links.size(); i++) {
+					links.get(i).compute();
+				}
 			}
 		}
 	}
@@ -1282,14 +1291,16 @@ public class PhysicalModel {
 	 * @return 0 if success, throws error otherwise.
 	 */
 	public int removeLink(int lIndex) {
-		try {
-			// first check if the index can be in the list
-			if ((links.size() > lIndex) && (linkIndexList.size() > lIndex))
-				links.remove(lIndex);
-			linkIndexList.remove(lIndex);
-		} catch (Exception e) {
-			System.out.println("Error removing link Module at " + lIndex + ": " + e);
-			System.exit(1);
+		synchronized (m_lock) {
+			try {
+				// first check if the index can be in the list
+				if ((links.size() > lIndex) && (linkIndexList.size() > lIndex))
+					links.remove(lIndex);
+				linkIndexList.remove(lIndex);
+			} catch (Exception e) {
+				System.out.println("Error removing link Module at " + lIndex + ": " + e);
+				System.exit(1);
+			}
 		}
 		return 0;
 	}
@@ -1302,7 +1313,7 @@ public class PhysicalModel {
 	 *            identifier of the Link module to remove.
 	 * @return 0 if success, throws error otherwise.
 	 */
-	public int removeLink(String name) {
+	public synchronized int removeLink(String name) {
 		int mat_index = getLinkIndex(name);
 		return removeLink(mat_index);
 	}
@@ -1315,20 +1326,22 @@ public class PhysicalModel {
 	 * @return 0 if success, throws error otherwise.
 	 */
 	public int removeMatAndConnectedLinks(int mIndex) {
-		try {
-			for (int i = links.size() - 1; i >= 0; i--) {
-				// Will this work?
-				if (links.get(i).getMat1() == mats.get(mIndex))
-					removeLink(i);
-				else if (links.get(i).getMat2() == mats.get(mIndex))
-					removeLink(i);
-			}
-			removeMat(mIndex);
-			return 0;
+		synchronized (m_lock) {
+			try {
+				for (int i = links.size() - 1; i >= 0; i--) {
+					// Will this work?
+					if (links.get(i).getMat1() == mats.get(mIndex))
+						removeLink(i);
+					else if (links.get(i).getMat2() == mats.get(mIndex))
+						removeLink(i);
+				}
+				removeMat(mIndex);
+				return 0;
 
-		} catch (Exception e) {
-			System.out.println("Issue removing connected links to mass!" + e);
-			System.exit(1);
+			} catch (Exception e) {
+				System.out.println("Issue removing connected links to mass!" + e);
+				System.exit(1);
+			}
 		}
 		return -1;
 	}
@@ -2387,13 +2400,15 @@ public class PhysicalModel {
 	 * 			  the new position value.
 	 */
 	public void setHapticPosition(String matName, Vect3D newPos) {
-		int mat_index = getMatIndex(matName);
-		HapticInput3D tmp;
-		if (mats.get(mat_index).getType() == matModuleType.HapticInput3D) {
-			tmp = (HapticInput3D) mats.get(mat_index);
-			tmp.applyInputPosition(newPos);
-		} else {
-			System.out.println("The module is not a haptic input!");
+		synchronized (m_lock) {
+			int mat_index = getMatIndex(matName);
+			HapticInput3D tmp;
+			if (mats.get(mat_index).getType() == matModuleType.HapticInput3D) {
+				tmp = (HapticInput3D) mats.get(mat_index);
+				tmp.applyInputPosition(newPos);
+			} else {
+				System.out.println("The module is not a haptic input!");
+			}
 		}
 	}
 
@@ -2406,19 +2421,25 @@ public class PhysicalModel {
 	 * @return the force vector.
 	 */
 	public Vect3D getHapticForce(String matName) {
-		int mat_index = getMatIndex(matName);
-		HapticInput3D tmp;
-		if (mats.get(mat_index).getType() == matModuleType.HapticInput3D) {
-			tmp = (HapticInput3D) mats.get(mat_index);
-			return tmp.applyOutputForce();
-		} else {
-			System.out.println("The module is not a haptic input!");
-			return new Vect3D(0, 0, 0);
+		synchronized (m_lock) {
+			int mat_index = getMatIndex(matName);
+			HapticInput3D tmp;
+			if (mats.get(mat_index).getType() == matModuleType.HapticInput3D) {
+				tmp = (HapticInput3D) mats.get(mat_index);
+				return tmp.applyOutputForce();
+			} else {
+				System.out.println("The module is not a haptic input!");
+				return new Vect3D(0, 0, 0);
+			}
 		}
 	}
 
 	private void welcome() {
 		System.out.println("##library.name## ##library.prettyVersion## by ##author##");
+	}
+
+	public Object getLock(){
+		return m_lock;
 	}
 
 
