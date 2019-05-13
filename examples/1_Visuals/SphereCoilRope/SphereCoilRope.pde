@@ -14,15 +14,19 @@ PeasyCam cam;
 
 // SOME GLOBAL DECLARATIONS AND REQUIRED ELEMENTS
 
-int displayRate = 50;
+int displayRate = 60;
+boolean BASIC_VISU = false;
 
 /*  "dimension" of the model - number of MAT modules */
 int dimX = 20;
 int dimY = 20;
 int dimZ = 20;
 
+float rot = 0.01;
+
 /*  global physical model object : will contain the model and run calculations. */
 PhysicalModel mdl;
+ModelRenderer renderer;
 
 /* control dessin */
 int mouseDragged = 0;
@@ -54,6 +58,22 @@ void setup() {
 
   // initialise the model before starting calculations.
   mdl.init();
+  
+  renderer = new ModelRenderer(this);
+  
+  if (BASIC_VISU){
+    renderer.displayMats(false);
+    renderer.setColor(linkModuleType.SpringDamper3D, 155, 200, 200, 255);
+    renderer.setSize(linkModuleType.SpringDamper3D, 1);
+  }
+  else{
+    renderer.displayMats(false);
+    renderer.setColor(linkModuleType.SpringDamper3D, 180, 10, 10, 100);
+    renderer.setStrainGradient(linkModuleType.SpringDamper3D, true, 0.1);
+    renderer.setStrainColor(linkModuleType.SpringDamper3D, 255, 250, 255, 255);
+  }  
+  
+  
   frameRate(displayRate);
 } 
 
@@ -64,13 +84,13 @@ void draw() {
 
   directionalLight(251, 102, 126, 0, -1, 0);
   ambientLight(102, 102, 102);
-  cam.rotateY(0.01);
+  cam.rotateY(rot);
 
   background(0);
 
   // Drawing style
   pushMatrix();  
-  renderModelPnScrn3D(mdl, 1);
+  renderer.renderModel(mdl);
   popMatrix();
   
   if (mousePressed == true){
@@ -86,11 +106,15 @@ void fExt(){
 
 
 void keyPressed() {
+  if(key == 'a')
+    rot = 0;
   if (key == ' ')
       fExt();
 
 }
 
 void keyReleased() {
+    if(key == 'a')
+    rot = 0.01;
   if (key == ' ');
 }

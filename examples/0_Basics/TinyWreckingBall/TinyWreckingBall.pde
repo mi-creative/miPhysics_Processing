@@ -11,6 +11,9 @@ import peasy.*;
 
 PeasyCam cam;
 PhysicalModel mdl;
+ModelRenderer renderer;
+
+boolean applyFrc = false;
 
 int displayRate = 60;
 
@@ -20,17 +23,20 @@ void setup() {
   cam = new PeasyCam(this, 100);
   cam.setMinimumDistance(50);
   cam.setMaximumDistance(500);
+  cam.rotateX(radians(-90));
 
-  size(900, 450, P3D);
+  size(900, 850, P3D);
   background(0);
 
   // instantiate our physical model context
   mdl = new PhysicalModel(1050, displayRate);
+  renderer = new ModelRenderer(this);
+
 
   // some initial coordinates for the modules.
-  Vect3D initPos = new Vect3D(300., 0., 200.);
-  Vect3D initPos2 = new Vect3D(200., 0., 200.);
-  Vect3D initPos3 = new Vect3D(100., 0., 200.);
+  Vect3D initPos = new Vect3D(270., 0., 200.);
+  Vect3D initPos2 = new Vect3D(180., 0., 200.);
+  Vect3D initPos3 = new Vect3D(90., 0., 200.);
   Vect3D initPos4 = new Vect3D(0., 0., 200.);
   Vect3D initV = new Vect3D(0., 0., 0.);
 
@@ -42,12 +48,17 @@ void setup() {
   mdl.addMass3D("mass3", 1.0, initPos3, initV);
   mdl.addGround3D("ground1", initPos4);
 
-  mdl.addRope3D("rope1", 100.0, 0.01,0.08, "mass1", "mass2");
-  mdl.addRope3D("rope2", 100.0, 0.01,0.08, "mass2", "mass3");
-  mdl.addRope3D("rope3", 100.0, 0.01,0.08, "mass3", "ground1");
+  mdl.addRope3D("rope1", 90.0, 0.02,0.08, "mass1", "mass2");
+  mdl.addRope3D("rope2", 90.0, 0.02,0.08, "mass2", "mass3");
+  mdl.addRope3D("rope3", 90.0, 0.02,0.08, "mass3", "ground1");
 
   for(int i = 1; i <=3; i++)
     mdl.addPlaneContact("plane"+i, 50, 0.01, 0.1, 0, -160, "mass"+i);
+    
+  renderer.displayMats(true);
+  renderer.setScaling(matModuleType.Mass3D, 1);
+  renderer.setColor(linkModuleType.Rope3D, 155, 200, 200, 255);
+  renderer.setSize(linkModuleType.Rope3D, 3);
 
   // initialise the model before starting calculations.
   mdl.init();
@@ -58,6 +69,10 @@ void setup() {
 void draw() {
 
   mdl.draw_physics();
+
+  if(applyFrc == true){
+    mdl.triggerForceImpulse("mass1", 1, 0.1, 0);
+  }
 
   Vect3D pos1 = mdl.getMatPosition("mass1");
   Vect3D pos2 = mdl.getMatPosition("mass2");
@@ -76,18 +91,56 @@ void draw() {
   strokeWeight(1);
   drawGrid(40, 4);
   drawPlane(0, -160, 160); 
+  
+  renderer.renderModel(mdl);
+}
 
-  noStroke();
-  fill(190, 190, 125);
-  drawSphere(pos1, 50);  
-  drawSphere(pos2, 20);
-  drawSphere(pos3, 20);  
-  fill(0, 125, 125);
-  drawSphere(pos4, 50);
+void keyPressed(){
+  if(keyCode == ' ')
+    applyFrc = true;
+}
 
-  stroke(0, 255, 0);
-  strokeWeight(5);
-  drawLine(pos1, pos2);
-  drawLine(pos2, pos3);
-  drawLine(pos3, pos4);
+void keyReleased(){
+  if(keyCode == ' ')
+    applyFrc = false;
+}
+
+//****************************************************************************//
+
+void drawPlane(int orientation, float position, float size){
+  stroke(255);
+  
+  beginShape();
+  if(orientation ==2){
+    vertex(-size, -size, position);
+    vertex( size, -size, position);
+    vertex( size, size, position);
+    vertex(-size, size, position);
+  } else if (orientation == 1) {
+    vertex(-size,position, -size);
+    vertex( size,position, -size);
+    vertex( size,position, size);
+    vertex(-size,position, size);  
+  } else if (orientation ==0) {
+    vertex(position, -size, -size);
+    vertex(position, size, -size);
+    vertex(position, size, size);
+    vertex(position,-size, size);
+  }
+  endShape(CLOSE);
+}
+
+
+void drawGrid(int gridSize, int nbBlocks) {
+  strokeWeight(1);
+  stroke(100, 100, 100, 100); 
+  int range = gridSize * nbBlocks;
+
+  for (int j = -range; j <= range; j+=gridSize) {
+    for (int k = -range; k <= range; k += gridSize) {
+      line(-range, j, k, range, j, k);
+      line(j, -range, k, j, range, k);
+      line(j, k, -range, j, k, range);
+    }
+  }
 }

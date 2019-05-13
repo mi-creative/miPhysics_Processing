@@ -15,6 +15,7 @@ import peasy.*;
 import miPhysics.*;
 
 int displayRate = 50;
+boolean BASIC_VISU = false;
 
 // TRY THESE DIFFERENT CONFIGURATIONS !
 
@@ -35,6 +36,8 @@ int dimZ = 10;
 
 PeasyCam cam;
 PhysicalModel mdl;
+ModelRenderer renderer;
+
 
 double grav = 0.001;
 
@@ -45,10 +48,14 @@ void setup() {
   cam = new PeasyCam(this, 100);
   cam.setMinimumDistance(50);
   cam.setMaximumDistance(2500);
+  cam.rotateX(radians(-80));
+  
+  cam.setDistance(750);
 
   background(0);
 
   mdl = new PhysicalModel(1050, displayRate);
+  renderer = new ModelRenderer(this);
 
   mdl.setGravity(0.001);
   mdl.setFriction(0.000);
@@ -59,6 +66,19 @@ void setup() {
     mdl.addPlaneContact("plane"+i, 0, 0.1, 0.005, 2, -40, "mass"+i);
 
   mdl.init();
+  
+  if (BASIC_VISU){
+    renderer.displayMats(false);
+    renderer.setColor(linkModuleType.SpringDamper3D, 155, 200, 200, 255);
+    renderer.setSize(linkModuleType.SpringDamper3D, 1);
+  }
+  else{
+    renderer.displayMats(false);
+    renderer.setColor(linkModuleType.SpringDamper3D, 0, 50, 255, 255);
+    renderer.setSize(linkModuleType.SpringDamper3D, 1);
+    renderer.setStrainGradient(linkModuleType.SpringDamper3D, true, 0.02);
+    renderer.setStrainColor(linkModuleType.SpringDamper3D, 150, 150, 255, 255);
+  }
   
   frameRate(displayRate);
 
@@ -76,7 +96,7 @@ void draw() {
   background(0);
   drawPlane(2, -40, 800); 
 
-  renderModelEllipse(mdl, 1);
+  renderer.renderModel(mdl);
 }
 
 
@@ -107,4 +127,29 @@ void keyPressed() {
 void keyReleased() {
   if (key == ' ')
   mdl.setGravity(grav);
+}
+
+
+void drawPlane(int orientation, float position, float size){
+  stroke(255);
+  fill(50);
+  
+  beginShape();
+  if(orientation ==2){
+    vertex(-size, -size, position);
+    vertex( size, -size, position);
+    vertex( size, size, position);
+    vertex(-size, size, position);
+  } else if (orientation == 1) {
+    vertex(-size,position, -size);
+    vertex( size,position, -size);
+    vertex( size,position, size);
+    vertex(-size,position, size);  
+  } else if (orientation ==0) {
+    vertex(position, -size, -size);
+    vertex(position, size, -size);
+    vertex(position, size, size);
+    vertex(position,-size, size);
+  }
+  endShape(CLOSE);
 }
