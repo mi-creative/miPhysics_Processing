@@ -1,6 +1,7 @@
 package miPhysics;
 
 import java.util.*;
+import java.util.concurrent.locks.*;
 import java.lang.Math;
 
 import processing.core.*;
@@ -31,7 +32,7 @@ public class PhysicalModel {
 	// myParent is a reference to the parent sketch
 	PApplet myParent;
 
-	private Object m_lock;
+	private Lock m_lock;
 
 	/* List of Mats and Links that compose the physical model */
 	private ArrayList<Mat> mats;
@@ -111,7 +112,7 @@ public class PhysicalModel {
 
 		this.calculateSimDisplayFactor();
 
-		m_lock = new Object();
+		m_lock = new ReentrantLock();
 
 
 		System.out.println("Initialised the Phsical Model Class");
@@ -277,6 +278,7 @@ public class PhysicalModel {
 		}
 		return new Vect3D();
 	}
+
 
 	/**
 	 * Get the position of a Mat module identified by its name.
@@ -2438,9 +2440,11 @@ public class PhysicalModel {
 		System.out.println("##library.name## ##library.prettyVersion## by ##author##");
 	}
 
-	public Object getLock(){
+	public Lock getLock(){
 		return m_lock;
 	}
+
+
 
 
 	/**

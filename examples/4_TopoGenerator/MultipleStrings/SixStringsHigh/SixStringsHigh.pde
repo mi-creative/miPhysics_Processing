@@ -15,8 +15,6 @@ int baseFrameRate = 60;
 import peasy.*;
 import miPhysics.*;
 
-private Object lock = new Object();
-
 float currAudio = 0;
 float gainVal = 1.;
 
@@ -32,6 +30,8 @@ AudioOutput out;
 
 boolean recording;
 AudioRecorder recorder;
+
+ModelRenderer renderer;
 
 float[] frc = {0,0,0,0,0,0,0,0,0,0};
 float[] frcRate = {0,0,0,0,0,0,0,0,0,0};
@@ -67,6 +67,12 @@ void setup()
   
   cam.setDistance(500);  // distance from looked-at point
   
+  renderer = new ModelRenderer(this);
+  renderer.displayMats(false);
+  renderer.setColor(linkModuleType.SpringDamper3D, 120, 10, 10, 160);
+  renderer.setStrainGradient(linkModuleType.SpringDamper3D, true, 200);
+  renderer.setStrainColor(linkModuleType.SpringDamper3D, 0, 250, 255, 255);
+  
   frameRate(baseFrameRate);
 
 }
@@ -78,7 +84,7 @@ void draw()
   directionalLight(126, 126, 126, 100, 0, -1);
   ambientLight(182, 182, 182);
 
-  renderModelShapes(simUGen.mdl);
+  renderer.renderModel(simUGen.mdl);
 
   cam.beginHUD();
   stroke(125,125,255);

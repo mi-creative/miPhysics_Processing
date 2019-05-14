@@ -11,9 +11,10 @@ int gridSpacing = 2;
 int xOffset= 0;
 int yOffset= 0;
 
+ModelRenderer renderer;
+
 float currAudio = 0;
 float gainVal = 1.;
-
 
 PeasyCam cam;
 
@@ -26,19 +27,18 @@ Gain gain;
 AudioOutput out;
 AudioRecorder recorder;
 
-
-ModelRenderer renderer;
-
+float speed = 0;
+float pos = 100;
 
 ///////////////////////////////////////
 
 void setup()
 {
-  //size(1000, 700, P3D);
   fullScreen(P3D,2);
-    cam = new PeasyCam(this, 100);
+  
+  cam = new PeasyCam(this, 100);
   cam.setMinimumDistance(50);
-  cam.setMaximumDistance(2500);
+  cam.setMaximumDistance(500000);
   
   minim = new Minim(this);
   
@@ -52,26 +52,23 @@ void setup()
   
   // create a physicalModel UGEN
   simUGen = new PhyUGen(44100);
+  
   // patch the Oscil to the output
   simUGen.patch(gain).patch(out);
   
   renderer = new ModelRenderer(this);
   
-  renderer.setZoomVector(100,100,100);
-  
   renderer.displayMats(true);
-  renderer.setSize(matModuleType.Mass3D, 40);
-  renderer.setColor(matModuleType.Mass3D, 140, 140, 40);
-  renderer.setSize(matModuleType.Mass2DPlane, 10);
-  renderer.setColor(matModuleType.Mass2DPlane, 120, 0, 140);
-  renderer.setSize(matModuleType.Ground3D, 25);
-  renderer.setColor(matModuleType.Ground3D, 30, 100, 100);
-  
+  renderer.setSize(matModuleType.Mass3D, 1);
+  renderer.setColor(matModuleType.Mass3D, 50, 255, 200);
+  renderer.setSize(matModuleType.Ground3D, 3);
+  renderer.setColor(matModuleType.Ground3D, 120, 200, 100);
   renderer.setColor(linkModuleType.SpringDamper3D, 135, 70, 70, 255);
-  renderer.setStrainGradient(linkModuleType.SpringDamper3D, true, 0.1);
+  renderer.setStrainGradient(linkModuleType.SpringDamper3D, true, 0.5);
   renderer.setStrainColor(linkModuleType.SpringDamper3D, 105, 100, 200, 255);
-  
-    cam.setDistance(500);  // distance from looked-at point
+
+    
+  cam.setDistance(500);  // distance from looked-at point
   
   frameRate(baseFrameRate);
 
@@ -96,4 +93,28 @@ void draw()
   text("Curr Audio: " + currAudio, 10, 30);
   cam.endHUD();
 
+}
+
+void keyPressed() {
+    if (key =='a'){
+      forcePeak = 0.1;
+      triggerForceRamp = true;
+    }
+    if (key =='z'){
+      forcePeak = 0.5;
+      triggerForceRamp = true;
+    }
+    if (key =='e'){
+      forcePeak = 1;
+      triggerForceRamp = true;
+    }
+    if (key =='r'){
+      forcePeak = 2;
+      triggerForceRamp = true;
+    }
+    if (key =='t'){
+      forcePeak = 3;
+      triggerForceRamp = true;
+    }
+  
 }

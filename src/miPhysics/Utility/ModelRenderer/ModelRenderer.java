@@ -160,7 +160,7 @@ public class ModelRenderer implements PConstants{
 
                     v = mdl.getMatPosAt(i).toPVector().mult(1);
                     app.pushMatrix();
-                    app.translate(v.x, v.y, v.z);
+                    app.translate(m_zoomRatio.x * v.x, m_zoomRatio.y * v.y, m_zoomRatio.z * v.z);
                     app.fill(tmp.red(), tmp.green(), tmp.blue());
                     app.noStroke();
                     app.sphere(tmp.getScaledSize(mdl.getMatMassAt(i)));
