@@ -1,27 +1,35 @@
 package miPhysics;
 import processing.data.XML;
-//import processing.core.PApplet;
+import processing.core.PApplet;
 import processing.core.*;
 import java.io.IOException;
-
-
 import java.io.File;
+
 
 
 public class ModelLoader{
 
-    public static boolean saveModel(String xmlFileName, PhysicalModel mdl){
+    private PApplet app;
 
-        File myXmlFile = new File(xmlFileName);
-        XML xmlFile = new XML(myXmlFile.getName());
+
+    public ModelLoader(PApplet parent){
+
+        this.app = parent;
+
+    }
+
+
+    public  boolean saveModel(String xmlFileName, PhysicalModel mdl){
+
+        XML xmlFile = new XML(xmlFileName);
 
         generateXML(xmlFile, mdl);
-        xmlFile.save(myXmlFile);
+        app.saveXML(xmlFile, xmlFileName);
 
         return true;
     }
 
-    public static boolean loadModel(String xmlFileName, PhysicalModel mdl){
+    public  boolean loadModel(String xmlFileName, PhysicalModel mdl){
 
         File myXmlFile = new File(xmlFileName);
 
@@ -55,10 +63,10 @@ public class ModelLoader{
         XML global = xml.addChild("global");
 
         XML gravity = global.addChild("gravity");
-        gravity.setFloat("gravity",(float)mdl.getGravity());
+        gravity.setDouble("gravity",mdl.getGravity());
 
         XML friction = global.addChild("friction");
-        friction.setFloat("friction",(float)mdl.getFriction());
+        friction.setDouble("friction",mdl.getFriction());
 
         XML vector = global.addChild("vector");
         vector.setFloat("pos.x",(float)mdl.getGravityDirection().x);
@@ -108,24 +116,24 @@ public class ModelLoader{
             interaction.setString("m2", mdl.getLinkMat2NameAt(i));
 
             if (a=="Damper3D") {
-                interaction.setFloat("damping", (float)mdl.getLinkDampingAt(i));
+                interaction.setDouble("damping", mdl.getLinkDampingAt(i));
             }
 
             if (a=="Spring3D") {
-                interaction.setFloat("stiffness", (float)mdl.getLinkStiffnessAt(i));
-                interaction.setFloat("drest", (float)mdl.getLinkDRestAt(i));
+                interaction.setDouble("stiffness", mdl.getLinkStiffnessAt(i));
+                interaction.setDouble("drest", mdl.getLinkDRestAt(i));
             }
 
 
 
             else {
-                interaction.setFloat("drest", (float)mdl.getLinkDRestAt(i));
-                interaction.setFloat("stiffness", (float)mdl.getLinkStiffnessAt(i));
-                interaction.setFloat("damping", (float)mdl.getLinkDampingAt(i));
+                interaction.setDouble("drest", mdl.getLinkDRestAt(i));
+                interaction.setDouble("stiffness", mdl.getLinkStiffnessAt(i));
+                interaction.setDouble("damping", mdl.getLinkDampingAt(i));
 
                 if (a=="PlaneContact3D") {
                     interaction.setInt("orientation", mdl.getPlaneOrientationAt(i));
-                    interaction.setFloat("position", (float)mdl.getPlanePositionAt(i));
+                    interaction.setDouble("position", mdl.getPlanePositionAt(i));
                 }
 
             }
@@ -138,7 +146,7 @@ public class ModelLoader{
         }
     }
 
-    /*----------------Intégration des Mats ---------------------*/
+    /*---------------------Intégration des Mats ---------------------*/
 
     static void setupMat(XML mat, PhysicalModel mdl) {
         for (int i = 0; i<mdl.getNumberOfMats(); i++) {
@@ -148,9 +156,9 @@ public class ModelLoader{
 
             mass.setInt("index", i);
             mass.setString("name", mdl.getMatNameAt(i));
-            mass.setFloat("initPos.x", (float)mdl.getMatPosAt(i).x);
-            mass.setFloat("initPos.y", (float)mdl.getMatPosAt(i).y);
-            mass.setFloat("initPos.z", (float)mdl.getMatPosAt(i).z);
+            mass.setDouble("initPos.x", mdl.getMatPosAt(i).x);
+            mass.setDouble("initPos.y", mdl.getMatPosAt(i).y);
+            mass.setDouble("initPos.z", mdl.getMatPosAt(i).z);
 
     /* if (a=="HapticInput3D"){
      mass.setString("SmoothingFactor", smoothingFactor);
@@ -158,15 +166,15 @@ public class ModelLoader{
 
             if (a=="Mass3DSimple" || a=="Mass1D" || a=="Mass3D" || a=="Mass2DPlane" || a=="Osc1D" || a=="Osc3D") {
 
-                mass.setFloat("mass", (float)mdl.getMatMassAt(i));
-                mass.setFloat("posR.x", (float)mdl.getMatVelAt(i).x);
-                mass.setFloat("posR.y", (float)mdl.getMatVelAt(i).y);
-                mass.setFloat("posR.z", (float)mdl.getMatVelAt(i).z);
+                mass.setDouble("mass", mdl.getMatMassAt(i));
+                mass.setDouble("posR.x", mdl.getMatVelAt(i).x);
+                mass.setDouble("posR.y", mdl.getMatVelAt(i).y);
+                mass.setDouble("posR.z", mdl.getMatVelAt(i).z);
 
                 if (a=="Osc3D" || a=="Osc1D") {
 
-                    mass.setFloat("damping", (float)mdl.getMatDampingAt(i));
-                    mass.setFloat("stiffness", (float)mdl.getMatStiffnessAt(i));
+                    mass.setDouble("damping", mdl.getMatDampingAt(i));
+                    mass.setDouble("stiffness", mdl.getMatStiffnessAt(i));
                 }
             }
         }
@@ -174,31 +182,15 @@ public class ModelLoader{
 
 
 
-//======================================== Création du modèle à partir du nom de ficher XML ===========================================
 
-/*    static void createModel(String data) {
-
-        XML xml = loadXML(data);
-
-        //Création des 3 premières branches : Global Link et Mat
-        XML li = xml.getChild("Link");
-        XML ma = xml.getChild("MAT");
-        XML glo = xml.getChild("global");
-
-        createGlobal(glo, mdl);
-        createMat(ma, mdl);
-        createLink(li, mdl);
-        mdl.init();
-    }*/
-
-//==================================================== Création des Variables globales =========================================================
+//======================================= Création des Variables globales =========================================================
 
     static void createGlobal(XML glo, PhysicalModel mdl) {
-        mdl.setGravity(glo.getChild("gravity").getFloat("gravity"));
-        mdl.setFriction(glo.getChild("friction").getFloat("friction"));
+        mdl.setGravity(glo.getChild("gravity").getDouble("gravity"));
+        mdl.setFriction(glo.getChild("friction").getDouble("friction"));
         mdl.setGravityDirection(new PVector(glo.getChild("vector").getFloat("pos.x"), glo.getChild("vector").getFloat("pos.y"), glo.getChild("vector").getFloat("pos.z")));
     }
-//======================================================= Création des MAT ============================================================
+//=========================================== Création des MAT ============================================================
 
     static void createMat(XML ma, PhysicalModel mdl) {
         XML type, mass;
@@ -219,7 +211,7 @@ public class ModelLoader{
     }
 
 
-//======================================================= Création des Link ============================================================
+//======================================= Création des Link ============================================================
 
 
     static void createLink(XML li, PhysicalModel mdl) {
@@ -243,46 +235,46 @@ public class ModelLoader{
 
 // Construit l'item Mat associé, 1er param : objet XML, 2eme param : type de Mat
 
-   static void switchMat(XML mass, String typeMat, PhysicalModel mdl) {
+    static void switchMat(XML mass, String typeMat, PhysicalModel mdl) {
 
         switch(typeMat) {
 
             case "Ground3D":
-                mdl.addGround3D(mass.getString("name"), new Vect3D(mass.getFloat("initPos.x"), mass.getFloat("initPos.y"), mass.getFloat("initPos.z")));
+                mdl.addGround3D(mass.getString("name"), new Vect3D(mass.getDouble("initPos.x"), mass.getDouble("initPos.y"), mass.getDouble("initPos.z")));
                 break;
 
             case "Ground1D":
-                mdl.addGround1D(mass.getString("name"), new Vect3D(mass.getFloat("initPos.x"), mass.getFloat("initPos.y"), mass.getFloat("initPos.z")));
+                mdl.addGround1D(mass.getString("name"), new Vect3D(mass.getDouble("initPos.x"), mass.getDouble("initPos.y"), mass.getDouble("initPos.z")));
                 break;
 
             case "Mass1D":
-                mdl.addMass1D(mass.getString("name"), mass.getFloat("mass"), new Vect3D(mass.getFloat("initPos.x"), mass.getFloat("initPos.y"), mass.getFloat("initPos.z")),
-                        new Vect3D(mass.getFloat("posR.x"), mass.getFloat("posR.y"), mass.getFloat("posR.z")));
+                mdl.addMass1D(mass.getString("name"), mass.getDouble("mass"), new Vect3D(mass.getDouble("initPos.x"), mass.getDouble("initPos.y"), mass.getDouble("initPos.z")),
+                        new Vect3D(mass.getDouble("posR.x"), mass.getDouble("posR.y"), mass.getDouble("posR.z")));
                 break;
 
             case "Mass2DPlane":
-                mdl.addMass2DPlane(mass.getString("name"), mass.getFloat("mass"), new Vect3D(mass.getFloat("initPos.x"), mass.getFloat("initPos.y"), mass.getFloat("initPos.z")),
-                        new Vect3D(mass.getFloat("posR.x"), mass.getFloat("posR.y"), mass.getFloat("posR.z")));
+                mdl.addMass2DPlane(mass.getString("name"), mass.getDouble("mass"), new Vect3D(mass.getDouble("initPos.x"), mass.getDouble("initPos.y"), mass.getDouble("initPos.z")),
+                        new Vect3D(mass.getDouble("posR.x"), mass.getDouble("posR.y"), mass.getDouble("posR.z")));
                 break;
 
             case "Mass3D":
-                mdl.addMass3D(mass.getString("name"), mass.getFloat("mass"), new Vect3D(mass.getFloat("initPos.x"), mass.getFloat("initPos.y"), mass.getFloat("initPos.z")),
-                        new Vect3D(mass.getFloat("posR.x"), mass.getFloat("posR.y"), mass.getFloat("posR.z")));
+                mdl.addMass3D(mass.getString("name"), mass.getDouble("mass"), new Vect3D(mass.getDouble("initPos.x"), mass.getDouble("initPos.y"), mass.getDouble("initPos.z")),
+                        new Vect3D(mass.getDouble("posR.x"), mass.getDouble("posR.y"), mass.getDouble("posR.z")));
                 break;
 
             case "Mass3DSimple":
-                mdl.addMass3DSimple(mass.getString("name"), mass.getFloat("mass"), new Vect3D(mass.getFloat("initPos.x"), mass.getFloat("initPos.y"), mass.getFloat("initPos.z")),
-                        new Vect3D(mass.getFloat("posR.x"), mass.getFloat("posR.y"), mass.getFloat("posR.z")));
+                mdl.addMass3DSimple(mass.getString("name"), mass.getDouble("mass"), new Vect3D(mass.getDouble("initPos.x"), mass.getDouble("initPos.y"), mass.getDouble("initPos.z")),
+                        new Vect3D(mass.getDouble("posR.x"), mass.getDouble("posR.y"), mass.getDouble("posR.z")));
                 break;
 
             case "Osc3D":
-                mdl.addOsc3D(mass.getString("name"), mass.getFloat("mass"), mass.getFloat("stiffness"), mass.getFloat("damping"), new Vect3D(mass.getFloat("initPos.x"), mass.getFloat("initPos.y"), mass.getFloat("initPos.z")),
-                        new Vect3D(mass.getFloat("posR.x"), mass.getFloat("posR.y"), mass.getFloat("posR.z")));
+                mdl.addOsc3D(mass.getString("name"), mass.getDouble("mass"), mass.getDouble("stiffness"), mass.getDouble("damping"), new Vect3D(mass.getDouble("initPos.x"), mass.getDouble("initPos.y"), mass.getDouble("initPos.z")),
+                        new Vect3D(mass.getDouble("posR.x"), mass.getDouble("posR.y"), mass.getDouble("posR.z")));
                 break;
 
             case "Osc1D":
-                mdl.addOsc3D(mass.getString("name"), mass.getFloat("mass"), mass.getFloat("stiffness"), mass.getFloat("damping"), new Vect3D(mass.getFloat("initPos.x"), mass.getFloat("initPos.y"), mass.getFloat("initPos.z")),
-                        new Vect3D(mass.getFloat("posR.x"), mass.getFloat("posR.y"), mass.getFloat("posR.z")));
+                mdl.addOsc3D(mass.getString("name"), mass.getDouble("mass"), mass.getDouble("stiffness"), mass.getDouble("damping"), new Vect3D(mass.getDouble("initPos.x"), mass.getDouble("initPos.y"), mass.getDouble("initPos.z")),
+                        new Vect3D(mass.getDouble("posR.x"), mass.getDouble("posR.y"), mass.getDouble("posR.z")));
                 break;
         }
     }
@@ -293,38 +285,41 @@ public class ModelLoader{
     static void switchLink(XML link, String typeLink, PhysicalModel mdl) {
         switch(typeLink) {
             case "Bubble3D":
-                mdl.addBubble3D(link.getString("name"), link.getFloat("drest"), link.getFloat("stiffness"), link.getFloat("damping"), link.getString("m1"), link.getString("m2"));
+                mdl.addBubble3D(link.getString("name"), link.getDouble("drest"), link.getDouble("stiffness"), link.getDouble("damping"), link.getString("m1"), link.getString("m2"));
                 break;
 
             case "Contact3D":
-                mdl.addContact3D(link.getString("name"), link.getFloat("drest"), link.getFloat("stiffness"), link.getFloat("damping"), link.getString("m1"), link.getString("m2"));
+                mdl.addContact3D(link.getString("name"), link.getDouble("drest"), link.getDouble("stiffness"), link.getDouble("damping"), link.getString("m1"), link.getString("m2"));
                 break;
 
             case "Rope3D":
-                mdl.addRope3D(link.getString("name"), link.getFloat("drest"), link.getFloat("stiffness"), link.getFloat("damping"), link.getString("m1"), link.getString("m2"));
+                mdl.addRope3D(link.getString("name"), link.getDouble("drest"), link.getDouble("stiffness"), link.getDouble("damping"), link.getString("m1"), link.getString("m2"));
                 break;
 
             case "SpringDamper1D":
-                mdl.addSpringDamper1D(link.getString("name"), link.getFloat("drest"), link.getFloat("stiffness"), link.getFloat("damping"), link.getString("m1"), link.getString("m2"));
+                mdl.addSpringDamper1D(link.getString("name"), link.getDouble("drest"), link.getDouble("stiffness"), link.getDouble("damping"), link.getString("m1"), link.getString("m2"));
                 break;
 
             case "SpringDamper3D":
-                mdl.addSpringDamper3D(link.getString("name"), link.getFloat("drest"), link.getFloat("stiffness"), link.getFloat("damping"), link.getString("m1"), link.getString("m2"));
+                mdl.addSpringDamper3D(link.getString("name"), link.getDouble("drest"), link.getDouble("stiffness"), link.getDouble("damping"), link.getString("m1"), link.getString("m2"));
                 break;
 
             case "Spring3D":
-                mdl.addSpring3D(link.getString("name"), link.getFloat("drest"), link.getFloat("stiffness"), link.getString("m1"), link.getString("m2"));
+                mdl.addSpring3D(link.getString("name"), link.getDouble("drest"), link.getDouble("stiffness"), link.getString("m1"), link.getString("m2"));
                 break;
 
             case "Damper3D":
-                mdl.addDamper3D(link.getString("name"), link.getFloat("damping"), link.getString("m1"), link.getString("m2"));
+                mdl.addDamper3D(link.getString("name"), link.getDouble("damping"), link.getString("m1"), link.getString("m2"));
                 break;
 
             case "PlaneContact3D":
-                mdl.addPlaneContact(link.getString("name"), link.getFloat("drest"), link.getFloat("stiffness"), link.getFloat("damping"),
-                        link.getInt("orientation"), link.getFloat("position"), link.getString("m1"));
+                mdl.addPlaneContact(link.getString("name"), link.getDouble("drest"), link.getDouble("stiffness"), link.getDouble("damping"),
+                        link.getInt("orientation"), link.getDouble("position"), link.getString("m1"));
                 break;
         }
+
+
     }
+
 
 }
