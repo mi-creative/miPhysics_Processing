@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<HelloMass.xml>
+  <global>
+    <gravity gravity="0.0"/>
+    <friction friction="0.0"/>
+    <vector pos.x="0.0" pos.y="0.0" pos.z="1.0"/>
+  </global>
+  <MAT>
+    <Ground1D/>
+    <Ground3D>
+      <mass_1 index="1" initPos.x="70.0" initPos.y="0.0" initPos.z="0.0" name="ground1"/>
+      <mass_2 index="2" initPos.x="-70.0" initPos.y="0.0" initPos.z="0.0" name="ground2"/>
+      <mass_3 index="3" initPos.x="0.0" initPos.y="70.0" initPos.z="0.0" name="ground3"/>
+      <mass_4 index="4" initPos.x="0.0" initPos.y="-70.0" initPos.z="0.0" name="ground4"/>
+      <mass_5 index="5" initPos.x="0.0" initPos.y="0.0" initPos.z="70.0" name="ground5"/>
+      <mass_6 index="6" initPos.x="0.0" initPos.y="0.0" initPos.z="-70.0" name="ground6"/>
+    </Ground3D>
+    <HapticInput3D/>
+    <Mass1D/>
+    <Mass2DPlane/>
+    <Mass3D>
+      <mass_0 index="0" initPos.x="0.0" initPos.y="0.0" initPos.z="0.0" mass="1.0" name="mass" posR.x="0.0" posR.y="0.0" posR.z="1.0"/>
+    </Mass3D>
+    <Mass3DSimple/>
+    <Osc1D/>
+    <Osc3D/>
+  </MAT>
+  <Link>
+    <Damper3D/>
+    <Bubble3D/>
+    <Contact3D/>
+    <PlaneContact3D/>
+    <Rope3D/>
+    <Spring3D/>
+    <SpringDamper1D/>
+    <SpringDamper3D>
+      <interaction_0 damping="0.009999999776482582" drest="70.0" index="0" m1="mass" m2="ground1" name="spring1" stiffness="0.0010000000474974513"/>
+      <interaction_1 damping="0.009999999776482582" drest="70.0" index="1" m1="mass" m2="ground2" name="spring2" stiffness="9.000000427477062E-4"/>
+      <interaction_2 damping="0.009999999776482582" drest="70.0" index="2" m1="mass" m2="ground3" name="spring3" stiffness="0.0020000000949949026"/>
+      <interaction_3 damping="0.009999999776482582" drest="70.0" index="3" m1="mass" m2="ground4" name="spring4" stiffness="0.002099999925121665"/>
+      <interaction_4 damping="0.009999999776482582" drest="70.0" index="4" m1="mass" m2="ground5" name="spring5" stiffness="0.001500000013038516"/>
+      <interaction_5 damping="0.009999999776482582" drest="70.0" index="5" m1="mass" m2="ground6" name="spring6" stiffness="0.001600000075995922"/>
+    </SpringDamper3D>
+  </Link>
+</HelloMass.xml>
