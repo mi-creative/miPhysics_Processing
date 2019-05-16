@@ -12,10 +12,10 @@ import miPhysics.*;
 import peasy.*;
 PeasyCam cam;
 
-
 // SOME GLOBAL DECLARATIONS AND REQUIRED ELEMENTS
 
 int displayRate = 60;
+boolean BASIC_VISU = false;
 
 /*  "dimension" of the model - number of MAT modules */
 
@@ -24,6 +24,7 @@ int dimY = 100;
 
 /*  global physical model object : will contain the model and run calculations. */
 PhysicalModel mdl;
+ModelRenderer renderer;
 
 /* elements to calculate the number of steps to simulate in each draw() method */
 float simDisplay_factor;
@@ -43,25 +44,37 @@ float fric = 0.001;
 // SETUP: THIS IS WHERE WE SETUP AND INITIALISE OUR MODEL
 
 void setup() {
+  
   //size(700, 700, P3D);
-   
   fullScreen(P3D);
   background(0);
 
   // instantiate our physical model context
   mdl = new PhysicalModel(550);
+  renderer = new ModelRenderer(this);
   
-  Vect3D tes = new Vect3D();
-
+  
   mdl.setGravity(0.000);
   mdl.setFriction(fric);
   gridSpacing = height/dimX;
   
   generatePinScreen(mdl, dimX, dimY, "osc", "spring", 1., gridSpacing, 0.0002, 0.0, 0.06, 0.1);
 
-
   // initialise the model before starting calculations.
   mdl.init();
+
+  if (BASIC_VISU){
+    renderer.displayMats(false);
+    renderer.setColor(linkModuleType.SpringDamper3D, 155, 200, 200, 255);
+    renderer.setSize(linkModuleType.SpringDamper3D, 1);
+  }
+  else{
+    renderer.displayMats(false);
+    renderer.setColor(linkModuleType.SpringDamper3D, 255, 50, 50, 0);
+    renderer.setStrainGradient(linkModuleType.SpringDamper3D, true, 0.1);
+    renderer.setStrainColor(linkModuleType.SpringDamper3D, 255, 100, 255, 255);
+  }
+  
   
   frameRate(displayRate);
 
@@ -88,17 +101,15 @@ void draw() {
   background(0);
 
   pushMatrix();
-  translate(xOffset,yOffset /* dimY*gridSpacing/2.*/, 0.); // les 5. est supposé être la variable dist envoyée dans les fonction de génération de modle
-  renderModelEllipse(mdl, 1);
+  translate(xOffset,yOffset, 0.);
+  renderer.renderModel(mdl);
   popMatrix();
-
   
   fill(255);
   textSize(10); 
 
   text("Friction: " + fric, 50, 50, 50);
 
-  
   if (mousePressed == true){
     //fExt();
   }
@@ -152,4 +163,42 @@ void keyPressed() {
 void keyReleased() {
   if (key == ' ')
   mdl.setGravity(0.000);
+}
+
+
+
+
+void generatePinScreen(PhysicalModel mdl, int dimX, int dimY, String mName, String lName, double masValue, double dist, double K_osc, double Z_osc, double K, double Z) {
+
+  String masName;
+  Vect3D X0, V0;
+
+  for (int i = 0; i < dimY; i++) {
+    for (int j = 0; j < dimX; j++) {
+      masName = mName + j +"_"+ i;
+      X0 = new Vect3D((float)j*dist,(float)i*dist, 0.);
+      V0 = new Vect3D(0., 0., 0.);
+      mdl.addOsc3D(masName, masValue, K_osc, Z_osc, X0, V0);
+    }
+  }
+
+
+  // add the spring to the model: length, stiffness, connected mats
+  String masName1, masName2;
+
+    for (int i = 0; i < dimX; i++) {
+      for (int j = 0; j < dimY-1; j++) {
+        masName1 = mName + i +"_"+ j;
+        masName2 = mName + i +"_"+ str(j+1);
+        mdl.addSpringDamper3D(lName + "1_" +i+j, dist, K, Z, masName1, masName2);
+      }
+    }
+    
+    for (int i = 0; i < dimX-1; i++) {
+      for (int j = 0; j < dimY; j++) {
+        masName1 = mName + i +"_"+ j;
+        masName2 = mName + str(i+1) +"_"+ j;
+        mdl.addSpringDamper3D(lName + "1_" +i+j, dist, K, Z, masName1, masName2);
+      }
+    }
 }

@@ -60,7 +60,7 @@ public class PhyUGen extends UGen
   protected void uGenerate(float[] channels)
   {
     float sample;
-    synchronized(lock) {
+    synchronized(mdl.getLock()) {
     this.mdl.computeStep();
 
     // calculate the sample value

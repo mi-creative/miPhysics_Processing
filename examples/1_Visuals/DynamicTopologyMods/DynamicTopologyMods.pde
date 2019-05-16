@@ -14,12 +14,18 @@ import miPhysics.*;
 import peasy.*;
 PeasyCam cam;
 
+float zZoom = 1;
+
 
 int displayRate = 60;
+boolean BASIC_VISU = false;
+
 int dimX = 115;
 int dimY = 65;
 
 PhysicalModel mdl;
+ModelRenderer renderer;
+
 
 int mouseDragged = 0;
 
@@ -43,6 +49,21 @@ void setup() {
   generatePinScreen(mdl, dimX, dimY, "osc", "spring", 1., gridSpacing, 0.0006, 0.0, 0.09, 0.1);
 
   mdl.init();
+  
+  renderer = new ModelRenderer(this);
+  
+  if (BASIC_VISU){
+    renderer.displayMats(false);
+    renderer.setColor(linkModuleType.SpringDamper3D, 155, 200, 200, 255);
+    renderer.setSize(linkModuleType.SpringDamper3D, 1);
+  }
+  else{
+    renderer.displayMats(false);
+    renderer.setColor(linkModuleType.SpringDamper3D, 155, 50, 50, 70);
+    renderer.setStrainGradient(linkModuleType.SpringDamper3D, true, 0.1);
+    renderer.setStrainColor(linkModuleType.SpringDamper3D, 255, 250, 255, 255);
+  }
+  
   frameRate(displayRate);   
 
 } 
@@ -50,7 +71,8 @@ void setup() {
 // DRAW: THIS IS WHERE WE RUN THE MODEL SIMULATION AND DISPLAY IT
 
 void draw() {
-
+ 
+  noCursor();
   camera(width/2.0, height/2.0, (height/2.0) / tan(PI*30.0 / 180.0), width/2, height/2.0, 0, 0, 1, 0);
 
   mdl.draw_physics();
@@ -59,7 +81,7 @@ void draw() {
 
   pushMatrix();
   translate(xOffset,yOffset, 0.);
-  renderLinks(mdl);
+  renderer.renderModel(mdl);
   popMatrix();
 
   fill(255);
@@ -130,9 +152,11 @@ void keyPressed() {
   }
   else if (keyCode == LEFT){
     zZoom ++;
+    renderer.setZoomVector(1,1, zZoom);
   }
   else if (keyCode == RIGHT){
     zZoom --;
+    renderer.setZoomVector(1,1, zZoom);
   }
 }
 

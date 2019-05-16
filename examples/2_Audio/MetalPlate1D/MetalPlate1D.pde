@@ -11,8 +11,6 @@ int gridSpacing = 2;
 int xOffset= 0;
 int yOffset= 0;
 
-private Object lock = new Object();
-
 
 PeasyCam cam;
 
@@ -66,8 +64,6 @@ void draw()
 {
   camera(width/2.0, height/2.0, (height/2.0) / tan(PI*30.0 / 180.0), width/2, height/2.0, 0, 0, 1, 0);
 
-  //mdl.draw_physics();
-
   background(0);
 
   pushMatrix();
@@ -120,7 +116,7 @@ void engrave(float mX, float mY){
 void chisel(float mX, float mY){
   String matName = "osc" + floor(mX/ gridSpacing)+"_"+floor(mY/ gridSpacing);
   println(simUGen.mdl.matExists(matName));
-  synchronized(lock){
+  synchronized(simUGen.mdl.getLock()){
   if(simUGen.mdl.matExists(matName))
     simUGen.mdl.removeMatAndConnectedLinks(matName);
   }
@@ -143,7 +139,7 @@ void keyPressed() {
   simUGen.mdl.setGravity(-0.001);
   if(keyCode == UP){
     fric += 0.001;
-    synchronized(lock){
+    synchronized(simUGen.mdl.getLock()){
       simUGen.mdl.setFriction(0.);
     }
     println(fric);

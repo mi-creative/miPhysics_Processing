@@ -11,7 +11,6 @@ Press 'a', 'z', 'e' or 'r' to apply forces to the cube and set it off-axis.
 Press 'q' or 's' to toggle between low and high gravity values.
 */
 
-
 import ddf.minim.*;
 import ddf.minim.ugens.*;
 import peasy.*;
@@ -20,8 +19,6 @@ int baseFrameRate = 60;
 
 import peasy.*;
 import miPhysics.*;
-
-private Object lock = new Object();
 
 float currAudio = 0;
 float gainVal = 1.;
@@ -39,9 +36,7 @@ AudioOutput out;
 AudioRecorder recorder;
 
 
-float speed = 0;
-float pos = 100;
-
+ModelRenderer renderer;
 
 ///////////////////////////////////////
 
@@ -67,11 +62,11 @@ void setup()
   simUGen = new PhyUGen(44100);
   // patch the Oscil to the output
   simUGen.patch(gain).patch(out);
-  
-  createShapeArray(simUGen.mdl);
-  
-  //simUGen.mdl.triggerForceImpulse("mass"+(excitationPoint), 0, 1, 0);
+    
   cam.setDistance(500);  // distance from looked-at point
+  
+  renderer = new ModelRenderer(this);
+  renderer.setSize(matModuleType.Mass3D, 5);
   
   frameRate(baseFrameRate);
 
@@ -84,9 +79,22 @@ void draw()
   directionalLight(126, 126, 126, 100, 0, -1);
   ambientLight(182, 182, 182);
   
+  pushMatrix();
+  rotateX(PI/2);
+  
+  PVector test = new PVector();
+  
+  synchronized(simUGen.mdl.getLock()){
+    test = simUGen.mdl.getMatPVector("gnd").copy();
+  }
+  
+  translate(test.x,test.z,test.y);
+  drawHemisphere(1000., 0xEE660000, 50);
+  drawHemisphere(1003., 0xFFFFFFAA, 50);
+  popMatrix();
 
   strokeWeight(1);
-  renderModelShapes(simUGen.mdl);
+  renderer.renderModel(simUGen.mdl);
 
   cam.beginHUD();
   stroke(125,125,255);
@@ -102,6 +110,35 @@ void draw()
 
 }
 
+
+
+void drawHemisphere(float rho, int col, float div){
+  
+  float factor = TWO_PI / div;
+  float x, y, z;
+  
+  noStroke();
+  fill(col);
+  
+  for(float phi = 0.0; phi < HALF_PI/2; phi += factor/2) {
+    beginShape(QUAD_STRIP);
+    for(float theta = 0.0; theta < TWO_PI + factor; theta += factor) {
+      x = rho * sin(phi) * cos(theta);
+      z = rho * sin(phi) * sin(theta);
+      y = -rho * cos(phi);
+ 
+      vertex(x, y, z);
+ 
+      x = rho * sin(phi + factor) * cos(theta);
+      z = rho * sin(phi + factor) * sin(theta);
+      y = -rho * cos(phi + factor);
+ 
+      vertex(x, y, z);
+    }
+    endShape(CLOSE);
+  }
+
+}
 
 
 

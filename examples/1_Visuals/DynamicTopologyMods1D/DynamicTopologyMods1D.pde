@@ -16,10 +16,15 @@ PeasyCam cam;
 
 
 int displayRate = 60;
+
+
 int dimX = 100;
 int dimY = 100;
 
+float zZoom = 1;
+
 PhysicalModel mdl;
+ModelRenderer renderer;
 
 int mouseDragged = 0;
 
@@ -43,6 +48,14 @@ void setup() {
   generateMesh(mdl, dimX, dimY, "osc", "spring", 1., gridSpacing, 0.0006, 0.0, 0.009, 0.1);
 
   mdl.init();
+  
+  renderer = new ModelRenderer(this);
+  
+  renderer.displayMats(false);
+  renderer.setColor(linkModuleType.SpringDamper1D, 155, 200, 200, 255);
+  renderer.setSize(linkModuleType.SpringDamper1D, 1);
+
+  
   frameRate(displayRate);   
 
 } 
@@ -59,7 +72,7 @@ void draw() {
 
   pushMatrix();
   translate(xOffset,yOffset, 0.);
-  renderLinks(mdl);
+  renderer.renderModel(mdl);
   popMatrix();
 
   fill(255);
@@ -130,9 +143,11 @@ void keyPressed() {
   }
   else if (keyCode == LEFT){
     zZoom ++;
+    renderer.setZoomVector(1,1, zZoom);
   }
   else if (keyCode == RIGHT){
     zZoom --;
+    renderer.setZoomVector(1,1, zZoom);
   }
 }
 

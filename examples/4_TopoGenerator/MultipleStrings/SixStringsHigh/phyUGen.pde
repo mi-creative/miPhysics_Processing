@@ -12,8 +12,6 @@ int nbStrings = 6;
 
 public class PhyUGen extends UGen
 {
-
-
   private float    oneOverSampleRate;
 
   float[] audioOut;
@@ -39,7 +37,6 @@ public class PhyUGen extends UGen
     for (int i = 0; i < nbStrings; i++) {
 
       TopoGenerator q = new TopoGenerator(mdl, ("str"+str(i)), "spring");
-
 
       q.setDim(len, 1, 1, overlap);
       q.setParams(1, 0.4, 0.05);
@@ -83,50 +80,47 @@ public class PhyUGen extends UGen
     protected void uGenerate(float[] channels)
   {
     float sample;
-    synchronized(lock) { 
 
+    // Triggered linear ramp forces (for "plucking")
+    for (int i = 0; i < nbStrings; i++) {
+      if (triggerForceRamp[i]) {
+        frc[i] = frc[i] + frcRate[i] * 0.1;
+        simUGen.mdl.triggerForceImpulse("str"+ i +"_" + (dimX/5 + 5 * i)+ "_0_0", 0, frc[i], 0);
 
-      // Triggered linear ramp forces (for "plucking")
-      for (int i = 0; i < nbStrings; i++) {
-        if (triggerForceRamp[i]) {
-          frc[i] = frc[i] + frcRate[i] * 0.1;
-          simUGen.mdl.triggerForceImpulse("str"+ i +"_" + (dimX/5 + 5 * i)+ "_0_0", 0, frc[i], 0);
-
-          if (frc[i] > forcePeak[i]) {
-            triggerForceRamp[i] = false;
-            frc[i] = 0;
-          }
+        if (frc[i] > forcePeak[i]) {
+          triggerForceRamp[i] = false;
+          frc[i] = 0;
         }
       }
+    }
 
-      this.mdl.computeStep();
+    this.mdl.computeStep();
 
-      audioOut[0] = 0;
+    audioOut[0] = 0;
 
 
-      if (audioRamp < 1)
-        audioRamp +=0.00001;
+    if (audioRamp < 1)
+      audioRamp +=0.00001;
 
-      float allAudio = 0;
+    float allAudio = 0;
 
-      for (int i = 0; i < listeners.length; i++) {
+    for (int i = 0; i < listeners.length; i++) {
 
-        Vect3D listenPos = this.mdl.getMatPosition(listeners[i]);
+      Vect3D listenPos = this.mdl.getMatPosition(listeners[i]);
 
-        // calculate the sample value
-        if (simUGen.mdl.matExists(listeners[i])) {
-          sample = (float)(listenPos.y)* (0.01 - 0.001 * i);
+      // calculate the sample value
+      if (simUGen.mdl.matExists(listeners[i])) {
+        sample = (float)(listenPos.y)* (0.01 - 0.001 * i);
 
-          /* High pass filter to remove the DC offset */
-          audioOut[i] = (sample - prevAudio[i] + 0.95 * audioOut[i]) * audioRamp;
-          prevAudio[i] = sample;
+        /* High pass filter to remove the DC offset */
+        audioOut[i] = (sample - prevAudio[i] + 0.95 * audioOut[i]) * audioRamp;
+        prevAudio[i] = sample;
 
-          allAudio += audioOut[i];
-        } else
-          audioOut[0] = 0;
-        channels[1] = allAudio;
-        channels[0] = allAudio;
-      }
+        allAudio += audioOut[i];
+      } else
+        audioOut[0] = 0;
+      channels[1] = allAudio;
+      channels[0] = allAudio;
     }
     currAudio = audioOut[0];
   }

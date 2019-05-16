@@ -3,8 +3,6 @@ import ddf.minim.UGen;
 
 import miPhysics.*;
 
-
-
 int dimX = 4;
 int dimY = 4;
 int dimZ = 3;
@@ -21,14 +19,12 @@ public class PhyUGen extends UGen
 
   private float    oneOverSampleRate;
 
-
   float prevSample;
- // float audioOut;
-  
-  
-    float[] audioOut ={0, 0};
-    float[] prevAudio ={0, 0};
-    String[] listeners ={"none", "none"};
+
+
+  float[] audioOut ={0, 0};
+  float[] prevAudio ={0, 0};
+  String[] listeners ={"none", "none"};
 
 
   PhysicalModel mdl;
@@ -48,17 +44,17 @@ public class PhyUGen extends UGen
     q.setDim(dimX, dimY, dimZ, overlap);
     q.setParams(1, 0.05, 0.0001);
     q.setGeometry(25, 25);
-    
-    q.setTranslation(1, 1,0);
+
+    q.setTranslation(1, 1, 0);
 
     q.generate();
-    
+
     q.conditionAlongSphere(40, true);
     q.conditionAlongSphere(20, false);
-    
+
     int firstPebbleEnd = mdl.getNumberOfMats();
 
-    
+
     TopoGenerator q2 = new TopoGenerator(mdl, "pebbleB", "springB");
     q2.setDim(dimX, dimY, dimZ, overlap);
     q2.setParams(1, 0.05, 0.0001);
@@ -68,7 +64,7 @@ public class PhyUGen extends UGen
 
     q2.conditionAlongSphere(40, true);
     q2.conditionAlongSphere(20, false);
-    
+
     int secondPebbleEnd = mdl.getNumberOfMats();
 
 
@@ -80,9 +76,9 @@ public class PhyUGen extends UGen
       println(mdl.getMatNameAt(i));
       mdl.addBubble3D("bub"+i, 1000, 0.01, 0.1, "gnd", mdl.getMatNameAt(i));
     }
-    
+
     for (int i = 0; i < firstPebbleEnd; i++) {
-      for (int j = firstPebbleEnd ; j < secondPebbleEnd; j++) {
+      for (int j = firstPebbleEnd; j < secondPebbleEnd; j++) {
         println(mdl.getMatNameAt(i));
         mdl.addContact3D("cont"+i+"_"+j, 20, 0.01, 0.01, mdl.getMatNameAt(j), mdl.getMatNameAt(i));
       }
@@ -109,34 +105,31 @@ public class PhyUGen extends UGen
     protected void uGenerate(float[] channels)
   {
     float sample;
-    synchronized(lock) { 
 
-      this.mdl.computeStep();
-            
-        if(audioRamp < 1)
-          audioRamp +=0.00001;
-        
+    this.mdl.computeStep();
 
-      for(int i = 0; i < listeners.length; i++){
-        
+    if (audioRamp < 1)
+      audioRamp +=0.00001;
+
+
+    for (int i = 0; i < listeners.length; i++) {
+
       Vect3D listenPos = this.mdl.getMatPosition(listeners[i]);
 
       // calculate the sample value
       if (simUGen.mdl.matExists(listeners[i])) {
         sample =(float)(listenPos.x)* 0.2
-               + (float)(listenPos.y)* 0.2
-               + (float)(listenPos.z)* 0.8;
+          + (float)(listenPos.y)* 0.2
+          + (float)(listenPos.z)* 0.8;
 
         /* High pass filter to remove the DC offset */
         audioOut[i] = (sample - prevAudio[i] + 0.85 * audioOut[i]) * audioRamp;
         prevAudio[i] = sample;
-
       } else
         audioOut[i] = 0;
       channels[i] = audioOut[i];
-      }
-      
     }
+
     currAudio = audioOut[0];
   }
 }
