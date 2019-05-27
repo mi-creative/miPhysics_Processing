@@ -8,6 +8,7 @@ import ddf.minim.ugens.*;
 int displayRate = 50;
 boolean BASIC_VISU = false;
 String fileName=null;
+boolean IS_LOADED=false;
 
 Minim minim;
 PhyUGen simUGen;
@@ -25,7 +26,7 @@ void setup() {
   cam = new PeasyCam(this, 100);
   cam.setMinimumDistance(50);
   cam.setMaximumDistance(2500);
-  cam.rotateX(radians(-80));
+  cam.rotateX(radians(0));
   
   cam.setDistance(750);
 
@@ -71,12 +72,31 @@ void setup() {
 
 void draw() {
   
+    if (IS_LOADED==false){
+  PFont myFont;
+  myFont = createFont("Georgia",32);
+  background(0);
+  textFont(myFont);
+  textSize(30);
+  fill(255);
+  textAlign(CENTER, BOTTOM);
+  text("model loading ...", 10, 10);
+  textAlign(CENTER, CENTER);
+  text("number of Mats charged = " + simUGen.mdl.getNumberOfMats(), 10, 50);
+  textAlign(CENTER,TOP);
+  text("number of Links charged = " + simUGen.mdl.getNumberOfLinks(), 10, 100);
+  }
+  
+  else{
+  
   directionalLight(251, 102, 126, 0, -1, 0);
   ambientLight(102, 102, 102);
 
   background(0);
 
   renderer.renderModel(simUGen.mdl);
+  
+  }
   
 }
 
@@ -90,6 +110,7 @@ void load(File selection){
     println(fileName);
     synchronized(simUGen.mdl.getLock()){
       loader.loadModel(fileName, simUGen.mdl);
+      IS_LOADED=true;
     }
   }
 }
