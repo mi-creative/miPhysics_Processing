@@ -179,6 +179,8 @@ ${line}
 		<copy todir="${project.tmp}/${project.name}/examples">
 			<fileset dir="${project.examples}">
 				<exclude name="**/*README*" />
+				<!-- not including the ModelLoader examples for now -->
+				<exclude name="**/5_ModelLoader/**" />
 			</fileset>
 		</copy>
 		<copy todir="${project.tmp}/${project.name}/src">

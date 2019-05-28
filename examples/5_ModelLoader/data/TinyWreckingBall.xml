@@ -14,9 +14,9 @@
     <Mass1D/>
     <Mass2DPlane/>
     <Mass3D>
-      <mass_0 index="0" initPos.x="270.0" initPos.y="0.0" initPos.z="200.0" mass="20.0" name="mass1" posR.x="0.0" posR.y="0.0" posR.z="0.0"/>
-      <mass_1 index="1" initPos.x="180.0" initPos.y="0.0" initPos.z="200.0" mass="1.0" name="mass2" posR.x="0.0" posR.y="0.0" posR.z="0.0"/>
-      <mass_2 index="2" initPos.x="90.0" initPos.y="0.0" initPos.z="200.0" mass="1.0" name="mass3" posR.x="0.0" posR.y="0.0" posR.z="0.0"/>
+      <mass_0 index="0" initPos.x="270.0" initPos.y="0.0" initPos.z="200.0" mass="20.0" name="mass1" initVel.x="0.0" initVel.y="0.0" initVel.z="0.0"/>
+      <mass_1 index="1" initPos.x="180.0" initPos.y="0.0" initPos.z="200.0" mass="1.0" name="mass2" initVel.x="0.0" initVel.y="0.0" initVel.z="0.0"/>
+      <mass_2 index="2" initPos.x="90.0" initPos.y="0.0" initPos.z="200.0" mass="1.0" name="mass3" initVel.x="0.0" initVel.y="0.0" initVel.z="0.0"/>
     </Mass3D>
     <Mass3DSimple/>
     <Osc1D/>

@@ -19,7 +19,7 @@
     <Mass1D/>
     <Mass2DPlane/>
     <Mass3D>
-      <mass_0 index="0" initPos.x="0.0" initPos.y="0.0" initPos.z="0.0" mass="1.0" name="mass" posR.x="0.0" posR.y="0.0" posR.z="1.0"/>
+      <mass_0 index="0" initPos.x="0.0" initPos.y="0.0" initPos.z="0.0" mass="1.0" name="mass" initVel.x="0.0" initVel.y="0.0" initVel.z="1.0"/>
     </Mass3D>
     <Mass3DSimple/>
     <Osc1D/>
