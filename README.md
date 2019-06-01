@@ -10,7 +10,9 @@ Using elementary physical elements (such as masses, springs, contact interaction
 
 ## 1 - Using miPhysics: Getting Started
 
-To get the compiled version of the library for Processing, head to the release section and download it in ZIP format.
+This repo contains the _development_ framework allowing to build the library.
+
+If you just want the **_compiled_ version of the library for Processing**, head to the ***release*** section and download the latest release **ZIP file**.
 
 Then unzip the file and place the **"miPhysics"** folder in the Processing sketchbook "library" folder. 
 
