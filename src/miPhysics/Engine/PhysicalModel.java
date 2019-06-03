@@ -2318,9 +2318,17 @@ public class PhysicalModel {
 		if (unit_system == paramSystem.REAL_UNITS) {
 			newParam = newParam / (simRate * simRate);
 		}
+		if(this.link_subsets.containsKey(subsetName))
+		{
+			for (int linkIndex : this.link_subsets.get(subsetName)) {
+				links.get(linkIndex).changeStiffness(newParam);
+			}
+		}
+		if(this.mat_subsets.containsKey(subsetName)) {
+			for (int matIndex : this.mat_subsets.get(subsetName)) {
 
-		for (int linkIndex : this.link_subsets.get(subsetName)) {
-			links.get(linkIndex).changeStiffness(newParam);
+				if(!mats.get(matIndex).changeStiffness(newParam)) System.out.println("ouïe !!!!");
+			}
 		}
 	}
 
@@ -2337,9 +2345,16 @@ public class PhysicalModel {
 		if (unit_system == paramSystem.REAL_UNITS) {
 			newParam = newParam / (simRate * simRate);
 		}
+		if(this.link_subsets.containsKey(subsetName)) {
+			for (int linkIndex : this.link_subsets.get(subsetName)) {
+				links.get(linkIndex).changeDamping(newParam);
+			}
+		}
+		if(this.mat_subsets.containsKey(subsetName)) {
 
-		for (int linkIndex : this.link_subsets.get(subsetName)) {
-			links.get(linkIndex).changeDamping(newParam);
+			for (int matIndex : this.mat_subsets.get(subsetName)) {
+				mats.get(matIndex).changeDamping(newParam);
+			}
 		}
 	}
 
