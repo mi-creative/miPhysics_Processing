@@ -111,6 +111,9 @@ public abstract class Mat {
         return true;
     }
 
+    public boolean changeStiffness(double K){return false;}
+
+    public boolean changeDamping(double Z){return false;}
 
     /**
      * Get the mass parameter.
