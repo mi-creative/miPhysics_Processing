@@ -111,6 +111,9 @@ public abstract class Mat {
         return true;
     }
 
+    public boolean changeStiffness(double K){return false;}
+
+    public boolean changeDamping(double Z){return false;}
 
     /**
      * Get the mass parameter.
@@ -137,6 +140,22 @@ public abstract class Mat {
         m_type = t;
     }
 
+
+    /**
+     * Trigger a temporary velocity control
+     * @param v the velocity used to displace the mat at each step
+     */
+
+    public void triggerVelocityControl(Vect3D v)
+    {
+        m_controlled = true;
+        m_controlVelocity = v;
+    }
+
+    public void stopVelocityControl()
+    {
+        m_controlled = false;
+    }
     /* Class attributes */
 
     protected Vect3D m_pos;
@@ -148,4 +167,6 @@ public abstract class Mat {
     private matModuleType m_type;
     public double m_invMass;
 
+    protected boolean m_controlled=false;
+    protected Vect3D m_controlVelocity = new Vect3D(0,0,0);
 }

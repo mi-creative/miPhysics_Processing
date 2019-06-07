@@ -11,9 +11,7 @@ public class Osc1D extends Mat {
 		m_K = K_param;
 		m_Z = Z_param;
 
-		m_A = 2. - m_invMass * m_K - m_invMass * (m_Z+m_fricZ) ;
-		m_B = 1. -m_invMass * (m_fricZ + m_Z) ;
-		
+		updateAB();
 		m_fricZ = friction;
 		m_gFrc = new Vect3D();
 		m_gFrc.set(grav);
@@ -45,12 +43,20 @@ public class Osc1D extends Mat {
 		m_Z = Z;
 	}
 
+	public boolean changeStiffness(double K){setStiffness(K);updateAB(); return true;}
+	public boolean changeDamping(double Z){setDamping(Z);updateAB();return true;}
+
 	public void updateGravity(Vect3D grav) {
 		m_gFrc.set(grav);
 	}
 	public void updateFriction(double fric) {
 		m_fricZ= fric;
 
+		updateAB();
+	}
+
+	public void updateAB()
+	{
 		m_A = 2. - m_invMass * m_K - m_invMass * (m_Z+m_fricZ) ;
 		m_B = 1. -m_invMass * (m_fricZ + m_Z) ;
 	}

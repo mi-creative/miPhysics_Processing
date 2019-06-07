@@ -2318,9 +2318,17 @@ public class PhysicalModel {
 		if (unit_system == paramSystem.REAL_UNITS) {
 			newParam = newParam / (simRate * simRate);
 		}
+		if(this.link_subsets.containsKey(subsetName))
+		{
+			for (int linkIndex : this.link_subsets.get(subsetName)) {
+				links.get(linkIndex).changeStiffness(newParam);
+			}
+		}
+		if(this.mat_subsets.containsKey(subsetName)) {
+			for (int matIndex : this.mat_subsets.get(subsetName)) {
 
-		for (int linkIndex : this.link_subsets.get(subsetName)) {
-			links.get(linkIndex).changeStiffness(newParam);
+				if(!mats.get(matIndex).changeStiffness(newParam)) System.out.println("ouïe !!!!");
+			}
 		}
 	}
 
@@ -2337,9 +2345,16 @@ public class PhysicalModel {
 		if (unit_system == paramSystem.REAL_UNITS) {
 			newParam = newParam / (simRate * simRate);
 		}
+		if(this.link_subsets.containsKey(subsetName)) {
+			for (int linkIndex : this.link_subsets.get(subsetName)) {
+				links.get(linkIndex).changeDamping(newParam);
+			}
+		}
+		if(this.mat_subsets.containsKey(subsetName)) {
 
-		for (int linkIndex : this.link_subsets.get(subsetName)) {
-			links.get(linkIndex).changeDamping(newParam);
+			for (int matIndex : this.mat_subsets.get(subsetName)) {
+				mats.get(matIndex).changeDamping(newParam);
+			}
 		}
 	}
 
@@ -2435,6 +2450,64 @@ public class PhysicalModel {
 			}
 		}
 	}
+
+	/**
+	 * Trigger a force impulse on a given Mat module (identified by index).
+	 *
+	 * @param index
+	 *            index of the module to apply a force to.
+	 * @param fx
+	 *            force in the X dimension.
+	 * @param fy
+	 *            force in the Y dimension.
+	 * @param fz
+	 *            force in the Z dimension.
+	 */
+	public void triggerVelocityControl(int index, double vx, double vy, double vz) {
+		Vect3D force = new Vect3D(vx/simRate, vy/simRate, vz/simRate);
+		try {
+			mats.get(index).triggerVelocityControl(force);
+		} catch (Exception e) {
+			System.out.println("Issue during velocity control trigger");
+			System.exit(1);
+		}
+	}
+
+	/**
+	 * Trigger a force impulse on a given Mat module.
+	 *
+	 * @param name
+	 *            the name of the module to apply a force to.
+	 * @param fx
+	 *            force in the X dimension.
+	 * @param fy
+	 *            force in the Y dimension.
+	 * @param fz
+	 *            force in the Z dimension.
+	 */
+	public void triggerVelocityControl(String name, double vx, double vy, double vz) {
+		int mat1_index = getMatIndex(name);
+		this.triggerVelocityControl(mat1_index, vx, vy, vz);
+	}
+
+
+	public void stopVelocityControl(String name)
+	{
+		this.stopVelocityControl(getMatIndex(name));
+	}
+
+	public void stopVelocityControl(int index)
+	{
+		try
+		{
+			mats.get(index).stopVelocityControl();
+		}catch (Exception e) {
+			System.out.println("Issue during force impuse trigger");
+			System.exit(1);
+		}
+	}
+
+
 
 	private void welcome() {
 		System.out.println("##library.name## ##library.prettyVersion## by ##author##");
