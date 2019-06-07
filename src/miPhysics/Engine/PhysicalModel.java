@@ -679,6 +679,8 @@ public class PhysicalModel {
 			this.residue = floatFrames - (double) nbSteps;
 
 			for (int j = 0; j < nbSteps; j++) {
+				//mats.parallelStream().forEach(o -> o.compute());
+				//links.parallelStream().forEach(o ->o.compute());
 				for (int i = 0; i < mats.size(); i++) {
 					mats.get(i).compute();
 				}
@@ -699,8 +701,14 @@ public class PhysicalModel {
 	public void computeNSteps(int N) {
 		synchronized (m_lock) {
 			for (int j = 0; j < N; j++) {
-				mats.parallelStream().forEach(o -> o.compute());
-				links.parallelStream().forEach(o ->o.compute());
+				for (int i = 0; i < mats.size(); i++) {
+					mats.get(i).compute();
+				}
+				for (int i = 0; i < links.size(); i++) {
+					links.get(i).compute();
+				}
+				//mats.parallelStream().forEach(o -> o.compute());
+				//links.parallelStream().forEach(o ->o.compute());
 				}
 		}
 	}
