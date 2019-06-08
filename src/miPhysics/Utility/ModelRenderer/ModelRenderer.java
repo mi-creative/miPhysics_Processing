@@ -9,6 +9,7 @@ import processing.core.*;
 import processing.core.PApplet;
 import processing.core.PShape;
 
+
 public class ModelRenderer implements PConstants{
 
     protected PApplet app;
@@ -55,11 +56,11 @@ public class ModelRenderer implements PConstants{
     };
 
     public boolean setColor(matModuleType m, int r, int g, int b){
-            if(matStyles.containsKey(m)) {
-                matStyles.get(m).setColor(r, g, b);
-                return true;
-            }
-            else return false;
+        if(matStyles.containsKey(m)) {
+            matStyles.get(m).setColor(r, g, b);
+            return true;
+        }
+        else return false;
     }
 
     public boolean setSize(matModuleType m, float size){
@@ -139,7 +140,107 @@ public class ModelRenderer implements PConstants{
         MatRenderProps tmp;
         LinkRenderProps tmp2;
 
-        synchronized(mdl.getLock()) {
+        ArrayList<MatDataHolder> matHolders = new ArrayList<MatDataHolder>();
+        ArrayList<LinkDataHolder> linkHolders = new ArrayList<LinkDataHolder>();
+
+        int nbMats;
+        int nbLinks;
+
+        MatDataHolder mH;
+        LinkDataHolder lH;
+
+
+
+        // Limit the synchronized section to a copy of the model state
+        synchronized (mdl.getLock()) {
+
+            nbMats = mdl.getNumberOfMats();
+            nbLinks = mdl.getNumberOfLinks();
+
+            if(m_matDisplay) {
+                for (int i = 0; i < mdl.getNumberOfMats(); i++)
+                    matHolders.add(new MatDataHolder(mdl.getMatPosAt(i),
+                            mdl.getMatMassAt(i),
+                            mdl.getMatTypeAt(i)));
+            }
+
+            for (int i = 0; i < mdl.getNumberOfLinks(); i++)
+                linkHolders.add(new LinkDataHolder(mdl.getLinkPos1At(i),
+                        mdl.getLinkPos2At(i),
+                        mdl.getLinkElongationAt(i) / mdl.getLinkDRestAt(i),
+                        mdl.getLinkTypeAt(i)));
+
+        }
+
+        if(m_matDisplay){
+
+            // Scaling the detail of the spheres depending on size of the model
+            if (nbMats < 100)
+                app.sphereDetail(30);
+            else if (nbMats < 1000)
+                app.sphereDetail(15);
+            else if (nbMats < 10000)
+                app.sphereDetail(5);
+
+            // All the drawing can then run concurrently to the model calculation
+            // Should really structure several lists according to module type
+            for (int i = 0; i < nbMats; i++) {
+
+                mH = matHolders.get(i);
+
+                if (matStyles.containsKey(mH.getType()))
+                    tmp = matStyles.get(mH.getType());
+                else tmp = fallbackMat;
+
+                v = mH.getPos().toPVector().mult(1);
+                app.pushMatrix();
+                app.translate(m_zoomRatio.x * v.x, m_zoomRatio.y * v.y, m_zoomRatio.z * v.z);
+                app.fill(tmp.red(), tmp.green(), tmp.blue());
+                app.noStroke();
+                app.sphere(tmp.getScaledSize(mH.getMass()));
+                app.popMatrix();
+            }
+        }
+
+
+        for ( int i = 0; i < nbLinks; i++) {
+
+            lH = linkHolders.get(i);
+
+            app.strokeWeight(1);
+
+            if (linkStyles.containsKey(lH.getType()))
+                tmp2 = linkStyles.get(lH.getType());
+            else tmp2 = fallbackLink;
+
+            if(tmp2.strainGradient() == true){
+                if ((tmp2.getAlpha() > 0) || (tmp2.getStrainAlpha() > 0))
+                {
+                    float stretching = (float)lH.getElongation();
+
+                    app.strokeWeight(tmp2.getSize());
+                    app.stroke(tmp2.redStretch(stretching),
+                            tmp2.greenStretch(stretching),
+                            tmp2.blueStretch(stretching),
+                            tmp2.alphaStretch(stretching));
+
+                    drawLine(lH.getP1(), lH.getP2());
+                }
+            }
+
+            else if (tmp2.getAlpha() > 0) {
+                app.stroke(tmp2.red(), tmp2.green(), tmp2.blue(), tmp2.getAlpha());
+                app.strokeWeight(tmp2.getSize());
+
+                drawLine(lH.getP1(), lH.getP2());
+            }
+        }
+
+/*            for (int i = 0; i < mdl.getNumberOfMats(); i++) {
+                matHolders.add(new MatDataHolder(mdl.getMatPosAt(i),
+                                                 mdl.getMatMassAt(i),
+                                                 mdl.getMatTypeAt(i)));
+            }
 
             if(m_matDisplay) {
 
@@ -166,7 +267,9 @@ public class ModelRenderer implements PConstants{
                     app.sphere(tmp.getScaledSize(mdl.getMatMassAt(i)));
                     app.popMatrix();
                 }
-            }
+            }*/
+
+          /*  synchronized(mdl.getLock()) {
 
 
             for ( int i = 0; i < mdl.getNumberOfLinks(); i++) {
@@ -200,16 +303,16 @@ public class ModelRenderer implements PConstants{
 
                 }
             }
-        }
+        }*/
     }
 
 
     private void drawLine(Vect3D pos1, Vect3D pos2) {
         app.line(m_zoomRatio.x * (float)pos1.x,
-                 m_zoomRatio.y * (float)pos1.y,
-                 m_zoomRatio.z * (float)pos1.z,
-                 m_zoomRatio.x * (float)pos2.x,
-                 m_zoomRatio.y * (float)pos2.y,
-                 m_zoomRatio.z * (float)pos2.z);
+                m_zoomRatio.y * (float)pos1.y,
+                m_zoomRatio.z * (float)pos1.z,
+                m_zoomRatio.x * (float)pos2.x,
+                m_zoomRatio.y * (float)pos2.y,
+                m_zoomRatio.z * (float)pos2.z);
     }
 }
