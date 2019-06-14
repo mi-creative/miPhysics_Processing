@@ -69,6 +69,8 @@ public class PhysicalModel {
 	private Map<String, ArrayList<Integer>> mat_subsets;
 	private Map<String, ArrayList<Integer>> link_subsets;
 
+	private Map<String, ParamControler> param_controlers;
+
 	/* Library version */
 	public final static String VERSION = "##library.prettyVersion##";
 
@@ -114,8 +116,10 @@ public class PhysicalModel {
 
 		m_lock = new ReentrantLock();
 
+		param_controlers = new HashMap<String,ParamControler>();
 
-		System.out.println("Initialised the Phsical Model Class");
+
+		System.out.println("Physical Model Class Initialised");
 	}
 
 	/**
@@ -701,6 +705,11 @@ public class PhysicalModel {
 	public void computeNSteps(int N) {
 		synchronized (m_lock) {
 			for (int j = 0; j < N; j++) {
+				param_controlers.forEach((k,v)-> v.updateParams());
+				/*for(ParamControler p: param_controlers)
+				{
+					p.updateParams();
+				}*/
 				for (int i = 0; i < mats.size(); i++) {
 					mats.get(i).compute();
 				}
@@ -2377,6 +2386,16 @@ public class PhysicalModel {
 	}
 
 
+	public void changeParamOfSubset(float newParam,String subsetName,String paramName)
+	{
+		if(paramName.equals("stiffness")) changeStiffnessParamOfSubset(newParam,subsetName);
+		if(paramName.equals("damping")) changeDampingParamOfSubset(newParam,subsetName);
+		if(paramName.equals("dist")) changeDistParamOfSubset(newParam,subsetName);
+		if(paramName.equals("mass")) changeMassParamOfSubset(newParam,subsetName);
+
+	}
+
+
 
 	/* HAPTIC INPUT ELEMENTS */
 
@@ -2510,6 +2529,15 @@ public class PhysicalModel {
 			System.exit(1);
 		}
 	}
+
+	public void addParamControler(String name,String subsetName,String paramName,float rampTime)
+	{
+		param_controlers.put(name,new ParamControler(this,rampTime,subsetName,paramName));
+		System.out.println("controler " + name + " there is " + param_controlers.size() + " controlers, it controls " + param_controlers.get(name).getSubsetName());
+		//param_controlers.get("name").init();
+	}
+
+	public ParamControler getParamControler(String name) {return param_controlers.get(name);}
 
 
 
