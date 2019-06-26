@@ -69,7 +69,7 @@ public class PhysicalModel {
 	private Map<String, ArrayList<Integer>> mat_subsets;
 	private Map<String, ArrayList<Integer>> link_subsets;
 
-	private Map<String, ParamControler> param_controlers;
+	private Map<String, ParamController> param_controllers;
 
 	/* Library version */
 	public final static String VERSION = "##library.prettyVersion##";
@@ -116,7 +116,7 @@ public class PhysicalModel {
 
 		m_lock = new ReentrantLock();
 
-		param_controlers = new HashMap<String,ParamControler>();
+		param_controllers = new HashMap<String,ParamController>();
 
 
 		System.out.println("Physical Model Class Initialised");
@@ -705,7 +705,7 @@ public class PhysicalModel {
 	public void computeNSteps(int N) {
 		synchronized (m_lock) {
 			for (int j = 0; j < N; j++) {
-				param_controlers.forEach((k,v)-> v.updateParams());
+				param_controllers.forEach((k,v)-> v.updateParams());
 
 				for (int i = 0; i < mats.size(); i++) {
 					mats.get(i).compute();
@@ -2625,12 +2625,12 @@ public class PhysicalModel {
 		}
 	}
 
-	public void addParamControler(String name,String subsetName,String paramName,float rampTime)
+	public void addParamController(String name,String subsetName,String paramName,float rampTime)
 	{
-		param_controlers.put(name,new ParamControler(this,rampTime,subsetName,paramName));
+		param_controllers.put(name,new ParamController(this,rampTime,subsetName,paramName));
 	}
 
-	public ParamControler getParamControler(String name) {return param_controlers.get(name);}
+	public ParamController getParamController(String name) {return param_controllers.get(name);}
 
 
 

@@ -18,7 +18,7 @@ Minim minim;
 PhyUGen simUGen;
 Gain gain;
 AudioOutput out;
-ArrayList<MidiControler> midiCtrls = new ArrayList<MidiControler>();
+ArrayList<MidiController> midiCtrls = new ArrayList<MidiController>();
 
 ModelRenderer renderer;
 ///////////////////////////////////////
@@ -45,15 +45,15 @@ void setup()
   myBus = new MidiBus(this, 0, 1); // Create a new MidiBus with no input device and the default Java Sound Synthesizer as the output device.
 
   
-  midiCtrls.add(MidiControler.addMidiControler(simUGen.mdl,1,0.1,0.4,"spring","stiffness"));
-  midiCtrls.add(MidiControler.addMidiControler(simUGen.mdl,2,0.0001,0.1,"spring","damping"));
-  midiCtrls.add(MidiControler.addMidiControler(simUGen.mdl,3,0.5,5,"spring","dist",0.05));
-  midiCtrls.add(MidiControler.addMidiControler(simUGen.mdl,3,0.5*sqrt(2),5*sqrt(2),"spring_cross","dist",0.05));
-  midiCtrls.add(MidiControler.addMidiControler(simUGen.mdl,3,0.5,5,"mass_f","distX",0.05));
+  midiCtrls.add(MidiController.addMidiController(simUGen.mdl,1,0.1,0.4,"spring","stiffness"));
+  midiCtrls.add(MidiController.addMidiController(simUGen.mdl,2,0.0001,0.1,"spring","damping"));
+  midiCtrls.add(MidiController.addMidiController(simUGen.mdl,3,0.5,5,"spring","dist",0.05));
+  midiCtrls.add(MidiController.addMidiController(simUGen.mdl,3,0.5*sqrt(2),5*sqrt(2),"spring_cross","dist",0.05));
+  midiCtrls.add(MidiController.addMidiController(simUGen.mdl,3,0.5,5,"mass_f","distX",0.05));
   
-  midiCtrls.add(MidiControler.addMidiControler(simUGen.mdl,4,0.1,0.4,"col","stiffness"));
-  midiCtrls.add(MidiControler.addMidiControler(simUGen.mdl,5,0.0001,0.1,"col","damping"));
- // midiCtrls.add(new MidiControler(simUGen.mdl,6,0.2,1,"col","dist"));
+  midiCtrls.add(MidiController.addMidiController(simUGen.mdl,4,0.1,0.4,"col","stiffness"));
+  midiCtrls.add(MidiController.addMidiController(simUGen.mdl,5,0.0001,0.1,"col","damping"));
+ // midiCtrls.add(new MidiController(simUGen.mdl,6,0.2,1,"col","dist"));
   
   
   // patch the Oscil to the output
@@ -118,7 +118,7 @@ void keyReleased() {
 }
 
 void controllerChange(int channel, int number, int value) {
-  for (MidiControler mc : midiCtrls)
+  for (MidiController mc : midiCtrls)
     {
       mc.changeParam(number, value);
     }

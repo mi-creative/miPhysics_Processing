@@ -34,7 +34,7 @@ float gainVal = 1.;
 float speed = 0;
 float pos = 100;
 
-ArrayList<MidiControler> midiCtrls = new ArrayList<MidiControler>();
+ArrayList<MidiController> midiCtrls = new ArrayList<MidiController>();
 ArrayList<midiNote> midiNotes = new ArrayList<midiNote>();
 ///////////////////////////////////////
 
@@ -70,10 +70,10 @@ void setup()
   myBus = new MidiBus(this, 0, 1); // Create a new MidiBus with no input device and the default Java Sound Synthesizer as the output device.
 
 
-  midiCtrls.add(MidiControler.addMidiControler(simUGen.mdl,1, 0.01, 0.3, "spring", "stiffness"));
-  midiCtrls.add(MidiControler.addMidiControler(simUGen.mdl,2, 0.0001, 0.1, "spring", "damping"));
-  midiCtrls.add(MidiControler.addMidiControler(simUGen.mdl,3, 0.01, 0.3, "osc", "stiffness",0.5));
-  midiCtrls.add(MidiControler.addMidiControler(simUGen.mdl,4, 0.0001, 0.1, "osc", "damping",0.5));
+  midiCtrls.add(MidiController.addMidiController(simUGen.mdl,1, 0.01, 0.3, "spring", "stiffness"));
+  midiCtrls.add(MidiController.addMidiController(simUGen.mdl,2, 0.0001, 0.1, "spring", "damping"));
+  midiCtrls.add(MidiController.addMidiController(simUGen.mdl,3, 0.01, 0.3, "osc", "stiffness",0.5));
+  midiCtrls.add(MidiController.addMidiController(simUGen.mdl,4, 0.0001, 0.1, "osc", "damping",0.5));
   
  // midiNotes.add(new midiNote(0.01, 0.9, "str",0,simUGen.nbmass -1,"Y"));
 }
@@ -191,7 +191,7 @@ void controllerChange(int channel, int number, int value) {
 
   synchronized(lock)
   {
-    for (MidiControler mc : midiCtrls)
+    for (MidiController mc : midiCtrls)
     {
       mc.changeParam(number, value);
     }

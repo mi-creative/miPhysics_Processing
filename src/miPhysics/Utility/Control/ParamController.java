@@ -1,6 +1,6 @@
 package miPhysics;
 
-public class ParamControler extends AbstractController
+public class ParamController extends AbstractController
 {
 
 
@@ -9,7 +9,7 @@ public class ParamControler extends AbstractController
     boolean inRamp = false;
     Vect3D center;
 
-    public ParamControler(PhysicalModel pm_,float rampTime,String name,String param_ ) {
+    public ParamController(PhysicalModel pm_,float rampTime,String name,String param_ ) {
         super(pm_,name,param_);
       params.put("rampTime",rampTime);
       params.put("vmin",new Float(0));
