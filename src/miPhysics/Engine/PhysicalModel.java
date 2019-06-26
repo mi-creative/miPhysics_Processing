@@ -706,10 +706,7 @@ public class PhysicalModel {
 		synchronized (m_lock) {
 			for (int j = 0; j < N; j++) {
 				param_controlers.forEach((k,v)-> v.updateParams());
-				/*for(ParamControler p: param_controlers)
-				{
-					p.updateParams();
-				}*/
+
 				for (int i = 0; i < mats.size(); i++) {
 					mats.get(i).compute();
 				}
@@ -2385,14 +2382,99 @@ public class PhysicalModel {
 		}
 	}
 
+	/**
+	 * Change the distance regarding X  between a subset of Mass modules.
+	 *
+	 * @param center
+	 *            the barycenter of the subset (pre computed for performance reasons
+	 *
+	 * @param newPDist
+	 *            the new distance between two neighbors in the subset
+	 * @param subsetName
+	 *            the name of the subset of modules to address.
+	 */
+	public void changeDistXBetweenSubset(Vect3D center,double newDist, String subsetName) {
+		if(this.mat_subsets.containsKey(subsetName)) {
+			int i=0;
+			int nbMats = this.mat_subsets.get(subsetName).size();
+			Vect3D newPos = ((new Vect3D(0,0,0)).add(center)).add(new Vect3D(-newDist*(nbMats-1)/2,0,0));
+			for (int matIndex : this.mat_subsets.get(subsetName)) {
+				if(i!=0) newPos.add(new Vect3D(newDist,0,0));
+				//System.out.println("mat " +matIndex + " moved from " + mats.get(matIndex).getPos() + " to " + newPos);
+				mats.get(matIndex).setPos(newPos);
+				i++;
+			}
+		}
+	}
+
+	/**
+	 * Change any param for a subset of modules.
+	 *
+	 * @param newParam
+	 *            the new param value to apply.
+	 * @param subsetName
+	 *            the name of the subset of modules to address.
+	 * @param paramName
+	 *            the name of the parameter to address.
+	 */
 
 	public void changeParamOfSubset(float newParam,String subsetName,String paramName)
 	{
 		if(paramName.equals("stiffness")) changeStiffnessParamOfSubset(newParam,subsetName);
-		if(paramName.equals("damping")) changeDampingParamOfSubset(newParam,subsetName);
-		if(paramName.equals("dist")) changeDistParamOfSubset(newParam,subsetName);
-		if(paramName.equals("mass")) changeMassParamOfSubset(newParam,subsetName);
+		else if(paramName.equals("damping")) changeDampingParamOfSubset(newParam,subsetName);
+		else if(paramName.equals("dist")) changeDistParamOfSubset(newParam,subsetName);
+		else if(paramName.equals("mass")) changeMassParamOfSubset(newParam,subsetName);
+		else System.out.println("Parameter  "+ paramName + " unknown");
+	}
 
+	/**
+	 * Get any param for a subset of modules.
+	 *
+	 * @param subsetName
+	 *            the name of the subset of modules to address.
+	 * @param paramName
+	 *            the name of the parameter to address.
+	 * @return the param value
+	 */
+
+	public double getParamValueOfSubset(String subsetName,String paramName)
+	{
+		if(this.link_subsets.containsKey(subsetName) && !link_subsets.get(subsetName).isEmpty())
+		{
+			int li = link_subsets.get(subsetName).get(0);
+			if(paramName.equals("stiffness")) return links.get(li).getStiffness();
+			else if(paramName.equals("damping")) return links.get(li).getDamping();
+			else if(paramName.equals("dist")) return links.get(li).getDist();
+		}
+		else if (this.mat_subsets.containsKey(subsetName) )
+		{
+			int mi = mat_subsets.get(subsetName).get(0);
+			if(paramName.equals("stiffness")) return mats.get(mi).getStiffness();
+			else if(paramName.equals("damping")) return mats.get(mi).getDamping();
+			//else if(paramName.equals("dist")) return mats.get(mi).getDist();
+			else if(paramName.equals("mass")) return mats.get(mi).getMass();
+
+		}
+		return -1.;
+	}
+
+	/**
+	 * Get the barycenter for a subset of modules.
+	 *
+	 * @param subsetName
+	 *            the name of the subset of modules to address.
+	 * @return the barycenter vector
+	 */
+
+	public Vect3D getBarycenterOfSubset(String subsetName)
+	{
+		Vect3D res= new Vect3D(0,0,0);
+		if (this.mat_subsets.containsKey(subsetName) )
+		{
+			for(int mi:mat_subsets.get(subsetName)) res.add(mats.get(mi).getPos());
+		}
+		res.div(this.mat_subsets.get(subsetName).size());
+		return res;
 	}
 
 
@@ -2497,27 +2579,40 @@ public class PhysicalModel {
 	}
 
 	/**
-	 * Trigger a force impulse on a given Mat module.
+	 * Trigger velocity control on a given Mat module.
 	 *
 	 * @param name
-	 *            the name of the module to apply a force to.
-	 * @param fx
-	 *            force in the X dimension.
-	 * @param fy
-	 *            force in the Y dimension.
-	 * @param fz
-	 *            force in the Z dimension.
+	 *            the name of the module to trigger.
+	 * @param vx
+	 *            velocity in the X dimension.
+	 * @param vy
+	 *            velocity in the Y dimension.
+	 * @param vz
+	 *            velocity in the Z dimension.
 	 */
 	public void triggerVelocityControl(String name, double vx, double vy, double vz) {
 		int mat1_index = getMatIndex(name);
 		this.triggerVelocityControl(mat1_index, vx, vy, vz);
 	}
 
+	/**
+	 * Stop a force impulse on a given Mat module.
+	 *
+	 * @param name
+	 *            the name of the module to stop velocity control to.
+     */
 
 	public void stopVelocityControl(String name)
 	{
 		this.stopVelocityControl(getMatIndex(name));
 	}
+
+	/**
+	 * Stop a force impulse on a given Mat module.
+	 *
+	 * @param index
+	 *            the index of the module to stop velocity control to.
+	 */
 
 	public void stopVelocityControl(int index)
 	{
@@ -2525,7 +2620,7 @@ public class PhysicalModel {
 		{
 			mats.get(index).stopVelocityControl();
 		}catch (Exception e) {
-			System.out.println("Issue during force impuse trigger");
+			System.out.println("Issue during stopping velocity control for mass at index " + index );
 			System.exit(1);
 		}
 	}
@@ -2533,8 +2628,6 @@ public class PhysicalModel {
 	public void addParamControler(String name,String subsetName,String paramName,float rampTime)
 	{
 		param_controlers.put(name,new ParamControler(this,rampTime,subsetName,paramName));
-		System.out.println("controler " + name + " there is " + param_controlers.size() + " controlers, it controls " + param_controlers.get(name).getSubsetName());
-		//param_controlers.get("name").init();
 	}
 
 	public ParamControler getParamControler(String name) {return param_controlers.get(name);}
