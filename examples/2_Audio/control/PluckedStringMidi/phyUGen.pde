@@ -32,9 +32,11 @@ public class PhyUGen extends UGen
   float prevSample;
   float audioOut;
 
-  int nbmass = 390;
+  int nbmass = 240;
   
   PhysicalModel mdl;
+  
+  private long step = 0;
 
   public PhyUGen(int sampleRate)
   {
@@ -55,13 +57,24 @@ public class PhyUGen extends UGen
     this.mdl.addSpringDamper3D("test", 1, 1., 1., "guideM3", "percMass");
     
     
-    
+    this.mdl.createMatSubset("gnd");
     this.mdl.addGround3D("gnd0", new Vect3D(0.,0.,0.));
+    this.mdl.addMatToSubset("gnd0","gnd");
+    this.mdl.createMatSubset("str");
     for(int i= 0; i< nbmass; i++)
+    {
       this.mdl.addMass2DPlane("str"+i, m, new Vect3D(dist*(i+1),0.,0.), new Vect3D(0.,0.,0.));
+      this.mdl.addMatToSubset(  "str"+i,"str");
+   }
     this.mdl.addGround3D("gnd1", new Vect3D(dist*(nbmass+1),0.,0.));
+    this.mdl.addMatToSubset("gnd1","gnd");
+    
+    this.mdl.createLinkSubset("sprd");
     for(int i= 0; i< nbmass-1; i++)
+    {
       this.mdl.addSpringDamper3D("sprd"+i, l0, k, z, "str"+i, "str"+(i+1));
+      this.mdl.addLinkToSubset("sprd"+i,"sprd");
+    }
     this.mdl.addSpringDamper3D("sprdg0", l0, k, z, "gnd0", "str0");
     this.mdl.addSpringDamper3D("sprdg1", l0, k, z, "gnd1", "str"+(nbmass-1));
     
@@ -84,17 +97,6 @@ public class PhyUGen extends UGen
     this.mdl.setSimRate((int)sampleRate());
   }
   
-  public void addSubset(String subsetName,String moduleBaseName,int indexMin,int indexMax,String typeModule)
-  {
-    if(typeModule == "link") this.mdl.createLinkSubset(subsetName);
-    if(typeModule == "mass") this.mdl.createMatSubset(subsetName);
-    for(int i=indexMin;i<=indexMax;i++)
-    {
-      if(typeModule == "link") this.mdl.addLinkToSubset(moduleBaseName+i,subsetName);
-      if(typeModule == "mass") this.mdl.addMatToSubset(moduleBaseName+i,subsetName);
-    }
-  }
-
   @Override
   protected void uGenerate(float[] channels)
   {
@@ -111,9 +113,11 @@ public class PhyUGen extends UGen
     this.mdl.setMatPosition("guideM2",new Vect3D(x_avg+1, y_avg, 0));
     this.mdl.setMatPosition("guideM3",new Vect3D(x_avg, y_avg-1, 0));
     this.mdl.computeStep();
+    step++;
 
     // calculate the sample value
-    if(simUGen.mdl.matExists(listeningPoint)){
+    if(simUGen.mdl.matExists(listeningPoint))
+    {
       sample =(float)(this.mdl.getMatPosition(listeningPoint).y)* 2.;
       
       /* High pass filter to remove the DC offset */

@@ -111,8 +111,18 @@ public abstract class Mat {
         return true;
     }
 
+    /**
+     * Set the stiffness parameter.
+     * @param K stiffness value.
+     * @return true if set the stiffness val
+     */
     public boolean changeStiffness(double K){return false;}
 
+    /**
+     * Set the damping parameter.
+     * @param Z damping value.
+     * @return true if set the damping val
+     */
     public boolean changeDamping(double Z){return false;}
 
     /**
@@ -123,6 +133,21 @@ public abstract class Mat {
         return  1. / m_invMass;
     }
 
+    /**
+     * Get the stiffness parameter.
+     * @return the stiffness value
+     */
+    public double getStiffness () {
+        return  -1.;
+    }
+
+    /**
+     * Get the damping parameter.
+     * @return the damping value
+     */
+    public double getDamping () {
+        return  -1.;
+    }
 
     /**
      * Get the type of this Mat module.
@@ -152,6 +177,9 @@ public abstract class Mat {
         m_controlVelocity = v;
     }
 
+    /**
+     * Stop the current temporary velocity control
+     */
     public void stopVelocityControl()
     {
         m_controlled = false;
