@@ -21,10 +21,11 @@ public class TopoGenerator {
 
         plane2D = false;
 
+        matSubName = "";
+        linkSubName = "";
+
         bCond = EnumSet.noneOf(Bound.class);
-        //bCond.addAll(EnumSet.range(Bound.X_LEFT, Bound.Z_RIGHT)); // enable all constants
         bCond.removeAll(EnumSet.of(Bound.X_LEFT, Bound.FIXED_CENTRE)); // disable a couple
-        //assert EnumSet.of(Bound.X_LEFT, Bound.Z_RIGHT).equals(bCond); // check set contents are correct
 
         System.out.println(bCond);
     }
@@ -39,6 +40,8 @@ public class TopoGenerator {
     public void set2DPlane(boolean val){
         plane2D = val;
     }
+
+
     public void setParams(double mParam, double kParam, double zParam) {
         M = mParam;
         K = kParam;
@@ -62,6 +65,14 @@ public class TopoGenerator {
         tZ = z;
     }
 
+    public void setMatSubsetName(String name){
+        matSubName = name;
+    }
+
+    public void setLinkSubsetName(String name){
+        linkSubName = name;
+    }
+
 
     public void generate() {
 
@@ -69,6 +80,12 @@ public class TopoGenerator {
         Vect3D V0, U1;
 
         int nbBefore = mdl.getNumberOfMats();
+
+        if(!matSubName.isEmpty())
+            mdl.createMatSubset(matSubName);
+
+        if(!linkSubName.isEmpty())
+            mdl.createLinkSubset(linkSubName);
 
         for (int i = 0; i < dimX; i++) {
             for (int j = 0; j < dimY; j++) {
@@ -79,14 +96,21 @@ public class TopoGenerator {
                     masName = mLabel + "_" +(i+"_"+j+"_"+k);
 
                     if(plane2D){
-                    mdl.addMass2DPlane(masName, M, new Vect3D(i*dist,
+                        mdl.addMass2DPlane(masName, M, new Vect3D(i*dist,
                                                          j*dist,
                                                          k*dist),
-                                                         V0);}
-                    else {mdl.addMass3D(masName, M, new Vect3D(i*dist,
+                                                         V0);
+                        if(!matSubName.isEmpty())
+                            mdl.addMatToSubset(mdl.getNumberOfMats()-1, matSubName);
+                    }
+                    else {
+                        mdl.addMass3D(masName, M, new Vect3D(i*dist,
                                     j*dist,
                                     k*dist),
-                            V0);}
+                                    V0);
+                        if(!matSubName.isEmpty())
+                            mdl.addMatToSubset(mdl.getNumberOfMats()-1, matSubName);
+                    }
                     System.out.println("Created mass: " + masName);
                 }
             }
@@ -129,6 +153,10 @@ public class TopoGenerator {
                                             masName2 = mLabel + "_" +(idx+"_"+idy+"_"+idz);
                                             String ln = iLabel + "_" + (i+"_"+j+"_"+k) + "_" + (idx+"_"+idy+"_"+idz) ;
                                             mdl.addSpringDamper3D(mLabel + "1_" +i+j+k, d, K, Z, masName1, masName2);
+
+                                            if(!linkSubName.isEmpty())
+                                                mdl.addLinkToSubset(mdl.getNumberOfLinks()-1, linkSubName);
+
                                             System.out.println("Created interaction: " + ln);
                                         }
                                     }
@@ -140,43 +168,6 @@ public class TopoGenerator {
             }
         }
 
-        /*for (int i = 0; i < dimX; i++) {
-            for (int j = 0; j < dimY; j++) {
-                for (int k = 0; k < dimZ; k++) {
-
-                    //println("Looking at: " + mLabel +(i+"_"+j+"_"+k));
-                    masName1 = mLabel + "_" +(i+"_"+j+"_"+k);
-
-                    for (int l = -neighbors; l < neighbors+1; l++) {
-                        for (int m = -neighbors; m < neighbors+1; m++) {
-                            for (int n = -neighbors; n < neighbors+1; n++) {
-                                idx = i+l;
-                                idy = j+m;
-                                idz = k+n;
-
-                                if ((idx < dimX) && (idy < dimY) && (idz < dimZ)) {
-                                    if ((idx>=0) && (idy>=0) && (idz>=0)) {
-                                        if ((l==i) && (j == m) && (n == k)) {
-                                            break;
-                                        } else {
-
-                                            U1 = new Vect3D(l, m, n);
-
-                                            double d = U1.norm() * l0;
-
-                                            masName2 = mLabel + "_" +(idx+"_"+idy+"_"+idz);
-                                            String ln = iLabel + "_" + (i+"_"+j+"_"+k) + "_" + (idx+"_"+idy+"_"+idz) ;
-                                            mdl.addSpringDamper3D(mLabel + "1_" +i+j+k, d, K, Z, masName1, masName2);
-                                            System.out.println("Created interaction: " + ln);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }*/
 
         this.translateAndRotate(nbBefore, tX, tY, tZ, rotX, rotY, rotZ);
         this.applyBoundaryConditions();
@@ -367,6 +358,9 @@ public class TopoGenerator {
     private float tX;
     private float tY;
     private float tZ;
+
+    private String matSubName;
+    private String linkSubName;
 
     private boolean plane2D ;
 

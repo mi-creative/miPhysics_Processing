@@ -681,6 +681,7 @@ public class PhysicalModel {
 			for (int j = 0; j < nbSteps; j++) {
 				//mats.parallelStream().forEach(o -> o.compute());
 				//links.parallelStream().forEach(o ->o.compute());
+
 				for (int i = 0; i < mats.size(); i++) {
 					mats.get(i).compute();
 				}
@@ -704,10 +705,12 @@ public class PhysicalModel {
 				for (int i = 0; i < mats.size(); i++) {
 					mats.get(i).compute();
 				}
+				//mats.parallelStream().forEach(o -> o.compute());
+
 				for (int i = 0; i < links.size(); i++) {
 					links.get(i).compute();
 				}
-				//mats.parallelStream().forEach(o -> o.compute());
+
 				//links.parallelStream().forEach(o ->o.compute());
 				}
 		}

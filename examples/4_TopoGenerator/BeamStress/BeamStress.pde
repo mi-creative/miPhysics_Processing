@@ -40,17 +40,10 @@ void setup() {
   q.setParams(1, 0.003, 0.003);
   q.setGeometry(25, 25);
 
-  //q.setRotation(0, 2, 0);
-  //q.setTranslation(00, 00, 213);
+  q.setMatSubsetName("beamMats");
+  q.setLinkSubsetName("beamLinks");
 
-  //q.addBoundaryCondition(Bound.X_LEFT);
-  //q.addBoundaryCondition(Bound.X_RIGHT);
-  //q.addBoundaryCondition(Bound.Y_LEFT);
-  //q.addBoundaryCondition(Bound.Y_RIGHT);
   q.addBoundaryCondition(Bound.Z_LEFT);
-  //q.addBoundaryCondition(Bound.Z_RIGHT);
-  //q.addBoundaryCondition(Bound.FIXED_CORNERS);
-  //q.addBoundaryCondition(Bound.FIXED_CENTRE);
 
   q.generate();
 
@@ -109,6 +102,14 @@ void keyPressed() {
     grav = 0.003;
     mdl.setGravity(grav);
   }
+  if (key =='w'){
+    mdl.changeMassParamOfSubset(random(10) + 1, "beamMats"); 
+  }
+  if (key =='x'){
+    mdl.changeStiffnessParamOfSubset(random(0.2) + 0.001, "beamLinks"); 
+  }
+  
+  
 }
 
 void keyReleased() {

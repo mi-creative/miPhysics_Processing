@@ -150,7 +150,7 @@ ${line}
 
 
 	<target name="compile">
-		<javac srcdir="${project.tmp}/${project.name}/src" destdir="${project.bin}" source="${java.target.version}" target="${java.target.version}" includeantruntime="false">
+		<javac srcdir="${project.tmp}/${project.name}/src" destdir="${project.bin}" source="${java.target.version}" target="${java.target.version}" includeantruntime="false" optimize="on">
 			<classpath>
 				<path refid="classpath" />
 			</classpath>
