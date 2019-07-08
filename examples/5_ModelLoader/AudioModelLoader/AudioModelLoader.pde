@@ -80,11 +80,14 @@ void draw() {
   textSize(30);
   fill(255);
   textAlign(CENTER, BOTTOM);
-  text("model loading ...", 10, 10);
+    if (fileName == null)
+    text("Please select a model...", 10, 10);
+  else
+    text("Model " + fileName + " loading ...", 10, 10);
   textAlign(CENTER, CENTER);
-  text("number of Mats charged = " + simUGen.mdl.getNumberOfMats(), 10, 50);
+  text("Number of Mats Loaded = " + simUGen.mdl.getNumberOfMats(), 10, 50);
   textAlign(CENTER,TOP);
-  text("number of Links charged = " + simUGen.mdl.getNumberOfLinks(), 10, 100);
+  text("Number of Links Loaded = " + simUGen.mdl.getNumberOfLinks(), 10, 100);
   }
   
   else{

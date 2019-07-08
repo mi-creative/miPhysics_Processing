@@ -380,7 +380,7 @@ public class ModelLoader {
      * @param mdl the model to load
      */
     public void  loadModelFromFile(PhysicalModel mdl){
-        app.selectInput("Select the model you want to charge","load");
+        app.selectInput("Select the model to load","load");
     }
 
     /**

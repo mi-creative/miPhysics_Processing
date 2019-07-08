@@ -13,6 +13,8 @@ ModelLoader loader;
 
 void setup() {
   
+  size(1200, 900, P3D);
+  
   cam = new PeasyCam(this, 100);
   cam.setMinimumDistance(50);
   cam.setMaximumDistance(3000);
@@ -93,9 +95,12 @@ void waitingScreen() {
   fill(255);
   textSize(30);
   textAlign(CENTER, BOTTOM);
-  text("model " + file + " loading ...", 10, 10);
+  if (file == null)
+    text("Please select a model...", 10, 10);
+  else
+    text("Model " + file + " loading ...", 10, 10);
   textAlign(CENTER, CENTER);
-  text("number of Mats charged = " + mdl.getNumberOfMats(), 10, 50);
+  text("Number of Mats loaded = " + mdl.getNumberOfMats(), 10, 50);
   textAlign(CENTER, TOP);
-  text("number of Links charged = " + mdl.getNumberOfLinks(), 10, 100);
+  text("Number of Links loaded = " + mdl.getNumberOfLinks(), 10, 100);
 }
