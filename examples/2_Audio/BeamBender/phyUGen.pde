@@ -17,9 +17,9 @@ float dist = 25.;
 float fric = 0.00001;
 float grav = 0.;
 
-int dimX = 15;
+int dimX = 18;
 int dimY = 3;
-int dimZ = 3;
+int dimZ = 2;
 
 boolean triggerForceRamp = false;
 float forcePeak = 10;
@@ -29,14 +29,20 @@ boolean sectionStrech = false;
 boolean twist = false;
 
 
-float frc = 0;
+float frcX = 0;
+float frcY = 0;
+float frcZ = 0;
+
 float frcRate = 0.01;
 
-float gainControl = 0;
+long nbStepSimul = 0;
 
 StringList groundsL = new StringList();
-
 StringList groundsR = new StringList();
+
+String massToExcite = "";
+String massToListenTo = "";
+
 
 public class PhyUGen extends UGen
 {
@@ -66,7 +72,7 @@ public class PhyUGen extends UGen
 
     generateVolume(mdl, dimX, dimY, dimZ, "mass", "spring", "myBeam", m, l0, dist, k, z);
     listeningPoint = "mass85";
-    excitationPoint = "mass5";
+
 
     this.mdl.init();
   }
@@ -84,57 +90,48 @@ public class PhyUGen extends UGen
     protected void uGenerate(float[] channels)
   {
     float sample;
-    if(lenghtStrech){
-      for (int k = 0; k < groundsL.size(); k++) {
-        this.mdl.setMatPosition(groundsL.get(k), new Vect3D(mdl.getMatPosition(groundsL.get(k)).x+(mouseX-pmouseX)/100., mdl.getMatPosition(groundsL.get(k)).y, mdl.getMatPosition(groundsL.get(k)).z));
-        this.mdl.setMatPosition(groundsR.get(k), new Vect3D(mdl.getMatPosition(groundsR.get(k)).x-(mouseX-pmouseX)/100., mdl.getMatPosition(groundsR.get(k)).y, mdl.getMatPosition(groundsR.get(k)).z));
-      }
-    }
     
-    if(sectionStrech){
-      for (int k = 0; k < groundsL.size(); k++) {
-         this.mdl.setMatPosition(groundsL.get(k), new Vect3D(mdl.getMatPosition(groundsL.get(k)).x, mdl.getMatPosition(groundsL.get(k)).y*(1+(mouseY-pmouseY)/100000.), mdl.getMatPosition(groundsL.get(k)).z));
-         this.mdl.setMatPosition(groundsL.get(k), new Vect3D(mdl.getMatPosition(groundsL.get(k)).x, mdl.getMatPosition(groundsL.get(k)).y, mdl.getMatPosition(groundsL.get(k)).z*(1+(mouseY-pmouseY)/100000.)));
-         this.mdl.setMatPosition(groundsR.get(k), new Vect3D(mdl.getMatPosition(groundsR.get(k)).x, mdl.getMatPosition(groundsR.get(k)).y*(1+(mouseY-pmouseY)/100000.), mdl.getMatPosition(groundsR.get(k)).z));
-         this.mdl.setMatPosition(groundsR.get(k), new Vect3D(mdl.getMatPosition(groundsR.get(k)).x, mdl.getMatPosition(groundsR.get(k)).y, mdl.getMatPosition(groundsR.get(k)).z*(1+(mouseY-pmouseY)/100000.)));
-      }
-    }
-
-    if(twist){
-      for (int k = 0; k < groundsL.size(); k++) {
-        this.mdl.setMatPosition(groundsL.get(k), new Vect3D(  mdl.getMatPosition(groundsL.get(k)).x, 
-                               (cos((mouseY-pmouseY)/10000.)*(mdl.getMatPosition(groundsL.get(k)).y - (dist*(dimY-1))/2.) - sin((mouseY-pmouseY)/10000.)*(mdl.getMatPosition(groundsL.get(k)).z - (dist*(dimZ-1))/2.) + (dist*(dimY-1))/2.), 
-                               (sin((mouseY-pmouseY)/10000.)*(mdl.getMatPosition(groundsL.get(k)).y - (dist*(dimY-1))/2.) + cos((mouseY-pmouseY)/10000.)*(mdl.getMatPosition(groundsL.get(k)).z - (dist*(dimZ-1))/2.) + (dist*(dimZ-1))/2.)));
-      }
-    }
 
       this.mdl.computeStep();
       
-      if (audioRamp < 1)
+      if (audioRamp < 1){
         audioRamp +=0.00001;
+      }
 
       // Triggered force (for "plucking")
       if(triggerForceRamp){
-        frc = frc + frcRate * 0.1;
-        simUGen.mdl.triggerForceImpulse(excitationPoint,0,frc,0);
+        
+        frcX = frcX + frcRate * 0.1 * excitingX ;
+        frcY = frcY + frcRate * 0.1 * excitingY ;
+        frcZ = frcZ + frcRate * 0.1 * excitingZ ;
 
-        if (frc > forcePeak){
+        simUGen.mdl.triggerForceImpulse(massToExcite,frcX,frcY,frcZ);
+
+        if (frcX+frcY+frcZ > forcePeak){
           triggerForceRamp = false;
-          frc = 0;
+          frcX = 0;
+          frcY = 0;
+          frcZ = 0;
         }
+       
+      }    
+      if (toggleInput==true){
+        simUGen.mdl.triggerForceImpulse(massToExcite,0,(double)in.right.get((int)nbStepSimul%1)*Ctrl_inGain,0);
+        nbStepSimul += 1;
       }
 
       // calculate the sample value
-      if (simUGen.mdl.matExists(listeningPoint)) {
-        sample =(float)(this.mdl.getMatPosition(listeningPoint).x)* 0.15
-               + (float)(this.mdl.getMatPosition(listeningPoint).y)* 0.15
-               + (float)(this.mdl.getMatPosition(listeningPoint).z)* 0.15;
-
-        sample*=gainControl;
+      if (simUGen.mdl.matExists(massToListenTo)) {
+        sample = (float)(this.mdl.getMatPosition(massToListenTo).x * listeningX)
+               + (float)(this.mdl.getMatPosition(massToListenTo).y * listeningY)
+               + (float)(this.mdl.getMatPosition(massToListenTo).z * listeningZ);
 
         /* High pass filter to remove the DC offset */
-        audioOut = (sample - prevSample + 0.95 * audioOut) * audioRamp;;
-        prevSample = sample;
+        if (toggleOutput==true){
+          audioOut = (sample - prevSample + 0.95 * audioOut) * audioRamp * Ctrl_outGain/10;
+          prevSample = sample;
+        }
+        
       } else
         sample = 0;
     
