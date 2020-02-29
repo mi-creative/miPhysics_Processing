@@ -12,8 +12,8 @@ public class Attractor3D extends Link {
 
     /**
      * @param distance
-     * @param
-     * @param Z_param
+     * @param thresh dist
+     * @param attraction force
      * @param m1
      * @param m2
      */
@@ -30,11 +30,21 @@ public class Attractor3D extends Link {
             this.applyForces(-m_attrFactor / (m_dist*m_dist));
     }
 
-
+    /***
+     * This will actually set the attractor force value
+     * @param stiff
+     * @return
+     */
     public boolean changeStiffness(double stiff){
-        return false;
+        m_attrFactor = stiff;
+        return true;
     }
 
+    /***
+     * There is no damping parameter for this interaction.
+     * @param damp
+     * @return
+     */
     public boolean changeDamping(double damp){
         return false;
     }

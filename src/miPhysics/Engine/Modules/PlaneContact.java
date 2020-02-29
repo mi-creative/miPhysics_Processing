@@ -37,6 +37,7 @@ public class PlaneContact extends Link {
     double thresholdPos = m_posForPlane - m_position - m_dRest ;
     double lnkFrc = - thresholdPos *(m_K) - (m_posForPlane - m_dlyPosForPlane) *  m_Z;
 
+
     if (thresholdPos < 0) {
       if (m_orientation == 0)
         getMat1().m_frc.x += lnkFrc;
@@ -55,4 +56,5 @@ public class PlaneContact extends Link {
 
   double m_posForPlane;
   double m_dlyPosForPlane;
+
 }
