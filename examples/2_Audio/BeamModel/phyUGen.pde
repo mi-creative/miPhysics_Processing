@@ -17,7 +17,7 @@ float dist = 25;
 float fric = 0.00001;
 float grav = 0.;
 
-int dimX = 25;
+int dimX = 45;
 int dimY = 2;
 int dimZ = 2;
 
@@ -31,15 +31,8 @@ float frcRate = 0.01;
 public class PhyUGen extends UGen
 {
 
-  private String listeningPoint;
-  private String excitationPoint;
-
   private float    oneOverSampleRate;
-
-  float prevSample;
   float audioOut;
-  float audioRamp;
-
   PhysicalModel mdl;
 
   public PhyUGen(int sampleRate)
@@ -47,17 +40,15 @@ public class PhyUGen extends UGen
     super();
 
     this.mdl = new PhysicalModel(sampleRate, (int)baseFrameRate);
-    mdl.setGravity(grav);
-    mdl.setFriction(fric);
+    mdl.setGlobalGravity(0,0,grav);
+    mdl.setGlobalFriction(fric);
 
     audioOut = 0;
-    audioRamp = 0;
 
-
-    generateVolume(mdl, dimX, dimY, dimZ, "mass", "spring", m, l0, dist, k, z);
-
-    listeningPoint = "mass85";
-    excitationPoint = "mass5";
+    generateVolume(mdl, dimX, dimY, dimZ, "mass", "spring", m, 1, l0, dist, k, z);
+    
+    mdl.addInOut("driver", new Driver3D(), "mass5");
+    mdl.addInOut("listener", new Observer3D(filterType.HIGH_PASS), "mass85");
 
     this.mdl.init();
   }
@@ -74,17 +65,14 @@ public class PhyUGen extends UGen
   @Override
     protected void uGenerate(float[] channels)
   {
-    float sample;
-
-      this.mdl.computeStep();
-      
-      if (audioRamp < 1)
-        audioRamp +=0.00001;
+      this.mdl.computeSingleStep();
 
       // Triggered force (for "plucking")
       if(triggerForceRamp){
         frc = frc + frcRate * 0.1;
-        simUGen.mdl.triggerForceImpulse(excitationPoint,0,frc,0);
+        for(Driver3D d: mdl.getDrivers()){
+          d.applyFrc(new Vect3D(0,frc,0));
+        }
 
         if (frc > forcePeak){
           triggerForceRamp = false;
@@ -92,17 +80,10 @@ public class PhyUGen extends UGen
         }
       }
 
-      // calculate the sample value
-      if (simUGen.mdl.matExists(listeningPoint)) {
-        sample =(float)(this.mdl.getMatPosition(listeningPoint).x)* 0.015
-               + (float)(this.mdl.getMatPosition(listeningPoint).y)* 0.015
-               + (float)(this.mdl.getMatPosition(listeningPoint).z)* 0.015;
-
-        /* High pass filter to remove the DC offset */
-        audioOut = (sample - prevSample + 0.95 * audioOut) * audioRamp;;
-        prevSample = sample;
-      } else
-        sample = 0;
+      audioOut = 0;
+      for(Observer3D ob: mdl.getObservers()){
+        audioOut += 0.015 * (ob.observePos().x + ob.observePos().y + ob.observePos().z);
+      }
     
     Arrays.fill( channels, audioOut );
     currAudio = audioOut;

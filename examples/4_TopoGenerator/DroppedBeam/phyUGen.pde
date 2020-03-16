@@ -3,7 +3,7 @@ import ddf.minim.UGen;
 
 import miPhysics.*;
 
-int dimX = 2;
+int dimX = 3;
 int dimY = 2;
 int dimZ = 10;
 int overlap = 3;
@@ -15,40 +15,35 @@ public class PhyUGen extends UGen
   private float    oneOverSampleRate;
 
   float[] audioOut ={0, 0};
-  float[] prevAudio ={0, 0};
-  String[] listeners ={"none", "none"};
 
   PhysicalModel mdl;
+  Driver3D driver;
 
   public PhyUGen(int sampleRate)
   {
     super();
 
     this.mdl = new PhysicalModel(sampleRate, (int)baseFrameRate);
-    mdl.setGravity(0.);
-    mdl.setFriction(0.00001);
+    mdl.setGlobalGravity(0,0,0);
+    mdl.setGlobalFriction(0.00001);
 
     TopoGenerator q = new TopoGenerator(mdl, "mass", "spring");
     q.setDim(dimX, dimY, dimZ, overlap);
     q.setParams(1, 0.006, 0.00003);
-    q.setGeometry(25, 25);
-
-    //q.addBoundaryCondition(Bound.X_LEFT);
-    //q.addBoundaryCondition(Bound.X_RIGHT);
-    //q.addBoundaryCondition(Bound.Y_LEFT);
-    //q.addBoundaryCondition(Bound.Y_RIGHT);
-    //q.addBoundaryCondition(Bound.Z_LEFT);
-    //q.addBoundaryCondition(Bound.Z_RIGHT);
-
+    q.setGeometry(25, 25);    
+    q.setTranslation(0, 0, 3);
+    q.setMassRadius(3);
     q.generate();
-
-    for (int i = 0; i < mdl.getNumberOfMats(); i++) {
-      println(mdl.getMatNameAt(i));
-      mdl.addPlaneContact("plane"+i, 0, 0.1, 0.05, 2, 0, mdl.getMatNameAt(i));
+    
+    int i = 0;
+    for(Mass m : mdl.getMassList()){
+      mdl.addInteraction("plane"+i++, new PlaneContact3D(0.1, 0.05, 2, 0), m);
     }
-
-    listeners[0] = "mass_" + (dimX/2)+ "_" + (dimY/2) + "_" + (dimZ-1); 
-    listeners[1] = "mass_" + (dimX/2)+ "_" + (dimY/2) + "_" + 0; 
+    
+    mdl.addInOut("list1", new Observer3D(filterType.HIGH_PASS), "mass_" + (dimX/2)+ "_" + (dimY/2) + "_" + (dimZ-1));
+    mdl.addInOut("list2", new Observer3D(filterType.HIGH_PASS), "mass_" + (dimX/2)+ "_" + (dimY/2) + "_" + 0);
+    
+    driver = mdl.addInOut("driver", new Driver3D(), "mass_" + (dimX/2)+ "_" + (dimY/2) + "_" + (dimZ/2));
 
     this.mdl.init();
   }
@@ -65,32 +60,16 @@ public class PhyUGen extends UGen
   @Override
     protected void uGenerate(float[] channels)
   {
-    float sample;
-
-    this.mdl.computeStep();
-
-    if (audioRamp < 1)
-      audioRamp +=0.00001;
-
-
-    for (int i = 0; i < listeners.length; i++) {
-
-      Vect3D listenPos = this.mdl.getMatPosition(listeners[i]);
-
-      // calculate the sample value
-      if (simUGen.mdl.matExists(listeners[i])) {
-        sample =(float)(listenPos.x)* 0.1
-          + (float)(listenPos.y)* 0.1
-          + (float)(listenPos.z)* 0.1;
-
-        /* High pass filter to remove the DC offset */
-        audioOut[i] = (sample - prevAudio[i] + 0.95 * audioOut[i]) * audioRamp;
-        prevAudio[i] = sample;
-      } else
-        audioOut[i] = 0;
+    this.mdl.computeSingleStep();
+    
+    ArrayList<Observer3D> listeners = mdl.getObservers();
+    for(int i = 0; i < listeners.size(); i++){
+      audioOut[i] =(float)(listeners.get(i).observePos().x)* 0.1
+          + (float)(listeners.get(i).observePos().y)* 0.1
+          + (float)(listeners.get(i).observePos().z)* 0.1;
       channels[i] = audioOut[i];
-    }
 
+    }
     currAudio = audioOut[0];
   }
 }

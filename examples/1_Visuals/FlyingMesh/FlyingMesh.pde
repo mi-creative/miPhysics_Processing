@@ -38,6 +38,8 @@ void setup() {
   cam = new PeasyCam(this, 100);
   cam.setMinimumDistance(50);
   cam.setMaximumDistance(2500);
+  
+  cam.setDistance(1000);
 
   background(0);
 
@@ -46,11 +48,11 @@ void setup() {
   
   generateVolume(mdl, dimX, dimY, 1, "mass", "spring", 1., 20, 0.2, 0.06);
   
-  mdl.setGravity(0.0001);
-  mdl.setFriction(0.0001);
+  mdl.setGlobalGravity(0,0, 0.0001);
+  mdl.setGlobalFriction(0.0001);
 
-  for (int i = 1; i <=mdl.getNumberOfMats(); i++)
-    mdl.addPlaneContact("plane"+i, 0, 0.01, 0.01, 2, -160, "mass"+i);
+  for (int i = 0; i <mdl.getNumberOfMasses(); i++)
+    mdl.addInteraction("plane"+i, new PlaneContact3D(0.01, 0.01, 2, -160), "mass"+(i+1));
 
   // initialise the model before starting calculations.
   mdl.init();
@@ -58,16 +60,16 @@ void setup() {
   renderer = new ModelRenderer(this);
   
   if (BASIC_VISU){
-    renderer.displayMats(false);
-    renderer.setColor(linkModuleType.SpringDamper3D, 155, 200, 200, 255);
-    renderer.setSize(linkModuleType.SpringDamper3D, 1);
+    renderer.displayMasses(false);
+    renderer.setColor(interType.SPRINGDAMPER3D, 155, 200, 200, 255);
+    renderer.setSize(interType.SPRINGDAMPER3D, 1);
   }
   else{
-    renderer.displayMats(false);
-    renderer.setColor(linkModuleType.SpringDamper3D, 100, 20, 10, 255);
-    renderer.setSize(linkModuleType.SpringDamper3D, 1);
-    renderer.setStrainGradient(linkModuleType.SpringDamper3D, true, 0.1);
-    renderer.setStrainColor(linkModuleType.SpringDamper3D, 255, 250, 155, 255);
+    renderer.displayMasses(false);
+    renderer.setColor(interType.SPRINGDAMPER3D, 100, 20, 10, 255);
+    renderer.setSize(interType.SPRINGDAMPER3D, 1);
+    renderer.setStrainGradient(interType.SPRINGDAMPER3D, true, 0.1);
+    renderer.setStrainColor(interType.SPRINGDAMPER3D, 255, 250, 155, 255);
   }
   
   frameRate(displayRate);
@@ -77,7 +79,7 @@ void setup() {
 
 void draw() {
 
-  mdl.draw_physics();
+  mdl.compute();
 
   directionalLight(251, 102, 126, 0, -1, 0);
   ambientLight(102, 102, 102);
@@ -91,12 +93,12 @@ void draw() {
 
 void keyPressed() {
   if (key == ' ')
-    mdl.setGravity(-0.001);
+    mdl.setGlobalGravity(0,0,-0.001);
 }
 
 void keyReleased() {
   if (key == ' ')
-    mdl.setGravity(0.001);
+    mdl.setGlobalGravity(0,0,0.001);
 }
 
 

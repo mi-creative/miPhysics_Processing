@@ -44,17 +44,13 @@ void setup()
   
   renderer.setZoomVector(100,100,100);
   
-  renderer.displayMats(true);
-  renderer.setSize(matModuleType.Mass3D, 55);
-  renderer.setColor(matModuleType.Mass3D, 140, 140, 40);
-  renderer.setSize(matModuleType.Mass2DPlane, 5);
-  renderer.setColor(matModuleType.Mass2DPlane, 120, 0, 140);
-  renderer.setSize(matModuleType.Ground3D, 10);
-  renderer.setColor(matModuleType.Ground3D, 30, 100, 100);
+  renderer.displayMasses(true);
+  renderer.setColor(massType.MASS2DPLANE, 120, 0, 140);
+  renderer.setColor(massType.GROUND3D, 30, 100, 100);
   
-  renderer.setColor(linkModuleType.SpringDamper3D, 235, 120, 120, 255);
-  renderer.setStrainGradient(linkModuleType.SpringDamper3D, true, 0.05);
-  renderer.setStrainColor(linkModuleType.SpringDamper3D, 130, 130, 250, 255);
+  renderer.setColor(interType.SPRINGDAMPER3D, 235, 120, 120, 255);
+  renderer.setStrainGradient(interType.SPRINGDAMPER3D, true, 0.05);
+  renderer.setStrainColor(interType.SPRINGDAMPER3D, 130, 130, 250, 255);
   
   cam.setDistance(500);  // distance from looked-at point
   
@@ -80,14 +76,4 @@ void draw()
   fill(255, 255, 255);
   text("Curr Audio: " + currAudio, 10, 30);
   cam.endHUD();
-}
-
-
-void keyPressed() {
-  
-}
-
-void keyReleased() {
-  if (key == ' ')
-  saveFrame("line-######.png");
 }

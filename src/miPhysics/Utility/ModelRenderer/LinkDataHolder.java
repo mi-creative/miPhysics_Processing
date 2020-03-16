@@ -8,11 +8,11 @@ public class LinkDataHolder{
 
         this.m_elong = 0;
 
-        this.m_type = linkModuleType.UNDEFINED;
+        this.m_type = interType.UNDEFINED;
     }
 
 
-    public LinkDataHolder(Vect3D p1, Vect3D p2, double elong, linkModuleType t){
+    public LinkDataHolder(Vect3D p1, Vect3D p2, double elong, interType t){
         this.m_p1 = new Vect3D(p1);
         this.m_p2 = new Vect3D(p2);
         this.setElongation(elong);
@@ -32,20 +32,20 @@ public class LinkDataHolder{
         this.m_elong = m;
     }
 
-    public void setType(linkModuleType t){
+    public void setType(interType t){
         this.m_type = t;
     }
 
     public Vect3D getP1(){return this.m_p1;}
     public Vect3D getP2(){return this.m_p2;}
     public double getElongation(){return this.m_elong;}
-    public linkModuleType getType(){return this.m_type;}
+    public interType getType(){return this.m_type;}
 
     private Vect3D m_p1;
     private Vect3D m_p2;
 
     private double m_elong;
 
-    private linkModuleType m_type;
+    private interType m_type;
 
 }

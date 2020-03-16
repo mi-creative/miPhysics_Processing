@@ -28,11 +28,8 @@ int dimZ = 20;
 
 /*  global physical model object : will contain the model and run calculations. */
 PhysicalModel mdl;
+Driver3D d;
 
-/* elements to calculate the number of steps to simulate in each draw() method */
-float simDisplay_factor;
-int nbSteps;
-float residue = 0;
 
 /* control dessin */
 int mouseDragged = 0;
@@ -50,10 +47,9 @@ void setup() {
   background(0);
 
   // instantiate our physical model context
-  mdl = new PhysicalModel(250);
+  mdl = new PhysicalModel(250, displayRate);
 
-  mdl.setGravity(0.000);
-  mdl.setFriction(0.006);
+  mdl.setGlobalFriction(0.006);
   
   
   //SERIE DE TEST POUR ECRAN EPINGLE 3D
@@ -103,26 +99,20 @@ void setup() {
   //Cut it free
   //generatePinScreen3D(mdl, dimX, dimY, dimZ, "osc", "spring", 1., 5, 0., 0.1, 0.005, 0.1);
  
+  d = mdl.addInOut("driver", new Driver3D(), "osc0_0_0");
+
+  
   // initialise the model before starting calculations.
   mdl.init();
   
   frameRate(displayRate);
-
-  simDisplay_factor = (float) mdl.getSimRate() / (float) displayRate;
-  println("The simulation/display factor is :" + simDisplay_factor);
 } 
 
 // DRAW: THIS IS WHERE WE RUN THE MODEL SIMULATION AND DISPLAY IT
 
 void draw() {
 
-  float  floatingFramestoSim = simDisplay_factor + residue;
-  nbSteps = floor(floatingFramestoSim);
-  residue = floatingFramestoSim - nbSteps;
-
-  //println(" NbSteps: "+ nbSteps + ", residue: " + residue);
-
-  mdl.computeNSteps(nbSteps);
+  mdl.compute();
 
   directionalLight(251, 102, 126, 0, -1, 0);
   ambientLight(102, 102, 102);
@@ -141,7 +131,8 @@ void draw() {
 
 void fExt(){
   String matName = "osc" + floor(random(dimX))+"_"+ floor(random(dimY))+"_"+ floor(random(dimZ));
-  mdl.triggerForceImpulse(matName, random(100) , random(100), random(500));
+  d.moveDriver(mdl.getMass(matName));
+  d.applyFrc(new Vect3D(random(100) , random(100), random(500)));
 }
 
 

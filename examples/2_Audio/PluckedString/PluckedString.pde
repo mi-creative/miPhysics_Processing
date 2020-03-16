@@ -4,20 +4,9 @@ import ddf.minim.ugens.*;
 import peasy.*;
 
 int baseFrameRate = 60;
-
-int mouseDragged = 0;
-
-int gridSpacing = 2;
-int xOffset= 0;
-int yOffset= 0;
-
 float currAudio = 0;
-float gainVal = 1.;
-
 
 PeasyCam cam;
-
-float percsize = 200;
 
 Minim minim;
 PhyUGen simUGen;
@@ -26,9 +15,7 @@ Gain gain;
 AudioOutput out;
 AudioRecorder recorder;
 
-
 ModelRenderer renderer;
-
 
 ///////////////////////////////////////
 
@@ -55,23 +42,15 @@ void setup()
   // patch the Oscil to the output
   simUGen.patch(gain).patch(out);
   
-  renderer = new ModelRenderer(this);
-  
-  renderer.setZoomVector(100,100,100);
-  
-  renderer.displayMats(true);
-  renderer.setSize(matModuleType.Mass3D, 40);
-  renderer.setColor(matModuleType.Mass3D, 140, 140, 40);
-  renderer.setSize(matModuleType.Mass2DPlane, 10);
-  renderer.setColor(matModuleType.Mass2DPlane, 120, 0, 140);
-  renderer.setSize(matModuleType.Ground3D, 25);
-  renderer.setColor(matModuleType.Ground3D, 30, 100, 100);
-  
-  renderer.setColor(linkModuleType.SpringDamper3D, 135, 70, 70, 255);
-  renderer.setStrainGradient(linkModuleType.SpringDamper3D, true, 0.1);
-  renderer.setStrainColor(linkModuleType.SpringDamper3D, 105, 100, 200, 255);
-  
-    cam.setDistance(500);  // distance from looked-at point
+  renderer = new ModelRenderer(this);  
+  renderer.setZoomVector(100,100,100);  
+  renderer.displayMasses(true);  
+  renderer.setColor(massType.MASS2DPLANE, 140, 140, 40);
+  renderer.setColor(interType.SPRINGDAMPER3D, 135, 70, 70, 255);
+  renderer.setStrainGradient(interType.SPRINGDAMPER3D, true, 0.1);
+  renderer.setStrainColor(interType.SPRINGDAMPER3D, 105, 100, 200, 255);
+    
+  cam.setDistance(500);  // distance from looked-at point
   
   frameRate(baseFrameRate);
 

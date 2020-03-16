@@ -1,5 +1,5 @@
 /*
-Model: Multiple strings
+Model: Multiple strings High
 Author: James Leonard (james.leonard@gipsa-lab.fr)
 
 6 strings, play with 'azerty' keys
@@ -62,14 +62,16 @@ void setup()
   simUGen = new PhyUGen(44100);
   // patch the Oscil to the output
   simUGen.patch(gain).patch(out);
-    
+  
+  //createShapeArray(simUGen.mdl);
+  
   cam.setDistance(500);  // distance from looked-at point
   
   renderer = new ModelRenderer(this);
-  renderer.displayMats(false);
-  renderer.setColor(linkModuleType.SpringDamper3D, 180, 10, 10, 100);
-  renderer.setStrainGradient(linkModuleType.SpringDamper3D, true, 200);
-  renderer.setStrainColor(linkModuleType.SpringDamper3D, 255, 250, 255, 255);
+  renderer.displayMasses(true);
+  renderer.setColor(interType.SPRINGDAMPER3D, 120, 10, 10, 160);
+  renderer.setStrainGradient(interType.SPRINGDAMPER3D, true, 200);
+  renderer.setStrainColor(interType.SPRINGDAMPER3D, 0, 250, 255, 255);
   
   frameRate(baseFrameRate);
 
@@ -107,8 +109,6 @@ void draw()
 void keyPressed() {
   
   float speed = 0.8;
-  if (key == ' ')
-  simUGen.mdl.setGravity(-grav);
   
   if (key == 'a'){
       startForceTrigger(0, speed);
@@ -135,14 +135,6 @@ void keyPressed() {
       startForceTrigger(7, speed);
   }
   
-  else if (key == 'q'){
-    grav = 0.001;
-    simUGen.mdl.setGravity(grav);
-  }
-  else if (key=='s'){
-    grav = 0.003;
-    simUGen.mdl.setGravity(grav);
-  }
   else if (key =='w')
       recorder.beginRecord();
   else if (key == 'x')
@@ -151,6 +143,6 @@ void keyPressed() {
 
 void startForceTrigger(int chan, float speed){
       frcRate[chan] = speed;
-      forcePeak[chan] = 4;
+      forcePeak[chan] = 6;
       triggerForceRamp[chan] = true;
 }

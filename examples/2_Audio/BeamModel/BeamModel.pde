@@ -58,14 +58,13 @@ void setup()
   
   renderer = new ModelRenderer(this);
   
-  renderer.displayMats(true);
-  renderer.setSize(matModuleType.Mass3D, 1);
-  renderer.setColor(matModuleType.Mass3D, 50, 255, 200);
-  renderer.setSize(matModuleType.Ground3D, 3);
-  renderer.setColor(matModuleType.Ground3D, 120, 200, 100);
-  renderer.setColor(linkModuleType.SpringDamper3D, 135, 70, 70, 255);
-  renderer.setStrainGradient(linkModuleType.SpringDamper3D, true, 0.5);
-  renderer.setStrainColor(linkModuleType.SpringDamper3D, 105, 100, 200, 255);
+  renderer.displayMasses(true);
+  renderer.setSize(massType.MASS3D, 1);
+  renderer.setColor(massType.MASS3D, 50, 255, 200);
+  renderer.setColor(massType.GROUND3D, 120, 200, 100);
+  renderer.setColor(interType.SPRINGDAMPER3D, 135, 70, 70, 255);
+  renderer.setStrainGradient(interType.SPRINGDAMPER3D, true, 0.5);
+  renderer.setStrainColor(interType.SPRINGDAMPER3D, 105, 100, 200, 255);
 
     
   cam.setDistance(500);  // distance from looked-at point

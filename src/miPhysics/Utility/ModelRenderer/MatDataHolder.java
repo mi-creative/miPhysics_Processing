@@ -5,20 +5,23 @@ public class MatDataHolder{
     public MatDataHolder(){
         this.m_pos = new Vect3D();
         this.m_mass = 1.;
-        this.m_type = matModuleType.UNDEFINED;
+        this.m_type = massType.UNDEFINED;
+        this.m_radius = 1;
     }
 
-    public MatDataHolder(Mat element){
+    public MatDataHolder(Mass element){
         this.setPos(element.getPos());
         this.m_mass = element.getMass();
         this.m_type = element.getType();
+        this.m_radius = element.getSize();
     }
 
-    public MatDataHolder(Vect3D p, double m, matModuleType t){
+    public MatDataHolder(Vect3D p, double m, double radius, massType t){
         this.m_pos = new Vect3D();
         this.setPos(p);
         this.setMass(m);
         this.setType(t);
+        this.setRadius(radius);
     }
 
 
@@ -30,16 +33,22 @@ public class MatDataHolder{
         this.m_mass = m;
     }
 
-    public void setType(matModuleType t){
+    public void setType(massType t){
         this.m_type = t;
+    }
+
+    public void setRadius(double radius){
+        this.m_radius = radius;
     }
 
     public Vect3D getPos(){return this.m_pos;}
     public double getMass(){return this.m_mass;}
-    public matModuleType getType(){return this.m_type;}
+    public massType getType(){return this.m_type;}
+    public double getRadius(){return this.m_radius;}
 
     private Vect3D m_pos;
     private double m_mass;
-    private matModuleType m_type;
+    private massType m_type;
+    private double m_radius;
 
 }

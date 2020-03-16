@@ -10,12 +10,12 @@ Right-Click Drag across the surface to remove masses (and connected links).
 Use UP and DOWN keys to add/decrease air friction in the model.
 Use LEFT and RIGHT keys to zoom the Z axis.
 */
+
 import miPhysics.*;
 import peasy.*;
 PeasyCam cam;
 
 float zZoom = 1;
-
 
 int displayRate = 60;
 boolean BASIC_VISU = false;
@@ -26,7 +26,6 @@ int dimY = 65;
 PhysicalModel mdl;
 ModelRenderer renderer;
 
-
 int mouseDragged = 0;
 
 int gridSpacing = 2;
@@ -35,6 +34,9 @@ int yOffset= 0;
 
 float fric = 0.001;
 
+Driver3D d;
+
+
 // SETUP: THIS IS WHERE WE SETUP AND INITIALISE OUR MODEL
 
 void setup() {
@@ -42,26 +44,29 @@ void setup() {
   background(0);
 
   mdl = new PhysicalModel(550, displayRate);
-  mdl.setGravity(0.000);
-  mdl.setFriction(fric);
+  mdl.setGlobalGravity(0, 0, 0);
+  mdl.setGlobalFriction(fric);
   
   gridSpacing = (int)((height/dimX)*2);
   generatePinScreen(mdl, dimX, dimY, "osc", "spring", 1., gridSpacing, 0.0006, 0.0, 0.09, 0.1);
+  
+  d = mdl.addInOut("driver", new Driver3D(), "osc0_0");
+
 
   mdl.init();
   
   renderer = new ModelRenderer(this);
   
   if (BASIC_VISU){
-    renderer.displayMats(false);
-    renderer.setColor(linkModuleType.SpringDamper3D, 155, 200, 200, 255);
-    renderer.setSize(linkModuleType.SpringDamper3D, 1);
+    renderer.displayMasses(false);
+    renderer.setColor(interType.SPRINGDAMPER3D, 155, 200, 200, 255);
+    renderer.setSize(interType.SPRINGDAMPER3D, 1);
   }
   else{
-    renderer.displayMats(false);
-    renderer.setColor(linkModuleType.SpringDamper3D, 155, 50, 50, 70);
-    renderer.setStrainGradient(linkModuleType.SpringDamper3D, true, 0.1);
-    renderer.setStrainColor(linkModuleType.SpringDamper3D, 255, 250, 255, 255);
+    renderer.displayMasses(false);
+    renderer.setColor(interType.SPRINGDAMPER3D, 155, 50, 50, 70);
+    renderer.setStrainGradient(interType.SPRINGDAMPER3D, true, 0.1);
+    renderer.setStrainColor(interType.SPRINGDAMPER3D, 255, 250, 255, 255);
   }
   
   frameRate(displayRate);   
@@ -75,7 +80,7 @@ void draw() {
   noCursor();
   camera(width/2.0, height/2.0, (height/2.0) / tan(PI*30.0 / 180.0), width/2, height/2.0, 0, 0, 1, 0);
 
-  mdl.draw_physics();
+  mdl.compute();
 
   background(0);
 
@@ -87,7 +92,7 @@ void draw() {
   fill(255);
   textSize(13); 
 
-  text("Friction: " + fric, 50, 50, 50);
+  text("Friction: " + mdl.getGlobalFriction(), 50, 50, 50);
   text("Zoom: " + zZoom, 50, 100, 50);
 
   
@@ -104,23 +109,21 @@ void draw() {
 }
 
 
-void fExt(){
-  String matName = "osc" + floor(random(dimX))+"_"+ floor(random(dimY));
-  mdl.triggerForceImpulse(matName, random(100) , random(100), random(500));
-}
-
 void engrave(float mX, float mY){
   String matName = "osc" + floor(mX/ gridSpacing)+"_"+floor(mY/ gridSpacing);
-  println(mdl.matExists(matName));
-  if(mdl.matExists(matName))
-    mdl.triggerForceImpulse(matName, 0. , 0., 15.);
+  Mass m = mdl.getMass(matName);
+  if(m != null){
+    d.moveDriver(m);
+    d.applyFrc(new Vect3D(0., 0., 15.));
+  }
 }
 
 void chisel(float mX, float mY){
   String matName = "osc" + floor(mX/ gridSpacing)+"_"+floor(mY/ gridSpacing);
-  println(mdl.matExists(matName));
-  if(mdl.matExists(matName))
-    mdl.removeMatAndConnectedLinks(matName);
+  Mass m = mdl.getMass(matName);
+  if(m != null){
+    mdl.removeMassAndConnectedInteractions(m);
+  }
 }
 
 
@@ -136,18 +139,16 @@ void mouseReleased() {
 
 
 void keyPressed() {
-  if (key == ' ')
-  mdl.setGravity(-0.001);
   if(keyCode == UP){
     fric += 0.001;
-    mdl.setFriction(fric);
+    mdl.setGlobalFriction(fric);
     println(fric);
 
   }
   else if (keyCode == DOWN){
     fric -= 0.001;
     fric = max(fric, 0);
-    mdl.setFriction(fric);
+    mdl.setGlobalFriction(fric);
     println(fric);
   }
   else if (keyCode == LEFT){
@@ -158,9 +159,4 @@ void keyPressed() {
     zZoom --;
     renderer.setZoomVector(1,1, zZoom);
   }
-}
-
-void keyReleased() {
-  if (key == ' ')
-  mdl.setGravity(0.000);
 }

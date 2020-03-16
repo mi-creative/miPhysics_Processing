@@ -17,16 +17,15 @@ PeasyCam cam;
 int displayRate = 60;
 boolean BASIC_VISU = false;
 
-/*  "dimension" of the model - number of MAT modules */
-int dimX = 20;
-int dimY = 20;
-int dimZ = 20;
 
 float rot = 0.01;
 
 /*  global physical model object : will contain the model and run calculations. */
 PhysicalModel mdl;
 ModelRenderer renderer;
+
+Driver3D d;
+
 
 /* control dessin */
 int mouseDragged = 0;
@@ -51,10 +50,13 @@ void setup() {
   // instantiate our physical model context
   mdl = new PhysicalModel(250, displayRate);
 
-  mdl.setGravity(0.000);
-  mdl.setFriction(0.000);
+  mdl.setGlobalGravity(0,0,0);
+  mdl.setGlobalFriction(0.000);
  
-  generatePinSphere(mdl, dimX, dimY, dimZ, "osc", "spring", 1., 5, 0., 0.0, 0.1, 0.1);
+  generatePinSphere(mdl, "osc", "spring", 1., 5, 0., 0.0, 0.1, 0.1);
+  
+  d = mdl.addInOut("driver", new Driver3D(), "osc0");
+
 
   // initialise the model before starting calculations.
   mdl.init();
@@ -62,15 +64,15 @@ void setup() {
   renderer = new ModelRenderer(this);
   
   if (BASIC_VISU){
-    renderer.displayMats(false);
-    renderer.setColor(linkModuleType.SpringDamper3D, 155, 200, 200, 255);
-    renderer.setSize(linkModuleType.SpringDamper3D, 1);
+    renderer.displayMasses(false);
+    renderer.setColor(interType.SPRINGDAMPER3D, 155, 200, 200, 255);
+    renderer.setSize(interType.SPRINGDAMPER3D, 1);
   }
   else{
-    renderer.displayMats(false);
-    renderer.setColor(linkModuleType.SpringDamper3D, 180, 10, 10, 100);
-    renderer.setStrainGradient(linkModuleType.SpringDamper3D, true, 0.1);
-    renderer.setStrainColor(linkModuleType.SpringDamper3D, 255, 250, 255, 255);
+    renderer.displayMasses(false);
+    renderer.setColor(interType.SPRINGDAMPER3D, 180, 10, 10, 100);
+    renderer.setStrainGradient(interType.SPRINGDAMPER3D, true, 0.1);
+    renderer.setStrainColor(interType.SPRINGDAMPER3D, 255, 250, 255, 255);
   }  
   
   
@@ -80,7 +82,7 @@ void setup() {
 // DRAW: THIS IS WHERE WE RUN THE MODEL SIMULATION AND DISPLAY IT
 
 void draw() {
-  mdl.draw_physics();
+  mdl.compute();
 
   directionalLight(251, 102, 126, 0, -1, 0);
   ambientLight(102, 102, 102);
@@ -92,16 +94,13 @@ void draw() {
   pushMatrix();  
   renderer.renderModel(mdl);
   popMatrix();
-  
-  if (mousePressed == true){
-    //fExt();
-  }
 }
 
 
 void fExt(){
   String matName = "osc" + floor(random(19000));
-  mdl.triggerForceImpulse(matName, random(100) , random(100), random(500));
+  d.moveDriver(mdl.getMass(matName));
+  d.applyFrc(new Vect3D(random(100) , random(100), random(500)));
 }
 
 

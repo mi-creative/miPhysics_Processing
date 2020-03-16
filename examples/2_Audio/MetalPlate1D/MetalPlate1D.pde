@@ -11,10 +11,9 @@ int gridSpacing = 2;
 int xOffset= 0;
 int yOffset= 0;
 
+int zZoom = 1;
 
 PeasyCam cam;
-
-float percsize = 200;
 
 Minim minim;
 PhyUGen simUGen;
@@ -23,41 +22,39 @@ Gain gain;
 AudioOutput out;
 AudioRecorder recorder;
 
-
-float gainVal = 1.;
-
-float speed = 0;
-float pos = 100;
-
+ModelRenderer renderer;
 
 ///////////////////////////////////////
 
 void setup()
 {
   //size(1000, 700, P3D);
-  fullScreen(P3D,2);
-    cam = new PeasyCam(this, 100);
+  fullScreen(P3D, 2);
+  cam = new PeasyCam(this, 100);
   cam.setMinimumDistance(50);
   cam.setMaximumDistance(2500);
-  
+
   minim = new Minim(this);
-  
+
   // use the getLineOut method of the Minim object to get an AudioOutput object
   out = minim.getLineOut();
-  
-  recorder = minim.createRecorder(out, "myrecording.wav");
-  
-    // start the Gain at 0 dB, which means no change in amplitude
-  gain = new Gain(0);
-  
-  // create a physicalModel UGEN
-  simUGen = new PhyUGen(44100);
-  // patch the Oscil to the output
-  simUGen.patch(gain).patch(out);
-  
-  //simUGen.mdl.triggerForceImpulse("mass"+(excitationPoint), 0, 1, 0);
-  cam.setDistance(500);  // distance from looked-at point
 
+  recorder = minim.createRecorder(out, "myrecording.wav");
+
+  // start the Gain at 0 dB, which means no change in amplitude
+  gain = new Gain(0);
+
+  simUGen = new PhyUGen(44100);
+  simUGen.patch(gain).patch(out);
+
+  renderer = new ModelRenderer(this);
+  renderer.displayMasses(false);
+  renderer.setColor(interType.SPRINGDAMPER1D, 155, 50, 50, 170);
+  renderer.setStrainGradient(interType.SPRINGDAMPER1D, true, 1);
+  renderer.setStrainColor(interType.SPRINGDAMPER1D, 255, 250, 255, 255);
+
+
+  cam.setDistance(500);  // distance from looked-at point
 }
 
 void draw()
@@ -66,66 +63,58 @@ void draw()
 
   background(0);
 
+  renderer.setZoomVector(1, 1, 0.1 * zZoom);
+
   pushMatrix();
-  translate(xOffset,yOffset, 0.);
-  renderLinks(simUGen.mdl);
+  translate(xOffset, yOffset, 0.);
+  renderer.renderModel(simUGen.mdl);
   popMatrix();
 
   fill(255);
   textSize(13); 
-
   text("Friction: " + fric, 50, 50, 50);
   text("Zoom: " + zZoom, 50, 100, 50);
 
-  
-  if (mouseDragged == 1){
-    if((mouseX) < (dimX*gridSpacing+xOffset) & (mouseY) < (dimY*gridSpacing+yOffset) & mouseX>xOffset & mouseY > yOffset){ // Garde fou pour ne pas sortir des limites du pinScreen
+  if (mouseDragged == 1) {
+    if ((mouseX) < (dimX*gridSpacing+xOffset) & (mouseY) < (dimY*gridSpacing+yOffset) & mouseX>xOffset & mouseY > yOffset) { // Garde fou pour ne pas sortir des limites du pinScreen
       println(mouseX, mouseY);
-      if(mouseButton == LEFT)
+      if (mouseButton == LEFT)
         engrave(mouseX-xOffset, mouseY - yOffset);
-      if(mouseButton == RIGHT)
+      if (mouseButton == RIGHT)
         chisel(mouseX-xOffset, mouseY - yOffset);
     }
   }
-  
+
   if ( recorder.isRecording() )
   {
     text("Currently recording...", 5, 15);
-  }
-  else
+  } else
   {
     text("Not recording.", 5, 15);
   }
-
 }
 
 
-
-void fExt(){
-  String matName = "osc" + floor(random(dimX))+"_"+ floor(random(dimY));
-  simUGen.mdl.triggerForceImpulse(matName, random(100) , random(100), random(500));
-}
-
-void engrave(float mX, float mY){
+void engrave(float mX, float mY) {
   String matName = "osc" + floor(mX/ gridSpacing)+"_"+floor(mY/ gridSpacing);
-  println(simUGen.mdl.matExists(matName));
-  if(simUGen.mdl.matExists(matName))
-    simUGen.mdl.triggerForceImpulse(matName, 0. , 0., 15.);
+  Mass m = simUGen.mdl.getMass(matName);
+  if (m != null) {
+    simUGen.d.moveDriver(m);
+    simUGen.d.applyFrc(new Vect3D(0., 0., 15.));
+  }
 }
 
-void chisel(float mX, float mY){
+void chisel(float mX, float mY) {
   String matName = "osc" + floor(mX/ gridSpacing)+"_"+floor(mY/ gridSpacing);
-  println(simUGen.mdl.matExists(matName));
-  synchronized(simUGen.mdl.getLock()){
-  if(simUGen.mdl.matExists(matName))
-    simUGen.mdl.removeMatAndConnectedLinks(matName);
+  Mass m = simUGen.mdl.getMass(matName);
+  if (m != null) {
+    simUGen.mdl.removeMassAndConnectedInteractions(m);
   }
 }
 
 
 void mouseDragged() {
   mouseDragged = 1;
-  
 }
 
 void mouseReleased() {
@@ -135,31 +124,19 @@ void mouseReleased() {
 
 
 void keyPressed() {
-  if (key == ' ')
-  simUGen.mdl.setGravity(-0.001);
-  if(keyCode == UP){
-    fric += 0.001;
-    synchronized(simUGen.mdl.getLock()){
-      simUGen.mdl.setFriction(0.);
-    }
-    println(fric);
 
-  }
-  else if (keyCode == DOWN){
-    fric -= 0.001;
-    fric = max(fric, 0);
-    simUGen.mdl.setFriction(fric);
+  if (keyCode == UP) {
+    fric += 0.001;
+    simUGen.mdl.setGlobalFriction(0.);
     println(fric);
-  }
-  else if (keyCode == LEFT){
+  } else if (keyCode == DOWN) {
+    fric -= 0.001;
+    fric = max((float)fric, 0.);
+    simUGen.mdl.setGlobalFriction(fric);
+    println(fric);
+  } else if (keyCode == LEFT) {
     zZoom ++;
-  }
-  else if (keyCode == RIGHT){
+  } else if (keyCode == RIGHT) {
     zZoom --;
   }
-}
-
-void keyReleased() {
-  if (key == ' ')
-  simUGen.mdl.setGravity(0.000);
 }

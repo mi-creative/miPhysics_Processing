@@ -66,7 +66,6 @@ void setup()
   cam.setDistance(500);  // distance from looked-at point
   
   renderer = new ModelRenderer(this);
-  renderer.setSize(matModuleType.Mass3D, 5);
   
   frameRate(baseFrameRate);
 
@@ -85,7 +84,7 @@ void draw()
   PVector test = new PVector();
   
   synchronized(simUGen.mdl.getLock()){
-    test = simUGen.mdl.getMatPVector("gnd").copy();
+    test = simUGen.mdl.getMass("gnd").getPos().toPVector().copy();
   }
   
   translate(test.x,test.z,test.y);
@@ -145,34 +144,20 @@ void drawHemisphere(float rho, int col, float div){
 void keyPressed() {
     
   if (key == ' ')
-  simUGen.mdl.setGravity(-grav);
-  
-  if (key == 'a'){
-      simUGen.mdl.triggerForceImpulse("pebbleA_1_1_0", 0, 0.1, 0.1);
-  }
-  else if (key == 'z'){
-      simUGen.mdl.triggerForceImpulse("pebbleB_1_2_0", 0,-0.1, 0.1);
-      }
-  else if (key =='e'){
-      simUGen.mdl.triggerForceImpulse("pebbleA_1_1_0", 0.1,0, 0.1);
-
-  }
-  else if (key =='r'){
-      simUGen.mdl.triggerForceImpulse("pebbleB_1_2_0", -0.1,0, 0.1);
-  }
+  simUGen.mdl.setGlobalGravity(0, 0, -grav);
   else if (key == 'q'){
     grav = 0.001;
-    simUGen.mdl.setGravity(grav);
+    simUGen.mdl.setGlobalGravity(0, 0, grav);
   }
   else if (key=='s'){
     grav = 0.003;
-    simUGen.mdl.setGravity(grav);    
+    simUGen.mdl.setGlobalGravity(0, 0, grav);    
   } 
   else if (key =='w')
-      simUGen.mdl.triggerForceImpulse("gnd", 0,0, random(10,30));
+    simUGen.driver.applyFrc(new Vect3D(0,0, random(10,30)));
 }
 
 void keyReleased() {
   if (key == ' ')
-  simUGen.mdl.setGravity(grav);
+  simUGen.mdl.setGlobalGravity(0, 0, grav);
 }

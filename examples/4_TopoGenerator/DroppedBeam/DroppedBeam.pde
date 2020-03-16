@@ -67,12 +67,11 @@ void setup()
   cam.setDistance(500);  // distance from looked-at point
 
   renderer = new ModelRenderer(this);
-  renderer.displayMats(true);
-  renderer.setSize(matModuleType.Mass3D, 3);
-  renderer.setColor(matModuleType.Mass3D, 100, 200, 200);
-  renderer.setColor(linkModuleType.SpringDamper3D, 180, 50, 70, 170);
-  renderer.setStrainGradient(linkModuleType.SpringDamper3D, true, 0.005);
-  renderer.setStrainColor(linkModuleType.SpringDamper3D, 255, 250, 255, 255);
+  renderer.displayMasses(true);
+  renderer.setColor(massType.MASS3D, 100, 200, 200);
+  renderer.setColor(interType.SPRINGDAMPER3D, 180, 50, 70, 170);
+  renderer.setStrainGradient(interType.SPRINGDAMPER3D, true, 0.005);
+  renderer.setStrainColor(interType.SPRINGDAMPER3D, 255, 250, 255, 255);
 
   frameRate(baseFrameRate);
 }
@@ -101,31 +100,30 @@ void draw()
 
 void keyPressed() {
 
-  String mass = "mass_" + (dimX/2)+ "_" + (dimY/2) + "_" + (dimZ/2); 
 
   if (key == ' ')
-    simUGen.mdl.setGravity(-grav);
+    simUGen.mdl.setGlobalGravity(0,0,-grav);
 
   if (key == 'a') {
-    simUGen.mdl.triggerForceImpulse(mass, 0, 1, 0);
+    simUGen.driver.applyFrc(new Vect3D(0, 1, 0));
   } else if (key == 'z') {
-    simUGen.mdl.triggerForceImpulse(mass, 0, -1, 0);
+    simUGen.driver.applyFrc(new Vect3D(0, -1, 0));
   } else if (key =='e') {
-    simUGen.mdl.triggerForceImpulse(mass, 1, 0, 0);
+    simUGen.driver.applyFrc(new Vect3D(1, 0, 0));
   } else if (key =='r') {
-    simUGen.mdl.triggerForceImpulse(mass, -1, 0, 0);
+    simUGen.driver.applyFrc(new Vect3D(-1, 0, 0));
   } else if (key == 'q') {
     grav = 0.001;
-    simUGen.mdl.setGravity(grav);
+    simUGen.mdl.setGlobalGravity(0,0,grav);
   } else if (key=='s') {
     grav = 0.003;
-    simUGen.mdl.setGravity(grav);
+    simUGen.mdl.setGlobalGravity(0,0,grav);
   }
 }
 
 void keyReleased() {
   if (key == ' ')
-    simUGen.mdl.setGravity(grav);
+    simUGen.mdl.setGlobalGravity(0,0,grav);
 }
 
 void drawPlane(int orientation, float position, float size) {

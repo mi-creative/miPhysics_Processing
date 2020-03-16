@@ -63,6 +63,28 @@ public class Vect3D {
 
 	}
 
+	public double magSq(){
+		return this.x*this.x + this.y*this.y + this.z*this.z;
+	}
+
+
+	public double magnitude(){
+		return Math.sqrt(this.x*this.x + this.y*this.y + this.z*this.z);
+	}
+
+	public void normalize(){
+		double mag = this.magnitude();
+		if(mag < 0.00000001) {
+			mag = 0.00000001;
+		}
+		this.mult(1/mag);
+	}
+
+
+	public double dot(Vect3D v2){
+		return this.x * v2.x + this.y * v2.y + this.z * v2.z;
+	}
+
 	public Vect3D add(Vect3D v2) {
 		this.x += v2.x;
 		this.y += v2.y;

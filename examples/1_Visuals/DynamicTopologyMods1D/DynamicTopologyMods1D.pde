@@ -24,6 +24,8 @@ int dimY = 100;
 float zZoom = 1;
 
 PhysicalModel mdl;
+Driver3D d;
+
 ModelRenderer renderer;
 
 int mouseDragged = 0;
@@ -41,19 +43,21 @@ void setup() {
   background(0);
 
   mdl = new PhysicalModel(441, displayRate);
-  mdl.setGravity(0.000);
-  mdl.setFriction(fric);
+  mdl.setGlobalFriction(fric);
   
-  gridSpacing = (int)((height/dimX)*2);
+  gridSpacing = (int)((height/dimY)*2);
   generateMesh(mdl, dimX, dimY, "osc", "spring", 1., gridSpacing, 0.0006, 0.0, 0.009, 0.1);
+  
+  d = mdl.addInOut("driver", new Driver3D(), "osc0_0");
 
   mdl.init();
   
   renderer = new ModelRenderer(this);
   
-  renderer.displayMats(false);
-  renderer.setColor(linkModuleType.SpringDamper1D, 155, 200, 200, 255);
-  renderer.setSize(linkModuleType.SpringDamper1D, 1);
+  renderer.displayMasses(false);
+  renderer.setColor(interType.SPRINGDAMPER1D, 155, 100, 200, 255);
+    renderer.setStrainGradient(interType.SPRINGDAMPER1D, true, 1);
+    renderer.setStrainColor(interType.SPRINGDAMPER1D, 255, 250, 255, 255);
 
   
   frameRate(displayRate);   
@@ -66,7 +70,7 @@ void draw() {
 
   camera(width/2.0, height/2.0, (height/2.0) / tan(PI*30.0 / 180.0), width/2, height/2.0, 0, 0, 1, 0);
 
-  mdl.draw_physics();
+  mdl.compute();
 
   background(0);
 
@@ -95,25 +99,22 @@ void draw() {
 }
 
 
-void fExt(){
-  String matName = "osc" + floor(random(dimX))+"_"+ floor(random(dimY));
-  mdl.triggerForceImpulse(matName, random(100) , random(100), random(500));
-}
-
 void engrave(float mX, float mY){
   String matName = "osc" + floor(mX/ gridSpacing)+"_"+floor(mY/ gridSpacing);
-  println(mdl.matExists(matName));
-  if(mdl.matExists(matName))
-    mdl.triggerForceImpulse(matName, 0. , 0., 15.);
+  Mass m = mdl.getMass(matName);
+  if(m != null){
+    d.moveDriver(m);
+    d.applyFrc(new Vect3D(0., 0., 15.));
+  }
 }
 
 void chisel(float mX, float mY){
   String matName = "osc" + floor(mX/ gridSpacing)+"_"+floor(mY/ gridSpacing);
-  println(mdl.matExists(matName));
-  if(mdl.matExists(matName))
-    mdl.removeMatAndConnectedLinks(matName);
+  Mass m = mdl.getMass(matName);
+  if(m != null){
+    mdl.removeMassAndConnectedInteractions(m);
+  }
 }
-
 
 void mouseDragged() {
   mouseDragged = 1;
@@ -127,18 +128,17 @@ void mouseReleased() {
 
 
 void keyPressed() {
-  if (key == ' ')
-  mdl.setGravity(-0.001);
+
   if(keyCode == UP){
     fric += 0.001;
-    mdl.setFriction(fric);
+    mdl.setGlobalFriction(fric);
     println(fric);
 
   }
   else if (keyCode == DOWN){
     fric -= 0.001;
     fric = max(fric, 0);
-    mdl.setFriction(fric);
+    mdl.setGlobalFriction(fric);
     println(fric);
   }
   else if (keyCode == LEFT){
@@ -149,9 +149,4 @@ void keyPressed() {
     zZoom --;
     renderer.setZoomVector(1,1, zZoom);
   }
-}
-
-void keyReleased() {
-  if (key == ' ')
-  mdl.setGravity(0.000);
 }

@@ -68,10 +68,10 @@ void setup()
   cam.setDistance(500);  // distance from looked-at point
   
   renderer = new ModelRenderer(this);
-  renderer.displayMats(false);
-  renderer.setColor(linkModuleType.SpringDamper3D, 120, 10, 10, 160);
-  renderer.setStrainGradient(linkModuleType.SpringDamper3D, true, 200);
-  renderer.setStrainColor(linkModuleType.SpringDamper3D, 0, 250, 255, 255);
+  renderer.displayMasses(true);
+  renderer.setColor(interType.SPRINGDAMPER3D, 120, 10, 10, 160);
+  renderer.setStrainGradient(interType.SPRINGDAMPER3D, true, 200);
+  renderer.setStrainColor(interType.SPRINGDAMPER3D, 0, 250, 255, 255);
   
   frameRate(baseFrameRate);
 
@@ -109,8 +109,6 @@ void draw()
 void keyPressed() {
   
   float speed = 0.8;
-  if (key == ' ')
-  simUGen.mdl.setGravity(-grav);
   
   if (key == 'a'){
       startForceTrigger(0, speed);
@@ -137,14 +135,6 @@ void keyPressed() {
       startForceTrigger(7, speed);
   }
   
-  else if (key == 'q'){
-    grav = 0.001;
-    simUGen.mdl.setGravity(grav);
-  }
-  else if (key=='s'){
-    grav = 0.003;
-    simUGen.mdl.setGravity(grav);
-  }
   else if (key =='w')
       recorder.beginRecord();
   else if (key == 'x')

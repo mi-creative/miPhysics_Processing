@@ -1,4 +1,4 @@
-void generatePinSphere(PhysicalModel mdl, int dimX, int dimY, int dimZ, String mName, String lName, float masValue, float dist, float K_osc, float Z_osc, float K, float Z) {
+void generatePinSphere(PhysicalModel mdl, String mName, String lName, float masValue, float dist, float K_osc, float Z_osc, float K, float Z) {
   // add the masses to the model: name, mass, initial pos, init speed
   String celName;
   Vect3D X0, V0;
@@ -34,7 +34,7 @@ void generatePinSphere(PhysicalModel mdl, int dimX, int dimY, int dimZ, String m
       V0 = new Vect3D(0., 0., 0.);
       celName = mName + celCount;
       //println(celName);
-      mdl.addOsc3D(celName, masValue, K_osc, Z_osc, X0, V0);
+      mdl.addMass(celName, new Osc3D(masValue, 1, K_osc, Z_osc, X0, V0));
       celCount += 1;
 
       
@@ -47,6 +47,6 @@ void generatePinSphere(PhysicalModel mdl, int dimX, int dimY, int dimZ, String m
          celName1 = mName + k;
          celName2 = mName + str(k+1);
          //println("X " +celName1+celName2);
-         mdl.addSpringDamper3D(lName + "1_" +k, dist, K, Z, celName1, celName2);
+         mdl.addInteraction(lName + "1_" +k, new SpringDamper3D(dist, K, Z), celName1, celName2);
        }
 }

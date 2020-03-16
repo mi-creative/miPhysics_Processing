@@ -1,5 +1,3 @@
-/*
-*/
 
 import peasy.*;
 import miPhysics.*;
@@ -32,13 +30,16 @@ void setup() {
 
   mdl = new PhysicalModel(1050, displayRate);
 
-  mdl.setGravity(grav);
-  mdl.setFriction(0.0001);
+  mdl.setGlobalGravity(0, 0, grav);
+  mdl.setGlobalFriction(0.0001);
 
   TopoGenerator q = new TopoGenerator(mdl, "mass", "spring");
   q.setDim(dimX, dimY, dimZ, overlap);
   q.setParams(1, 0.003, 0.003);
   q.setGeometry(25, 25);
+  
+  q.setMassRadius(3);
+
 
   q.setMatSubsetName("beamMats");
   q.setLinkSubsetName("beamLinks");
@@ -47,18 +48,22 @@ void setup() {
 
   q.generate();
 
-  for (int i = 0; i < mdl.getNumberOfMats(); i++) {
-    println(mdl.getMatNameAt(i));
-    mdl.addPlaneContact("plane"+i, 0, 0.1, 0.005, 2, 0, mdl.getMatNameAt(i));
+  int nb = 0;
+  for(Mass elem : mdl.getMassList()){
+    println(elem.getName());
+    mdl.addInteraction("plane"+nb++, new PlaneContact3D(0.1, 0.005, 2, 0), elem); 
   }
+  
+  String triggerMass = "mass_" + (dimX/2)+ "_" + (dimY/2) + "_" + (dimZ/2); 
+  mdl.addInOut("driver", new Driver3D(),triggerMass);
 
   mdl.init();
 
   renderer = new ModelRenderer(this);
-  renderer.displayMats(false);
-  renderer.setColor(linkModuleType.SpringDamper3D, 180, 10, 10, 170);
-  renderer.setStrainGradient(linkModuleType.SpringDamper3D, true, 0.1);
-  renderer.setStrainColor(linkModuleType.SpringDamper3D, 255, 250, 255, 255);
+  renderer.displayMasses(true);
+  renderer.setColor(interType.SPRINGDAMPER3D, 180, 10, 10, 170);
+  renderer.setStrainGradient(interType.SPRINGDAMPER3D, true, 0.1);
+  renderer.setStrainColor(interType.SPRINGDAMPER3D, 255, 250, 255, 255);
 
   frameRate(displayRate);
 } 
@@ -67,7 +72,7 @@ void setup() {
 
 void draw() {
 
-  mdl.draw_physics();
+  mdl.compute();
 
   directionalLight(251, 102, 126, 0, -1, 0);
   ambientLight(102, 102, 102);
@@ -82,31 +87,34 @@ void draw() {
 
 void keyPressed() {
 
-  String mass = "mass_" + (dimX/2)+ "_" + (dimY/2) + "_" + (dimZ/2); 
 
   if (key == ' ')
-    mdl.setGravity(-grav);
+    mdl.setGlobalGravity(0, 0, -grav);
 
   if (key == 'a') {
-    mdl.triggerForceImpulse(mass, 0, 10, 0);
+    for(Driver3D d : mdl.getDrivers())
+      d.applyFrc(new Vect3D(0, 10, 0));    
   } else if (key == 'z') {
-    mdl.triggerForceImpulse(mass, 0, -10, 0);
+    for(Driver3D d : mdl.getDrivers())
+      d.applyFrc(new Vect3D(0, -10, 0));
   } else if (key =='e') {
-    mdl.triggerForceImpulse(mass, 10, 0, 0);
+    for(Driver3D d : mdl.getDrivers())
+      d.applyFrc(new Vect3D(10, 0, 0));
   } else if (key =='r') {
-    mdl.triggerForceImpulse(mass, -10, 0, 0);
+    for(Driver3D d : mdl.getDrivers())
+      d.applyFrc(new Vect3D(-10, 0, 0));
   } else if (key == 'q') {
     grav = 0.001;
-    mdl.setGravity(grav);
+    mdl.setGlobalGravity(0, 0, grav);
   } else if (key=='s') {
     grav = 0.003;
-    mdl.setGravity(grav);
+    mdl.setGlobalGravity(0, 0, grav);
   }
   if (key =='w'){
-    mdl.changeMassParamOfSubset(random(10) + 1, "beamMats"); 
+    mdl.setParamForMassSubset(param.MASS, random(10) + 1, "beamMats"); 
   }
   if (key =='x'){
-    mdl.changeStiffnessParamOfSubset(random(0.2) + 0.001, "beamLinks"); 
+    mdl.setParamForInteractionSubset(param.STIFFNESS, random(0.2) + 0.001, "beamLinks"); 
   }
   
   
@@ -114,7 +122,7 @@ void keyPressed() {
 
 void keyReleased() {
   if (key == ' ')
-    mdl.setGravity(grav);
+    mdl.setGlobalGravity(0, 0, grav);
 }
 
 

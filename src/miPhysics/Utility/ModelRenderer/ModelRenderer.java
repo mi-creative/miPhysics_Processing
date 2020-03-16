@@ -14,8 +14,8 @@ public class ModelRenderer implements PConstants{
 
     protected PApplet app;
 
-    HashMap <matModuleType, MatRenderProps> matStyles;
-    HashMap <linkModuleType, LinkRenderProps> linkStyles;
+    HashMap <massType, MatRenderProps> matStyles;
+    HashMap <interType, LinkRenderProps> linkStyles;
 
     MatRenderProps fallbackMat = new MatRenderProps(125, 125, 125, 5);
     LinkRenderProps fallbackLink = new LinkRenderProps(125, 125, 125, 0);
@@ -33,29 +33,33 @@ public class ModelRenderer implements PConstants{
         m_scale = 1;
         m_matDisplay = true;
 
-        matStyles = new HashMap <matModuleType, MatRenderProps> ();
-        linkStyles = new HashMap <linkModuleType, LinkRenderProps> ();
+        matStyles = new HashMap <massType, MatRenderProps> ();
+        linkStyles = new HashMap <interType, LinkRenderProps> ();
 
         m_zoomRatio = new PVector(1,1,1);
 
         // Default renderer settings for modules
-        matStyles.put(matModuleType.Mass3D, new MatRenderProps(180, 100, 0, 10));
-        matStyles.put(matModuleType.Ground3D, new MatRenderProps(0, 220, 130, 10));
-        matStyles.put(matModuleType.Mass2DPlane, new MatRenderProps(0, 220, 130, 10));
-        matStyles.put(matModuleType.Osc3D, new MatRenderProps(0, 220, 130, 10));
-        matStyles.put(matModuleType.HapticInput3D, new MatRenderProps(255, 50, 50, 10));
+        matStyles.put(massType.MASS3D, new MatRenderProps(180, 100, 0, 10));
+        matStyles.put(massType.GROUND3D, new MatRenderProps(0, 220, 130, 10));
+        matStyles.put(massType.MASS2DPLANE, new MatRenderProps(0, 220, 130, 10));
+        matStyles.put(massType.MASS1D, new MatRenderProps(100, 200, 150, 10));
+        matStyles.put(massType.OSC3D, new MatRenderProps(0, 220, 130, 10));
+        matStyles.put(massType.OSC1D, new MatRenderProps(100, 200, 140, 10));
+        matStyles.put(massType.HAPTICINPUT3D, new MatRenderProps(255, 50, 50, 10));
+        matStyles.put(massType.POSINPUT3D, new MatRenderProps(255, 20, 60, 10));
 
-        linkStyles.put(linkModuleType.Damper3D, new LinkRenderProps(30, 100, 100, 255));
-        linkStyles.put(linkModuleType.Spring3D, new LinkRenderProps(30, 100, 100, 255));
-        linkStyles.put(linkModuleType.SpringDamper3D, new LinkRenderProps(30, 250, 250, 255));
-        linkStyles.put(linkModuleType.SpringDamper1D, new LinkRenderProps(50, 255, 250, 255));
-        linkStyles.put(linkModuleType.Contact3D, new LinkRenderProps(255, 100, 100, 0));
-        linkStyles.put(linkModuleType.Bubble3D, new LinkRenderProps(30, 100, 100, 0));
-        linkStyles.put(linkModuleType.Rope3D, new LinkRenderProps(0, 255, 100, 255));
+
+        linkStyles.put(interType.DAMPER3D, new LinkRenderProps(30, 100, 100, 255));
+        linkStyles.put(interType.SPRING3D, new LinkRenderProps(30, 100, 100, 255));
+        linkStyles.put(interType.SPRINGDAMPER3D, new LinkRenderProps(30, 250, 250, 255));
+        linkStyles.put(interType.SPRINGDAMPER1D, new LinkRenderProps(50, 255, 250, 255));
+        linkStyles.put(interType.CONTACT3D, new LinkRenderProps(255, 100, 100, 0));
+        linkStyles.put(interType.BUBBLE3D, new LinkRenderProps(30, 100, 100, 0));
+        linkStyles.put(interType.ROPE3D, new LinkRenderProps(0, 255, 100, 255));
 
     };
 
-    public boolean setColor(matModuleType m, int r, int g, int b){
+    public boolean setColor(massType m, int r, int g, int b){
         if(matStyles.containsKey(m)) {
             matStyles.get(m).setColor(r, g, b);
             return true;
@@ -63,7 +67,7 @@ public class ModelRenderer implements PConstants{
         else return false;
     }
 
-    public boolean setSize(matModuleType m, float size){
+    public boolean setSize(massType m, float size){
         if(matStyles.containsKey(m)) {
             matStyles.get(m).setBaseSize(size);
             return true;
@@ -78,7 +82,7 @@ public class ModelRenderer implements PConstants{
     }
 
 
-    public boolean setSize(linkModuleType m, int size){
+    public boolean setSize(interType m, int size){
         if(linkStyles.containsKey(m)) {
             linkStyles.get(m).setSize(size);
             return true;
@@ -86,7 +90,7 @@ public class ModelRenderer implements PConstants{
         else return false;
     }
 
-    public boolean setColor(linkModuleType m, int r, int g, int b, int alpha){
+    public boolean setColor(interType m, int r, int g, int b, int alpha){
         if(linkStyles.containsKey(m)) {
             linkStyles.get(m).setColor(r, g, b, alpha);
             return true;
@@ -95,7 +99,7 @@ public class ModelRenderer implements PConstants{
     }
 
 
-    public boolean setStrainGradient(linkModuleType m, boolean cond, float val){
+    public boolean setStrainGradient(interType m, boolean cond, float val){
         if(linkStyles.containsKey(m)) {
             linkStyles.get(m).setStrainGradient(cond, val);
             return true;
@@ -103,7 +107,7 @@ public class ModelRenderer implements PConstants{
         else return false;
     }
 
-    public boolean setStrainColor(linkModuleType m, int r, int g, int b, int alpha){
+    public boolean setStrainColor(interType m, int r, int g, int b, int alpha){
         if(linkStyles.containsKey(m)) {
             linkStyles.get(m).setStrainColor(r, g, b, alpha);
             return true;
@@ -112,7 +116,7 @@ public class ModelRenderer implements PConstants{
     }
 
 
-    public boolean setScaling(matModuleType m, float scale){
+    /*public boolean setScaling(massType m, float scale){
         if(matStyles.containsKey(m)) {
             matStyles.get(m).setInertiaScaling(scale);
             return true;
@@ -127,9 +131,9 @@ public class ModelRenderer implements PConstants{
 
     public float getScale(){
         return(m_scale);
-    }
+    }*/
 
-    public void displayMats(boolean val){
+    public void displayMasses(boolean val){
         m_matDisplay = val;
     }
 
@@ -157,18 +161,45 @@ public class ModelRenderer implements PConstants{
             nbMats = mdl.getNumberOfMats();
             nbLinks = mdl.getNumberOfLinks();
 
+            double dist;
+
             if(m_matDisplay) {
+
+                for(Mass mat : mdl.massList()){
+                    matHolders.add(new MatDataHolder(
+                            mat.getPos(),
+                            1,
+                            mat.getParam(param.RADIUS),
+                            mat.getType()));
+                }
+
+                /*
                 for (int i = 0; i < mdl.getNumberOfMats(); i++)
+                    //matHolders.add(new MatDataHolder(mdl.getMat(i)));
                     matHolders.add(new MatDataHolder(mdl.getMatPosAt(i),
                             mdl.getMatMassAt(i),
-                            mdl.getMatTypeAt(i)));
+                            mdl.getMatSizeAt(i),
+                            mdl.getMatTypeAt(i)));*/
             }
 
+            for(Interaction inter : mdl.interList()){
+                if(inter.getType() == interType.SPRINGDAMPER1D)
+                    dist = inter.calcDist1D();
+                else
+                    dist = inter.getElongation() / inter.getDRest();
+                linkHolders.add(new LinkDataHolder(
+                        inter.getMat1().getPos(),
+                        inter.getMat2().getPos(),
+                        dist,
+                        inter.getType()));
+            }
+            /*
             for (int i = 0; i < mdl.getNumberOfLinks(); i++)
                 linkHolders.add(new LinkDataHolder(mdl.getLinkPos1At(i),
                         mdl.getLinkPos2At(i),
                         mdl.getLinkElongationAt(i) / mdl.getLinkDRestAt(i),
                         mdl.getLinkTypeAt(i)));
+                        */
 
         }
 
@@ -197,7 +228,8 @@ public class ModelRenderer implements PConstants{
                 app.translate(m_zoomRatio.x * v.x, m_zoomRatio.y * v.y, m_zoomRatio.z * v.z);
                 app.fill(tmp.red(), tmp.green(), tmp.blue());
                 app.noStroke();
-                app.sphere(tmp.getScaledSize(mH.getMass()));
+                app.sphere(m_zoomRatio.x * (float)mH.getRadius());
+                //app.sphere(tmp.getScaledSize(mH.getMass()));
                 app.popMatrix();
             }
         }

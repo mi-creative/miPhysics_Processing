@@ -20,9 +20,9 @@ void generateVolume(PhysicalModel mdl, int dimX, int dimY, int dimZ, String mNam
         } else{
           V0 = new Vect3D(0.,0.,0.);
         }
-        println(V0);
-
-        mdl.addMass3D(masName,masValue, X0, V0);
+        //println(V0);
+        
+        mdl.addMass(masName, new Mass3D(masValue, 1, X0, V0));
       }
     }
   }
@@ -37,7 +37,7 @@ void generateVolume(PhysicalModel mdl, int dimX, int dimY, int dimZ, String mNam
         masName2 = mName +(j+i*dimX+k*dimX*dimY+1);
         //println("X " +masName1+masName2);
 
-        mdl.addSpringDamper3D(lName + "1_" +i+j+k, dist, K, Z, masName1,masName2);
+        mdl.addInteraction(lName + "1_" +i+"_"+j+"_"+k, new SpringDamper3D(dist, K, Z), masName1, masName2);
       }
     }
   }
@@ -49,7 +49,7 @@ void generateVolume(PhysicalModel mdl, int dimX, int dimY, int dimZ, String mNam
         masName2 = mName +(i+(j+1)*dimX+k*dimX*dimY);
         //println("Y "+masName1+masName2);
    
-        mdl.addSpringDamper3D(lName + "1_" +i+j+k, dist, K, Z, masName1,masName2);
+        mdl.addInteraction(lName + "2_" +i+"_"+j+"_"+k, new SpringDamper3D(dist, K, Z), masName1, masName2);
       }
     }
   }
@@ -61,7 +61,7 @@ void generateVolume(PhysicalModel mdl, int dimX, int dimY, int dimZ, String mNam
         masName2 = mName +(i+j*dimX+(k+1)*dimX*dimY);
         //println("Z "+masName1+masName2);
    
-        mdl.addSpringDamper3D(lName + "1_" +i+j+k, dist, K, Z, masName1,masName2);
+        mdl.addInteraction(lName + "3_" +i+"_"+j+"_"+k, new SpringDamper3D(dist, K, Z), masName1, masName2);
       }
     }
   }

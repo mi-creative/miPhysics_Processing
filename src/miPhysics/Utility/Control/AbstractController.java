@@ -4,6 +4,10 @@ package miPhysics;
 import java.util.Map;
 import java.util.HashMap;
 
+
+// This should be re-coded / refactored with the param enum type (in Core)
+// specifying parameters by name isn't very clean.
+
 public class AbstractController
 {
 
@@ -15,9 +19,9 @@ public class AbstractController
     protected float a;
     protected float b;
 
-    public AbstractController(PhysicalModel pm_,String name,String param_)
+    public AbstractController(PhysicalModel pm_, String name, String param_)
 {
-    pm=pm_;
+    pm = pm_;
     param = param_;
     subsetName = name;
 }
@@ -25,6 +29,7 @@ public class AbstractController
 public void setParam(String param,float value){params.put(param,value);}
 
 public String getSubsetName(){return subsetName;}
+
 void computeScale()
 {
 

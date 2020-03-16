@@ -24,10 +24,16 @@ public class TopoGenerator {
         matSubName = "";
         linkSubName = "";
 
+        radius = 0;
+
         bCond = EnumSet.noneOf(Bound.class);
         bCond.removeAll(EnumSet.of(Bound.X_LEFT, Bound.FIXED_CENTRE)); // disable a couple
 
         System.out.println(bCond);
+    }
+
+    public void setMassRadius(double s){
+        this.radius = s;
     }
 
     public void setDim(int dx, int dy, int dz, int span) {
@@ -77,46 +83,41 @@ public class TopoGenerator {
     public void generate() {
 
         String masName;
-        Vect3D V0, U1;
+        Vect3D X0, V0, U1;
 
-        int nbBefore = mdl.getNumberOfMats();
+        int nbBefore = mdl.getNumberOfMasses();
 
         if(!matSubName.isEmpty())
-            mdl.createMatSubset(matSubName);
+            mdl.createMassSubset(matSubName);
 
         if(!linkSubName.isEmpty())
-            mdl.createLinkSubset(linkSubName);
+            mdl.createInteractionSubset(linkSubName);
 
         for (int i = 0; i < dimX; i++) {
             for (int j = 0; j < dimY; j++) {
                 for (int k = 0; k < dimZ; k++) {
 
                     V0 = new Vect3D(0., 0., 0.);
+                    X0 = new Vect3D(i*dist, j*dist, k*dist);
 
                     masName = mLabel + "_" +(i+"_"+j+"_"+k);
 
                     if(plane2D){
-                        mdl.addMass2DPlane(masName, M, new Vect3D(i*dist,
-                                                         j*dist,
-                                                         k*dist),
-                                                         V0);
+                        Mass2DPlane tmp = mdl.addMass(masName, new Mass2DPlane(M, radius, X0));
                         if(!matSubName.isEmpty())
-                            mdl.addMatToSubset(mdl.getNumberOfMats()-1, matSubName);
+                            mdl.addMassToSubset(tmp, matSubName);
                     }
                     else {
-                        mdl.addMass3D(masName, M, new Vect3D(i*dist,
-                                    j*dist,
-                                    k*dist),
-                                    V0);
+                        Mass3D tmp = mdl.addMass(masName, new Mass3D(M, radius, X0));
                         if(!matSubName.isEmpty())
-                            mdl.addMatToSubset(mdl.getNumberOfMats()-1, matSubName);
+                            mdl.addMassToSubset(tmp, matSubName);
                     }
                     System.out.println("Created mass: " + masName);
                 }
             }
         }
 
-        // add the spring to the model: length, stiffness, connected mats
+        // add the springs to the model: length, stiffness, connected mats
         String masName1, masName2;
         int idx = 0, idy = 0, idz = 0;
 
@@ -152,10 +153,11 @@ public class TopoGenerator {
 
                                             masName2 = mLabel + "_" +(idx+"_"+idy+"_"+idz);
                                             String ln = iLabel + "_" + (i+"_"+j+"_"+k) + "_" + (idx+"_"+idy+"_"+idz) ;
-                                            mdl.addSpringDamper3D(mLabel + "1_" +i+j+k, d, K, Z, masName1, masName2);
+
+                                            SpringDamper3D tmp = mdl.addInteraction(ln, new SpringDamper3D(d, K, Z), masName1, masName2);
 
                                             if(!linkSubName.isEmpty())
-                                                mdl.addLinkToSubset(mdl.getNumberOfLinks()-1, linkSubName);
+                                                mdl.addInteractionToSubset(tmp, linkSubName);
 
                                             System.out.println("Created interaction: " + ln);
                                         }
@@ -265,34 +267,36 @@ public class TopoGenerator {
         System.out.println("Reference mass : " + name +", " + test.x +" " + test.y + " " + test.z);
         System.out.println("");
 
-        ArrayList<Integer> toRemove = new ArrayList<Integer>();
+        ArrayList<Mass> toRemove = new ArrayList<Mass>();
 
-        for (int i = 0; i < mdl.getNumberOfMats(); i++) {
+        for (int i = 0; i < mdl.getNumberOfMasses(); i++) {
 
+            Mass tmp = mdl.getMassList().get(i);
+            test2 = tmp.getPos();
+            String mName = tmp.getName();
+            //test2 = mdl.getMatPosAt(i);
 
-            test2 = mdl.getMatPosAt(i);
-
-            System.out.println("Iteration mass : " + mdl.getMatNameAt(i) +", " + test2.x +" " + test2.y + " " + test2.z);
+            System.out.println("Iteration mass : " + mName +", " + test2.x +" " + test2.y + " " + test2.z);
             System.out.println("distance: " + test2.dist(test));
 
             if (ext == true) {
                 if (test.dist(test2) > radius) {
-                    System.out.println("Adding to remove list: " + mdl.getMatNameAt(i));
-                    toRemove.add(i);
+                    System.out.println("Adding to remove list: " + mName);
+                    toRemove.add(tmp);
                 }
             } else {
                 if (test.dist(test2) < radius) {
-                    System.out.println("Adding to remove list: " + mdl.getMatNameAt(i));
-                    toRemove.add(i);
+                    System.out.println("Adding to remove list: " + mName);
+                    toRemove.add(tmp);
                 }
             }
             System.out.println("");
         }
 
         while (toRemove.size()>0) {
-            int index = toRemove.remove(toRemove.size()-1);
-            System.out.println("index to remove: " + index + ", " + mdl.getMatNameAt(index));
-            mdl.removeMatAndConnectedLinks(index);
+            Mass m = toRemove.remove(toRemove.size()-1);
+            System.out.println("Mass to remove: " + m + ", " + m.getName());
+            mdl.removeMassAndConnectedInteractions(m);
         }
     }
 
@@ -306,8 +310,8 @@ public class TopoGenerator {
 
         for (int i = nbBefore; i < mdl.getNumberOfMats(); i++) {
 
-
-            mdlPos = mdl.getMatPosAt(i);
+            Mass tmp = mdl.getMassList().get(i);
+            mdlPos = tmp.getPos();
 
             newPos.set(mdlPos);
 
@@ -330,8 +334,8 @@ public class TopoGenerator {
             newPos.y += ty;
             newPos.z += tz;
 
-
-            mdl.setMatPosAt(i, newPos);
+            tmp.setPos(newPos);
+            //mdl.setMatPosAt(i, newPos);
         }
     }
 
@@ -346,6 +350,8 @@ public class TopoGenerator {
 
     private double dist;
     private double l0;
+
+    private double radius;
 
     private int neighbors;
     private String mLabel;
