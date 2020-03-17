@@ -1,4 +1,4 @@
-package miPhysics;
+package miPhysics.Engine;
 
 
 /* LINK abstract class */
@@ -113,7 +113,7 @@ public abstract class Interaction extends Module {
         return m_mat1.getPos().z - m_mat2.getPos().z;
     }
 
-    protected double calcDist1D() {
+    public double calcDist1D() {
         return (m_mat1.getPos().z - m_mat2.getPos().z);
     }
 
@@ -196,7 +196,7 @@ public abstract class Interaction extends Module {
      * Get the elongation (distance minus resting length between mat modules connected by the interaction
      * @return elongation value.
      */
-    protected double getElongation() {
+    public double getElongation() {
         return getDist() - m_dRest;
     }
 

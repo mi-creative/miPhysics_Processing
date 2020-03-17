@@ -7,7 +7,9 @@ An extremely long rope, initially coiled up as a sphere.
 Hit the space bar to pull at random masses and undo the coils!
 */
 
-import miPhysics.*;
+import miPhysics.Engine.*;
+import miPhysics.ModelRenderer.*;
+
 import peasy.*;
 
 PeasyCam cam;

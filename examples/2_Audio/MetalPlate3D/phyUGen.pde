@@ -1,6 +1,6 @@
 import java.util.Arrays;
 import ddf.minim.UGen;
-import miPhysics.*;
+import miPhysics.Engine.*;
 
 int dimX = 22;
 int dimY = 13;

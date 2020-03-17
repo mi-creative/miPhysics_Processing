@@ -16,6 +16,8 @@ import ddf.minim.*;
 import ddf.minim.ugens.*;
 import peasy.*;
 
+import miPhysics.ModelRenderer.*;
+
 int baseFrameRate = 60;
 
 import peasy.*;

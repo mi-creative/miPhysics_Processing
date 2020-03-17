@@ -9,7 +9,9 @@ We then simulate the model, and can trigger forces on the mass by
 hitting the space bar.
 */
 
-import miPhysics.*;
+import miPhysics.Engine.*;
+import miPhysics.ModelRenderer.*;
+
 import peasy.*;
 PeasyCam cam;
 

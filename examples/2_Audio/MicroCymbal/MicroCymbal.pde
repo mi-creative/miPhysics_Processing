@@ -1,4 +1,5 @@
-import miPhysics.*;
+import miPhysics.Engine.*;
+import miPhysics.ModelRenderer.*;
 
 import ddf.minim.*;
 import ddf.minim.ugens.*;

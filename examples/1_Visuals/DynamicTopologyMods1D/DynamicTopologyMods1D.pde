@@ -10,7 +10,9 @@ Right-Click Drag across the surface to remove masses (and connected links).
 Use UP and DOWN keys to add/decrease air friction in the model.
 Use LEFT and RIGHT keys to zoom the Z axis.
 */
-import miPhysics.*;
+import miPhysics.Engine.*;
+import miPhysics.ModelRenderer.*;
+
 import peasy.*;
 PeasyCam cam;
 

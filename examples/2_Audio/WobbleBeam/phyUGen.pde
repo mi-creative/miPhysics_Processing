@@ -1,7 +1,7 @@
 import java.util.Arrays;
 import ddf.minim.UGen;
 
-import miPhysics.*;
+import miPhysics.Engine.*;
 
 /* Phyiscal parameters for the model */
 /* The general approach her is to use general/homogeneus parameters for mass (m), stifness (k), internal viscosity (z)

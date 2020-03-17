@@ -1,7 +1,7 @@
 import java.util.Arrays;
 import ddf.minim.UGen;
 
-import miPhysics.*;
+import miPhysics.Engine.*;
 
 /* Phyiscal parameters for the model */
 float m = 1.0;

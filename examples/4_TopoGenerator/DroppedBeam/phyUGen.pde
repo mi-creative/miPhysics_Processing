@@ -1,7 +1,7 @@
 import java.util.Arrays;
 import ddf.minim.UGen;
 
-import miPhysics.*;
+import miPhysics.Engine.*;
 
 int dimX = 3;
 int dimY = 2;

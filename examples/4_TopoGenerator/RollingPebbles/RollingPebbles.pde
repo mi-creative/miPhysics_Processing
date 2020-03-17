@@ -18,7 +18,8 @@ import peasy.*;
 int baseFrameRate = 60;
 
 import peasy.*;
-import miPhysics.*;
+import miPhysics.Engine.*;
+import miPhysics.ModelRenderer.*;
 
 float currAudio = 0;
 float gainVal = 1.;

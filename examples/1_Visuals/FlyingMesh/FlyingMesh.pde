@@ -10,7 +10,9 @@ It collides with a 2D Plane.
 Press and release space bar to invert gravity.
 */
 
-import miPhysics.*;
+import miPhysics.Engine.*;
+import miPhysics.ModelRenderer.*;
+
 import peasy.*;
 
 PeasyCam cam;

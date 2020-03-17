@@ -1,6 +1,7 @@
 
 import peasy.*;
-import miPhysics.*;
+import miPhysics.Engine.*;
+import miPhysics.ModelRenderer.*;
 
 int displayRate = 90;
 

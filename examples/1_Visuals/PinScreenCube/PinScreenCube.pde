@@ -10,7 +10,8 @@ and see how the energy propagates, how the cube comes back to its form.
 Lots of different parameter spaces to explore, see in code below!
 */
 
-import miPhysics.*;
+import miPhysics.Engine.*;
+
 import peasy.*;
 
 PeasyCam cam;

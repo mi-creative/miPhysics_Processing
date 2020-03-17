@@ -6,7 +6,9 @@ A chain of 3 masses attached to a fixed point.
 The last mass is heavy and collides with a 2D Plane.
 */
 
-import miPhysics.*;
+import miPhysics.Engine.*;
+import miPhysics.ModelRenderer.*;
+
 import peasy.*;
 
 PeasyCam cam;

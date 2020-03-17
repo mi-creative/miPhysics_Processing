@@ -15,7 +15,8 @@ Hit 'z', 'e' or 'r' to change the stiffness and damping of the springs.
 Press 'w' to print the model state.
 */
 
-import miPhysics.*;
+import miPhysics.Engine.*;
+
 import peasy.*;
 PeasyCam cam;
 

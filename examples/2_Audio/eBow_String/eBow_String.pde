@@ -9,6 +9,8 @@ Model derived from the plucked string example by Olivier Tache.
 import ddf.minim.*;
 import ddf.minim.ugens.*;
 import peasy.*;
+import miPhysics.ModelRenderer.*;
+
 
 int baseFrameRate = 50;
 float currAudio = 0;

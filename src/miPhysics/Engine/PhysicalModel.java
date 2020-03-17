@@ -1,11 +1,11 @@
-package miPhysics;
+package miPhysics.Engine;
 
 import java.util.*;
 import java.util.concurrent.locks.*;
 import java.lang.Math;
 
+import miPhysics.Control.ParamController;
 import processing.core.*;
-import processing.core.PVector;
 
 public class PhysicalModel {
 
@@ -311,11 +311,11 @@ public class PhysicalModel {
 
 
 
-	public ArrayList<Mass> getMassList(){
-		return m_masses;
-	}
+    public ArrayList<Mass> getMassList(){
+        return m_masses;
+    }
 
-	public ArrayList<Interaction> getInteractionList(){
+    public ArrayList<Interaction> getInteractionList(){
 		return m_interactions;
 	}
 
@@ -422,13 +422,6 @@ public class PhysicalModel {
 	}
 
 
-	protected ArrayList<Mass> massList(){
-		return this.m_masses;
-	}
-
-	protected ArrayList<Interaction> interList(){
-		return this.m_interactions;
-	}
 
 	protected int getNumberOfMats(){
 		return this.m_masses.size();

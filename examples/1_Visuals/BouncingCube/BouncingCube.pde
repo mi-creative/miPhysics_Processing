@@ -12,7 +12,9 @@ Press 'q' or 's' to toggle between low and high gravity values.
 */
 
 import peasy.*;
-import miPhysics.*;
+
+import miPhysics.Engine.*;
+import miPhysics.ModelRenderer.*;
 
 int displayRate = 50;
 boolean BASIC_VISU = false;

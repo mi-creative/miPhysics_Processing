@@ -8,7 +8,9 @@ Model: Engrave Mesh
  Use UP and DOWN keys to add/decrease air friction in the model.
  */
 
-import miPhysics.*;
+import miPhysics.Engine.*;
+import miPhysics.ModelRenderer.*;
+
 import peasy.*;
 PeasyCam cam;
 
