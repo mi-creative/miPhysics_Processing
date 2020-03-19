@@ -22,6 +22,7 @@ import miPhysics.Engine.*;
 
 /* Based on SineAudioClient, in the example project of jaudiolibs */
 public class miPhyAudioClient implements  AudioClient{
+    private volatile boolean exit = false;
 
     private final AudioServer server;
     protected long step;
@@ -40,6 +41,10 @@ public class miPhyAudioClient implements  AudioClient{
     //private int idx;
     //private float prevSample;
 
+    private listenerAxis axis = listenerAxis.ALL;
+    private boolean listenFrc = false;
+
+    private float m_gain = 1;
 
     private Thread runner;
 
@@ -52,10 +57,10 @@ public class miPhyAudioClient implements  AudioClient{
         this.listeningPointsInd = listeningPointsInd;
     }*/
 
-    public static miPhyAudioClient miPhyJack(float sampleRate,int inputChannelCount, int outputChannelCount, PhysicalModel mdl)
+    public static miPhyAudioClient miPhyJack(float sampleRate,int bufS, int inputChannelCount, int outputChannelCount, PhysicalModel mdl)
     {
         try {
-            return new miPhyAudioClient(sampleRate, inputChannelCount, outputChannelCount, mdl, 1024, "JACK");
+            return new miPhyAudioClient(sampleRate, inputChannelCount, outputChannelCount, mdl, bufS, "JACK");
         }
         catch(Exception e)
         {
@@ -64,10 +69,10 @@ public class miPhyAudioClient implements  AudioClient{
         return null;
     }
 
-    public static miPhyAudioClient miPhyClassic(float sampleRate,int inputChannelCount, int outputChannelCount, PhysicalModel mdl)
+    public static miPhyAudioClient miPhyClassic(float sampleRate, int bufS, int inputChannelCount, int outputChannelCount, PhysicalModel mdl)
     {
         try {
-            return new miPhyAudioClient(sampleRate, inputChannelCount, outputChannelCount, mdl, 1024, "JavaSound");
+            return new miPhyAudioClient(sampleRate, inputChannelCount, outputChannelCount, mdl, bufS, "JavaSound");
         }
         catch(Exception e)
         {
@@ -94,7 +99,7 @@ public class miPhyAudioClient implements  AudioClient{
                 inputChannelCount, // input channels
                 outputChannelCount, // output channels
                 bufferSize, //buffer size
-                false);
+                true);
                 // extensions
                 //new ClientID("miPhy"),
                 //Connections.OUTPUT);
@@ -110,6 +115,8 @@ public class miPhyAudioClient implements  AudioClient{
         {
             buffers.add(new float[bufferSize]);
         }
+
+
         /* Create a Thread to run our server. All servers require a Thread to run in.
          */
         runner = new Thread(new Runnable() {
@@ -135,16 +142,33 @@ public class miPhyAudioClient implements  AudioClient{
          */
 
     }
-    public boolean process(long time, List<FloatBuffer> inputs, List<FloatBuffer> outputs, int nframes) {
 
-        for(float[] bf:buffers)
-        {
-            if( bf == null || bf.length != nframes) bf = new float[nframes];
-        }
-        // always use nframes as the number of samples to process
-        //System.out.println("input=" + inputs.get(0).get(0));
-        for (int i = 0; i < nframes; i++) {
-            int currentChannel=0;
+    public void setListenerAxis(listenerAxis l){
+        axis = l;
+    }
+
+    public void listenPos(){
+        listenFrc = false;
+    }
+
+    public void listenFrc(){
+        listenFrc = true;
+    }
+
+    public void setGain(float g){
+        m_gain = g;
+    }
+
+
+    public boolean process(long time, List<FloatBuffer> inputs, List<FloatBuffer> outputs, int nframes) {
+        if(!exit) {
+            for (float[] bf : buffers) {
+                if (bf == null || bf.length != nframes) bf = new float[nframes];
+            }
+            // always use nframes as the number of samples to process
+            //System.out.println("input=" + inputs.get(0).get(0));
+            for (int i = 0; i < nframes; i++) {
+                int currentChannel = 0;
 
             /*
             for(PositionController pc:mdl.getPositionControllers())
@@ -154,47 +178,79 @@ public class miPhyAudioClient implements  AudioClient{
             }
             */
 
-            mdl.computeSingleStep();
+                mdl.computeSingleStep();
 
-            ArrayList<Observer3D> obs = mdl.getObservers();
 
-            for(float[] buff:buffers)
-            {
+                // This stuff could surely be a bit cleaner / efficient, this is a start...
+                ArrayList<Observer3D> obs = mdl.getObservers();
+                Observer3D tmp;
 
-                // Getting model data from observers
-                if(currentChannel < obs.size()){
-                    if(obs.get(currentChannel) != null){
-                        buff[i] = (float)obs.get(currentChannel).observePos().y;
+                for (float[] buff : buffers) {
+
+                    if (currentChannel < obs.size()) {
+                        if (obs.get(currentChannel) != null) {
+                            tmp = obs.get(currentChannel);
+                            if(!listenFrc){
+                                switch (axis){
+                                    case X:
+                                        buff[i] = (float)tmp.observePos().x;
+                                        break;
+                                    case Y:
+                                        buff[i] = (float)tmp.observePos().y;
+                                        break;
+                                    case Z:
+                                        buff[i] = (float)tmp.observePos().z;
+                                        break;
+                                    case ALL:
+                                        buff[i] = (float)(tmp.observePos().x
+                                                + tmp.observePos().y
+                                                + tmp.observePos().z );
+                                        break;
+                                }
+                            } else{
+                                switch (axis){
+                                    case X:
+                                        buff[i] = (float)tmp.observeFrc().x;
+                                        break;
+                                    case Y:
+                                        buff[i] = (float)tmp.observeFrc().y;
+                                        break;
+                                    case Z:
+                                        buff[i] = (float)tmp.observeFrc().z;
+                                        break;
+                                    case ALL:
+                                        buff[i] = (float)(tmp.observeFrc().x
+                                                + tmp.observeFrc().y
+                                                + tmp.observeFrc().z );
+                                        break;
+                                }
+                            }
+                            buff[i] *= m_gain;
+                        } else buff[i] = 0;
                     }
-                    else buff[i] = 0;
+                    currentChannel++;
                 }
-
-
-                /*
-                if (mdl.matExists(listeningPoint[0])) {
-                    buff[i] = (float) ((mdl.getMatPosition(listeningPoint[currentChannel]).y));
-                }
-                else if (mdl.moduleExists(listeningPoint[0])) {
-                    buff[i] =(float) ((mdl.getMatPosition(listeningPoint[currentChannel],
-                            listeningPointsInd[currentChannel]).y));
-                }
-                */
-                currentChannel++;
             }
+            int currentChannel = 0;
+            for (FloatBuffer buff : outputs) buff.put(buffers.get(currentChannel++));
+            return true;
         }
-        int currentChannel = 0;
-        for(FloatBuffer buff:outputs) buff.put(buffers.get(currentChannel++));
+        else{
+            System.out.println("Leaving RealTime AudioClient Process");
+            return false;
+        }
 
-        return true;
     }
 
     public void shutdown() {
         //dispose resources.
+        exit = true;
 
     }
 
     public void start()
     {
+        System.out.println("Starting RealTime AudioClient Process");
         runner.start();
     }
 

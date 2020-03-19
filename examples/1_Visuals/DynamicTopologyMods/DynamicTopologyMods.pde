@@ -12,7 +12,7 @@ Use LEFT and RIGHT keys to zoom the Z axis.
 */
 
 import miPhysics.Engine.*;
-import miPhysics.ModelRenderer.*;
+import miPhysics.Renderer.*;
 
 import peasy.*;
 PeasyCam cam;

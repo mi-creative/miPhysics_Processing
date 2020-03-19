@@ -16,9 +16,6 @@ public class TopoGenerator {
 
         mdl = model;
 
-        rotX = rotY = rotZ = 0;
-        tX = tY = tZ = 0;
-
         plane2D = false;
 
         matSubName = "";
@@ -279,7 +276,7 @@ public class TopoGenerator {
             System.out.println("Iteration mass : " + mName +", " + test2.x +" " + test2.y + " " + test2.z);
             System.out.println("distance: " + test2.dist(test));
 
-            if (ext == true) {
+            if (ext) {
                 if (test.dist(test2) > radius) {
                     System.out.println("Adding to remove list: " + mName);
                     toRemove.add(tmp);
@@ -305,37 +302,59 @@ public class TopoGenerator {
     // Currently a problem with rotations along Y and Z, need to sort this...
     private void translateAndRotate(int nbBefore, float tx, float ty, float tz, float x_angle, float y_angle, float z_angle){
 
-        Vect3D newPos = new Vect3D();
-        Vect3D mdlPos = new Vect3D();
+        Vect3D mdlPos;
+
+        Vect3D offset = new Vect3D();
+
+        double cosa = Math.cos(x_angle);
+        double sina = Math.sin(x_angle);
+
+        double cosb = Math.cos(y_angle);
+        double sinb = Math.sin(y_angle);
+
+        double cosc = Math.cos(z_angle);
+        double sinc = Math.sin(z_angle);
+
+        double Axx = cosa*cosb;
+        double Axy = cosa*sinb*sinc - sina*cosc;
+        double Axz = cosa*sinb*cosc + sina*sinc;
+
+        double Ayx = sina*cosb;
+        double Ayy = sina*sinb*sinc + cosa*cosc;
+        double Ayz = sina*sinb*cosc - cosa*sinc;
+
+        double Azx = -sinb;
+        double Azy = cosb*sinc;
+        double Azz = cosb*cosc;
+
+        offset.x = 0.5 * ((dimX-1) * dist);
+        offset.y = 0.5 * ((dimY-1) * dist);
+        offset.z = 0.5 * ((dimZ-1) * dist);
+
+        Vect3D v = new Vect3D();
 
         for (int i = nbBefore; i < mdl.getNumberOfMats(); i++) {
 
             Mass tmp = mdl.getMassList().get(i);
             mdlPos = tmp.getPos();
 
-            newPos.set(mdlPos);
+            System.out.println("Input pos: " + mdlPos);
 
-            // x rotation
-            newPos.x = newPos.x;
-            newPos.y = newPos.y * Math.cos(x_angle) - newPos.z * Math.sin(x_angle);
-            newPos.z = newPos.y * Math.sin(x_angle) + newPos.z * Math.cos(x_angle);
+            mdlPos.x -= offset.x;
+            mdlPos.y -= offset.y;
+            mdlPos.z -= offset.z;
 
-            // y rotation
-            newPos.x = newPos.x * Math.cos(y_angle) + newPos.z * Math.sin(y_angle);
-            newPos.y = newPos.y;
-            newPos.z = newPos.z * Math.cos(y_angle) - newPos.x * Math.sin(y_angle);
+            v.x = Axx*mdlPos.x + Axy*mdlPos.y + Axz*mdlPos.z;
+            v.y = Ayx*mdlPos.x + Ayy*mdlPos.y + Ayz*mdlPos.z;
+            v.z = Azx*mdlPos.x + Azy*mdlPos.y + Azz*mdlPos.z;
 
-            // z rotation
-            newPos.x = newPos.x * Math.cos(z_angle) - newPos.y * Math.sin(z_angle);
-            newPos.y = newPos.x * Math.sin(z_angle) + newPos.y * Math.cos(z_angle);
-            newPos.z = newPos.z;
+            System.out.println("Position: " + v);
 
-            newPos.x += tx;
-            newPos.y += ty;
-            newPos.z += tz;
+            mdlPos.x += offset.x + tx;
+            mdlPos.y += offset.y + ty;
+            mdlPos.z += offset.z + tz;
 
-            tmp.setPos(newPos);
-            //mdl.setMatPosAt(i, newPos);
+            tmp.setPos(v);
         }
     }
 

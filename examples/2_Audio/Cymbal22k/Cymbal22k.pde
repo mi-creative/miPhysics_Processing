@@ -36,7 +36,7 @@ void setup()
   cam.setDistance(700);
 
   // Step 2: setup Physical Model
-  int DIM = 22;
+  int DIM = 30;
   double dist = 10;
   double K = 0.3;
   double Z = 0.023;
@@ -64,12 +64,12 @@ void setup()
   for (int i = 0; i < mdl.getNumberOfMasses()-1; i++) {
     if (mdl.getMassList().get(i) != null) {
       println(mdl.getMassList().get(i).getName());
-      mdl.addInteraction("col_"+i, new Contact3D(0.1, 0.001), "perc", mdl.getMassList().get(i).getName());
+      mdl.addInteraction("col_"+i, new Contact3D(0.05, 0.001), "perc", mdl.getMassList().get(i).getName());
     }
   }
 
-  mdl.addInOut("list_1", new Observer3D(filterType.HIGH_PASS), "osc3_8");
-  mdl.addInOut("list_2", new Observer3D(filterType.HIGH_PASS), "osc8_3");
+  mdl.addInOut("list_1", new Observer3D(filterType.HIGH_PASS), "osc16_24");
+  mdl.addInOut("list_2", new Observer3D(filterType.HIGH_PASS), "osc13_23");
   mdl.init();
 
 
@@ -83,7 +83,7 @@ void setup()
   renderer.setStrainColor(interType.SPRINGDAMPER3D, 255, 250, 255, 255);
 
   // Step 4: setup the real time simulation / audio thread
-  audioStreamHandler = miPhyAudioClient.miPhyClassic(44100, 256, 0, 2, mdl);
+  audioStreamHandler = miPhyAudioClient.miPhyClassic(22050, 256, 0, 2, mdl);
   audioStreamHandler.listenPos();
   audioStreamHandler.setListenerAxis(listenerAxis.Z);
   audioStreamHandler.setGain(0.1);
@@ -144,10 +144,11 @@ void generateMesh(PhysicalModel mdl, int dimX, int dimY, String mName, String lN
     for (int j = 0; j < dimX; j++) {
       masName = mName + j +"_"+ i;
       X0 = new Vect3D((float)j*dist, (float)i*dist, 0.);
+      float m = min((float)(masValue*(1+0.01*i*dimX)), (float)(masValue*(1+0.01*(dimX-i)))); 
       if ((i==dimY/2) && (j == dimX/2))
         mdl.addMass(masName, new Ground3D(1, X0));
       else
-        mdl.addMass(masName, new Mass1D(masValue, 10, X0));
+        mdl.addMass(masName, new Mass1D(m, 10, X0));
     }
   }
 
@@ -156,14 +157,14 @@ void generateMesh(PhysicalModel mdl, int dimX, int dimY, String mName, String lN
     for (int j = 0; j < dimY-1; j++) {
       masName1 = mName + i +"_"+ j;
       masName2 = mName + i +"_"+ str(j+1);
-      mdl.addInteraction(lName + "1_" +i+"_"+j, new SpringDamper3D(dist*0.6, K, Z), masName1, masName2);
+      mdl.addInteraction(lName + "1_" +i+"_"+j, new SpringDamper3D(dist*0.1, K, Z), masName1, masName2);
     }
   }
   for (int i = 0; i < dimX-1; i++) {
     for (int j = 0; j < dimY; j++) {
       masName1 = mName + i +"_"+ j;
       masName2 = mName + str(i+1) +"_"+ j;
-      mdl.addInteraction(lName + "2_" +i+"_"+j, new SpringDamper3D(dist*0.6, K, Z), masName1, masName2);
+      mdl.addInteraction(lName + "2_" +i+"_"+j, new SpringDamper3D(dist*0.9, K, Z), masName1, masName2);
     }
   }
 }

@@ -1,4 +1,4 @@
-package miPhysics.ModelRenderer;
+package miPhysics.Renderer;
 
 import java.util.ArrayList;
 import java.util.HashMap;

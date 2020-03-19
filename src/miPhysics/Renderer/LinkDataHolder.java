@@ -1,4 +1,4 @@
-package miPhysics.ModelRenderer;
+package miPhysics.Renderer;
 
 import miPhysics.Engine.Vect3D;
 import miPhysics.Engine.interType;

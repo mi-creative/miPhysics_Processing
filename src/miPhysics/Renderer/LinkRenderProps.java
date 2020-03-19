@@ -1,4 +1,4 @@
-package miPhysics.ModelRenderer;
+package miPhysics.Renderer;
 
 public class LinkRenderProps{
 

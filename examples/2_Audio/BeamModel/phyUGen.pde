@@ -3,29 +3,7 @@ import ddf.minim.UGen;
 
 import miPhysics.Engine.*;
 
-/* Phyiscal parameters for the model */
-float m = 1.0;
-float k = 0.2;
-float z = 0.0001;
 
-// slight pre-strain on the beam by using a shorter l0
-float l0 = 20;
-
-// spacing between the masses, imposed by the fixed points at each end
-float dist = 25;
-
-float fric = 0.00001;
-float grav = 0.;
-
-int dimX = 45;
-int dimY = 2;
-int dimZ = 2;
-
-boolean triggerForceRamp = false;
-float forcePeak = 10;
-
-float frc = 0;
-float frcRate = 0.01;
 
 
 public class PhyUGen extends UGen
@@ -39,18 +17,7 @@ public class PhyUGen extends UGen
   {
     super();
 
-    this.mdl = new PhysicalModel(sampleRate, (int)baseFrameRate);
-    mdl.setGlobalGravity(0,0,grav);
-    mdl.setGlobalFriction(fric);
 
-    audioOut = 0;
-
-    generateVolume(mdl, dimX, dimY, dimZ, "mass", "spring", m, 1, l0, dist, k, z);
-    
-    mdl.addInOut("driver", new Driver3D(), "mass5");
-    mdl.addInOut("listener", new Observer3D(filterType.HIGH_PASS), "mass85");
-
-    this.mdl.init();
   }
 
   /*
