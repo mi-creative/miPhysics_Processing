@@ -53,21 +53,37 @@ void setup() {
   phys.model().addInteraction("spring6", new SpringDamper3D(dist, k*1.2, z), "mass", "ground6");
   phys.model().addInOut("drive",new Driver3D(),"mass");
   
+  Medium med = new Medium(0.0001, new Vect3D(0, -0.01,0.0));
+  
   // Build an encapsulated macro element.
-  PhyModel mac = new miString("str", 30, 2, 0.01, 0.001, 0.0001, 10, 3);
-  //mac.changeToFixedPoint("m_0");
+  PhyModel mac = new miString("str", med, 30, 2, 0.01, 0.001, 0.0001, 10, 3);
+  mac.changeToFixedPoint("m_29");
   mac.rotate(0,PI/4,0);
-    mac.changeToFixedPoint("m_29");
+  
+  PhyModel mac2 = new miString("str", med, 37, 2, 0.01, 0.001, 0.0001, 8, 3);
+  mac2.changeToFixedPoint("m_36");
+  mac2.rotate(0,3*PI/4,0);
+ 
+  PhyModel mac3 = new miString("str", med, 30, 2, 0.01, 0.001, 0.0001, 8, 3);
+  mac3.rotate(0,0,0);
+  mac3.translate(100,0,0);
+  mac3.addMass("bigMass", new Mass3D(0.05, 30, new Vect3D(100, 100, 100)));
+  mac3.addInteraction("sp", new SpringDamper3D(100,0.001, 0.001), mac3.getMass("bigMass"), mac3.getMass("m_10"));
 
   // Add the macro element to the top-level physics scene
   phys.model().addPhyModel(mac);
+  phys.model().addPhyModel(mac2);
+  phys.model().addPhyModel(mac3);
   
   
   // Now add a connection between the top level model and the encapsulated macro model !
   phys.model().addInteraction("sp", new SpringDamper3D(0,0.001, 0.001), phys.model().getMass("mass"), mac.getMass("m_0"));
+  phys.model().addInteraction("sp2", new SpringDamper3D(0,0.001, 0.001), phys.model().getMass("mass"), mac2.getMass("m_0"));
+  phys.model().addInteraction("sp3", new SpringDamper3D(0,0.001, 0.001), mac.getMass("m_10"), mac3.getMass("m_0"));
+  phys.model().addInteraction("sp4", new SpringDamper3D(0,0.001, 0.001), mac2.getMass("m_20"), mac3.getMass("m_19"));
 
   
-  phys.model().init(); 
+  phys.init(); 
   
   renderer = new ModelRenderer(this);
   renderer.setZoomVector(1,1,1);

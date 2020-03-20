@@ -33,9 +33,35 @@ public abstract class Object extends Module {
         return m_medium;
     }
 
+    /*
+    public Medium getGlobalMedium(){
+        return this.m_medium;
+    }
+
+    public void setFriction(double d){
+        this.m_medium.setMediumFriction(d);
+    }
+
+    public void setGravity(Vect3D g){
+        this.m_medium.setGravity(g);
+    }
+
+    public void setGravity(double gx, double gy, double gz){
+        this.m_medium.setGravity(new Vect3D(gx, gy, gz));
+    }
+
+    public double getFriction(){
+        return this.m_medium.getMediumFriction();
+    }
+
+    public Vect3D getGravity(){
+        return this.m_medium.getGravity();
+    }
+    */
+
 
     /* Class attributes */
 
     protected massType m_type;
-    protected Medium m_medium = new Medium (0, new Vect3D(0,0,0));
+    protected Medium m_medium;
 }

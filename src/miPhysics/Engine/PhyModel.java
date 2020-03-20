@@ -6,9 +6,11 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class PhyModel extends Object {
 
-    public PhyModel(String name) {
+    public PhyModel(String name, Medium med) {
         m_macroName = name;
         m_lock = new ReentrantLock();
+        m_medium = med;
+        System.out.println(m_medium);
     }
 
     public void init(){
@@ -235,6 +237,20 @@ public class PhyModel extends Object {
         return m_interactions;
     }
 
+    public int numberOfMassTypes(){
+        int nb = m_masses.size();
+        for(PhyModel pm : m_macros)
+            nb += pm.numberOfMassTypes();
+        return nb;
+    }
+
+    public int numberOfInterTypes(){
+        int nb = m_interactions.size();
+        for(PhyModel pm : m_macros)
+            nb += pm.numberOfInterTypes();
+        return nb;
+    }
+
     public int getNumberOfMasses(){
         return m_masses.size();
     }
@@ -369,9 +385,19 @@ public class PhyModel extends Object {
             System.out.println("Changing to fixed point:  " + m.getName());
             int idx = m_masses.indexOf(m);
 
-            m = new Ground3D(m.getParam(param.RADIUS), m.getPos());
-            m.setName(name);
-            m_masses.set(idx, m);
+            Ground3D tmp = new Ground3D(m.getParam(param.RADIUS), m.getPos());
+            tmp.setName(name);
+            //m = tmp;
+            m_masses.set(idx, tmp);
+            m_massLabels.replace(name, tmp);
+
+            Mass m1, m2;
+            for(Interaction i: m_interactions){
+                if(i.getMat1() == m)
+                    i.connect(tmp, i.getMat2());
+                if(i.getMat2() == m)
+                    i.connect(i.getMat1(), tmp);
+            }
 
         } catch (Exception e) {
             System.out.println("Couldn't change into fixed point:  " + m.getName() + ": " + e);

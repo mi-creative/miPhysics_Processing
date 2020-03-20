@@ -15,22 +15,6 @@ public class PhysicsContext {
 
 	private Lock m_lock;
 
-	/* List of Mats and Links that compose the physical model */
-//	private ArrayList<Mass> m_masses;
-//	private Map<String, Mass> m_massLabels;
-//
-//	private ArrayList<Interaction> m_interactions;
-//	private Map<String, Interaction> m_intLabels;
-//
-//	private ArrayList<PhyModel> m_macros;
-//	private Map<String, PhyModel> m_macroLabels;
-//
-//	private ArrayList<Interaction> m_interactions;
-//	private Map<String, Interaction> m_intLabels;
-
-//	private ArrayList<InOut> m_inOuts;
-//	private Map<String, InOut> m_inOutLabels;
-
 	/* The simulation rate (mono rate only) */
 	private int simRate;
 	/* The processing sketch display rate */
@@ -53,27 +37,16 @@ public class PhysicsContext {
 
 	//private Map<String, ParamController> param_controllers;
 
-	private PhyModel m_topLevelModel = new PhyModel("top");
+	private PhyModel m_topLevelModel = new PhyModel("top", m_medium);
 
 	/* Library version */
 	public final static String VERSION = "##library.prettyVersion##";
 
 	public PhysicsContext(int sRate, int displayRate, paramSystem sys) {
-		/* Create empty Mass and Interaction arrays */
-//		m_masses = new ArrayList<Mass>();
-//		m_massLabels = new HashMap<String, Mass>();
-//
-//		m_interactions = new ArrayList<Interaction>();
-//		m_intLabels = new HashMap<String, Interaction>();
-//
-//		m_inOuts = new ArrayList<InOut>();
-//		m_inOutLabels = new HashMap<String, InOut>();
 
 		m_mass_subsets = new HashMap<String, ArrayList<Mass>>();
 		m_int_subsets = new HashMap<String, ArrayList<Interaction>>();
 
-		//Vect3D tmp = new Vect3D(0., 0., 0.);
-		//fakePlaneMat = new Ground3D(0,tmp);
 
 		m_unit_system = sys;
 
@@ -90,8 +63,6 @@ public class PhysicsContext {
 		this.calculateSimDisplayFactor();
 
 		m_lock = new ReentrantLock();
-
-		//param_controllers = new HashMap<String,ParamController>();
 
 		System.out.println("Physical Model Class Initialised");
 	}
@@ -190,180 +161,6 @@ public class PhysicsContext {
 	}
 
 
-//	public <T extends Mass> T addMass(String name, T m){
-//		return addMass(name, m, m_medium);
-//	}
-//
-//	public <T extends Mass> T addMass(String name, T m, Medium med){
-//		if (m_massLabels.get(name) == null){
-//			try {
-//				m.setName(name);
-//				m.setMedium(med);
-//
-//				// Small trickery to input velocities (either per sample or per second)
-//				Vect3D pInit = new Vect3D(m.getPos());
-//				Vect3D vInit = new Vect3D(m.getPosR());
-//				if (m_velUnits == velUnit.PER_SEC)
-//					m.setPosR(pInit.sub(vInit.div(this.getSimRate())));
-//				else
-//					m.setPosR(pInit.sub(vInit));
-//
-//				m_masses.add(m);
-//				m_massLabels.put(name, m);
-//
-//			} catch (Exception e) {
-//				System.out.println("Error adding mass module " + name + ": " + e);
-//				this.m_errorCode = -2;
-//				return null;
-//			}
-//		}
-//		else {
-//			System.out.println("Could not create " + m + ", " + name + " label already exists. ");
-//			this.m_errorCode = -1;
-//			return null;
-//		}
-//		this.m_errorCode = 0;
-//		return m;
-//	}
-//
-//
-//
-//	public <T extends Interaction> T addInteraction(String name, T inter, Mass m1){
-//		if (inter.getType() == interType.PLANECONTACT3D){
-//			return addInteraction(name, inter, m1.getPt(inter), m1.getPt(inter));
-//		}
-//		else{
-//			System.out.println("Missing argument for " + name
-//					+ " (connects to two masses).");
-//			this.m_errorCode = -1;
-//			return null;
-//		}
-//	}
-//
-//
-//	public <T extends Interaction> T addInteraction(String name, T inter, String m_id1){
-//		Mass m1 = m_massLabels.get(m_id1);
-//		return addInteraction(name, inter, m1.getPt(inter));
-//	}
-//
-//
-//	public <T extends Interaction> T addInteraction(String name, T inter, Mass m1, Mass m2) {
-//
-//		if (m_intLabels.get(name) != null) {
-//			System.out.println("Cannot create interaction " + name
-//					+ ": " + name + " interaction already exists. ");
-//			this.m_errorCode = -1;
-//			return null;
-//		}
-//		if (m1 == null) {
-//			System.out.println("Cannot create interaction " + name
-//					+ ": " + m1.getName() + " mass doesn't exist. ");
-//			this.m_errorCode = -2;
-//			return null;
-//		} else if (m2 == null) {
-//			System.out.println("Cannot create interaction " + name
-//					+ ": " + m2.getName() + " mass doesn't exist. ");
-//			this.m_errorCode = -3;
-//			return null;
-//		}
-//
-//		try {
-//			inter.setName(name);
-//			inter.connect(m1.getPt(inter), m2.getPt(inter));
-//			m_interactions.add(inter);
-//			m_intLabels.put(name, inter);
-//
-//		} catch (Exception e) {
-//			System.out.println("Error adding interaction module " + name + ": " + e);
-//			this.m_errorCode = -4;
-//			return null;
-//		}
-//		this.m_errorCode = 0;
-//		return inter;
-//	}
-//
-//
-//	public <T extends Interaction> T addInteraction(String name, T inter, String m_id1, String m_id2) {
-//		Mass m1 = m_massLabels.get(m_id1).getPt(inter);
-//		Mass m2 = m_massLabels.get(m_id2).getPt(inter);
-//		return addInteraction(name, inter, m1, m2);
-//	}
-//
-//
-//	public <T extends InOut> T addInOut(String name, T mod, Mass m) {
-//		if (m_inOutLabels.get(name) != null) {
-//			System.out.println("Cannot create InOut " + name
-//					+ ": " + name + " extern already exists. ");
-//			this.m_errorCode = -1;
-//			return null;
-//		}
-//		if (m == null) {
-//			System.out.println("Cannot create InOut " + name
-//					+ ": " + m.getName() + " mass doesn't exist. ");
-//			this.m_errorCode = -2;
-//			return null;
-//		}
-//		try {
-//			mod.setName(name);
-//			mod.connect(m);
-//			m_inOuts.add(mod);
-//			m_inOutLabels.put(name, mod);
-//		} catch (Exception e) {
-//			System.out.println("Error adding InOut module " + name + ": " + e);
-//			this.m_errorCode = -4;
-//			return null;
-//		}
-//		this.m_errorCode = 0;
-//		return mod;
-//	}
-//
-//
-//	public <T extends InOut> T addInOut(String name, T mod, String m_id) {
-//		Mass m = m_massLabels.get(m_id).getPt(null);
-//		return addInOut(name, mod, m);
-//	}
-//
-//
-//
-//    public ArrayList<Mass> getMassList(){
-//        return m_masses;
-//    }
-//
-//    public ArrayList<Interaction> getInteractionList(){
-//		return m_interactions;
-//	}
-//
-//	public int getNumberOfMasses(){
-//		return m_masses.size();
-//	}
-//
-//	public int getNumberOfInteractions(){
-//		return m_interactions.size();
-//	}
-//
-//	public ArrayList<Observer3D> getObservers(){
-//		ArrayList<Observer3D> list = new ArrayList<>();
-//		for(InOut element : m_inOuts){
-//			if(element.getType() == inOutType.OBSERVER3D) {
-//				Observer3D tmp = ((Observer3D)element);
-//				list.add(tmp);
-//			}
-//		}
-//		return list;
-//	}
-//
-//	public ArrayList<Driver3D> getDrivers(){
-//		ArrayList<Driver3D> list = new ArrayList<>();
-//		for(InOut element : m_inOuts){
-//			if(element.getType() == inOutType.DRIVER3D) {
-//				Driver3D tmp = ((Driver3D)element);
-//				list.add(tmp);
-//			}
-//		}
-//		return list;
-//	}
-
-
 	/*************************************************/
 	/* Compute simulation steps */
 	/*************************************************/
@@ -394,18 +191,6 @@ public class PhysicsContext {
 		synchronized (m_lock) {
 			for (int j = 0; j < N; j++) {
 				m_topLevelModel.compute();
-				//param_controllers.forEach((k,v)-> v.updateParams());
-//
-//				for (int i = 0; i < m_masses.size(); i++) {
-//					m_masses.get(i).compute();
-//				}
-//
-//				for (int i = 0; i < m_interactions.size(); i++) {
-//					m_interactions.get(i).compute();
-//				}
-//				for (int i = 0; i < m_inOuts.size(); i++) {
-//					m_inOuts.get(i).compute();
-//				}
 			}
 		}
 	}
@@ -453,99 +238,12 @@ public class PhysicsContext {
 	 * Initialise the physical model once all the modules have been created.
 	 */
 	public void init() {
-
 		m_topLevelModel.init();
-
 		System.out.println("Initialisation of the physical model: ");
-		System.out.println("Nb of Mats int model: " + m_topLevelModel.getNumberOfMasses());
-		System.out.println("Nb of Links in model: " + m_topLevelModel.getNumberOfInteractions());
-
-//		/* Initialise the stored distances for the springs */
-//		for(Interaction inter : m_interactions)
-//			inter.initDistances();
-
+		System.out.println("Nb of Mats in model: " + m_topLevelModel.numberOfMassTypes());
+		System.out.println("Nb of Links in model: " + m_topLevelModel.numberOfInterTypes());
 		System.out.println("Finished model init.\n");
 	}
-//
-//
-//	public boolean massExists(String name) {
-//		Mass m = m_massLabels.get(name);
-//		if (m == null)
-//			return false;
-//		else
-//			return true;
-//	}
-//
-//
-//	private int removeMass(Mass m){
-//		try {
-//			if(m_massLabels.remove(m.getName()) == null)
-//				throw(new Exception("Couldn't remove Mass module " + m + "out of label list."));
-//			if(m_masses.remove(m) == false)
-//				throw(new Exception("Couldn't remove Mass module " + m + "out of Array list."));
-//			return 0;
-//		} catch (Exception e) {
-//			System.out.println("Error removing Mass Module " + m + ": " + e);
-//			return -1;
-//		}
-//	}
-//
-//
-//	private int removeMass(String name) {
-//		Mass m = m_massLabels.get(name);
-//		return removeMass(m);
-//	}
-//
-//
-//	public int removeInteraction(Interaction l) {
-//		synchronized (m_lock) {
-//			try {
-//				if(m_intLabels.remove(l.getName()) == null)
-//					throw(new Exception("Couldn't remove Interaction module " + l + "out of label list."));
-//				if(m_interactions.remove(l)== false)
-//					throw(new Exception("Couldn't remove Interaction module " + l + "out of Array list."));
-//				return 0;
-//			} catch (Exception e) {
-//				System.out.println("Error removing interaction Module " + l + ": " + e);
-//				return -1;
-//			}
-//		}
-//	}
-//
-//	public synchronized int removeInteraction(String name) {
-//		Interaction l = m_intLabels.get(name);
-//		return removeInteraction(l);
-//	}
-//
-//
-//	public int removeMassAndConnectedInteractions(Mass m) {
-//		synchronized (m_lock) {
-//			try {
-//				for (int i = m_interactions.size() - 1; i >= 0; i--) {
-//					Interaction cur = m_interactions.get(i);
-//					if ((cur.getMat1() == m) || (cur.getMat2() == m))
-//						if(removeInteraction(cur) != 0)
-//							throw(new Exception("Couldn't remove Interaction module " + cur ));
-//
-//				}
-//				if (removeMass(m) != 0)
-//					throw(new Exception("Couldn't remove Mass module " + m));
-//
-//				return 0;
-//
-//			} catch (Exception e) {
-//				System.out.println("Issue removing connected interactions and mass!" + e);
-//				System.exit(1);
-//			}
-//		}
-//		return -1;
-//	}
-//
-//
-//	public int removeMassAndConnectedInteractions(String mName) {
-//		Mass m = m_massLabels.get(mName);
-//		return removeMassAndConnectedInteractions(m.getPt(null));
-//	}
 
 
 	/**
@@ -658,77 +356,6 @@ public class PhysicsContext {
 		}
 		else return -1;
 	}
-
-	// Shouldn't need these methods as we can now access the actual masses
-
-
-//	public void triggerVelocityControl(int index, double vx, double vy, double vz) {
-//		Vect3D force = new Vect3D(vx/simRate, vy/simRate, vz/simRate);
-//		try {
-//			mats.get(index).triggerVelocityControl(force);
-//		} catch (Exception e) {
-//			System.out.println("Issue during velocity control trigger");
-//			System.exit(1);
-//		}
-//	}
-//
-//	/**
-//	 * Trigger velocity control on a given Mass module.
-//	 *
-//	 * @param name
-//	 *            the name of the module to trigger.
-//	 * @param vx
-//	 *            velocity in the X dimension.
-//	 * @param vy
-//	 *            velocity in the Y dimension.
-//	 * @param vz
-//	 *            velocity in the Z dimension.
-//	 */
-//	public void triggerVelocityControl(String name, double vx, double vy, double vz) {
-//		int mat1_index = getMatIndex(name);
-//		this.triggerVelocityControl(mat1_index, vx, vy, vz);
-//	}
-
-//	/**
-//	 * Stop a force impulse on a given Mass module.
-//	 *
-//	 * @param name
-//	 *            the name of the module to stop velocity control to.
-//	 */
-//
-//	public void stopVelocityControl(String name)
-//	{
-//		this.stopVelocityControl(getMatIndex(name));
-//	}
-//
-//	/**
-//	 * Stop a force impulse on a given Mass module.
-//	 *
-//	 * @param index
-//	 *            the index of the module to stop velocity control to.
-//	 */
-//
-//	public void stopVelocityControl(int index)
-//	{
-//		try
-//		{
-//			mats.get(index).stopVelocityControl();
-//		}catch (Exception e) {
-//			System.out.println("Issue during stopping velocity control for mass at index " + index );
-//			System.exit(1);
-//		}
-//	}
-
-//	public void addParamController(String name,String subsetName,String paramName,float rampTime)
-//	{
-//		param_controllers.put(name,new ParamController(this,rampTime,subsetName,paramName));
-//	}
-//
-//	public ParamController getParamController(String name) {return param_controllers.get(name);}
-
-
-
-
 
 
 	public void welcome() {
