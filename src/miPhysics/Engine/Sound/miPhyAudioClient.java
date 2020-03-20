@@ -8,7 +8,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.jaudiolibs.audioservers.*;
-import org.jaudiolibs.audioservers.ext.*;
 
 /*
 import org.jaudiolibs.audioservers.AudioClient;
@@ -26,9 +25,9 @@ public class miPhyAudioClient implements  AudioClient{
 
     private final AudioServer server;
     protected long step;
-    private PhysicalModel mdl;
+    private PhyModel mdl;
 
-    public PhysicalModel getMdl() {
+    public PhyModel getMdl() {
         return mdl;
     }
 
@@ -57,7 +56,7 @@ public class miPhyAudioClient implements  AudioClient{
         this.listeningPointsInd = listeningPointsInd;
     }*/
 
-    public static miPhyAudioClient miPhyJack(float sampleRate,int bufS, int inputChannelCount, int outputChannelCount, PhysicalModel mdl)
+    public static miPhyAudioClient miPhyJack(float sampleRate,int bufS, int inputChannelCount, int outputChannelCount, PhyModel mdl)
     {
         try {
             return new miPhyAudioClient(sampleRate, inputChannelCount, outputChannelCount, mdl, bufS, "JACK");
@@ -69,7 +68,7 @@ public class miPhyAudioClient implements  AudioClient{
         return null;
     }
 
-    public static miPhyAudioClient miPhyClassic(float sampleRate, int bufS, int inputChannelCount, int outputChannelCount, PhysicalModel mdl)
+    public static miPhyAudioClient miPhyClassic(float sampleRate, int bufS, int inputChannelCount, int outputChannelCount, PhyModel mdl)
     {
         try {
             return new miPhyAudioClient(sampleRate, inputChannelCount, outputChannelCount, mdl, bufS, "JavaSound");
@@ -81,7 +80,7 @@ public class miPhyAudioClient implements  AudioClient{
         return null;
     }
 
-    public miPhyAudioClient(float sampleRate,int inputChannelCount, int outputChannelCount, PhysicalModel mdl, int bufferSize, String serverType) throws Exception
+    public miPhyAudioClient(float sampleRate, int inputChannelCount, int outputChannelCount, PhyModel mdl, int bufferSize, String serverType) throws Exception
     {
         AudioServerProvider provider = null;
         for (AudioServerProvider p : ServiceLoader.load(AudioServerProvider.class)) {
@@ -178,7 +177,7 @@ public class miPhyAudioClient implements  AudioClient{
             }
             */
 
-                mdl.computeSingleStep();
+                mdl.compute();
 
 
                 // This stuff could surely be a bit cleaner / efficient, this is a start...

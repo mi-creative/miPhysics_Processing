@@ -11,7 +11,6 @@ public abstract class Module {
     public Module() {
         this.m_name = "";
     }
-
     public Module(String name) {
         this.m_name = name;
     }
@@ -19,17 +18,24 @@ public abstract class Module {
     protected void setName(String name){
         this.m_name = name;
     }
-
     public String getName(){
         return this.m_name;
     }
 
-
-    /**
-     * Compute the physics of the Mass module.
-     *
-     */
     protected abstract void compute();
 
     String m_name;
 }
+
+
+/*
+interface Module {
+
+    void setName();
+    String getName();
+    void compute();
+    int setParam(param p, double val );
+    double getParam(param p);
+
+}
+*/

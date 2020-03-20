@@ -10,7 +10,7 @@ hitting the space bar.
 */
 
 import miPhysics.Engine.*;
-import miPhysics.ModelRenderer.*;
+import miPhysics.Renderer.*;
 
 import peasy.*;
 PeasyCam cam;

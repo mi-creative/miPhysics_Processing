@@ -5,7 +5,9 @@ import java.util.HashMap;
 
 import miPhysics.Engine.Interaction;
 import miPhysics.Engine.Mass;
-import miPhysics.Engine.PhysicalModel;
+import miPhysics.Engine.PhyModel;
+
+import miPhysics.Engine.PhysicsContext;
 import miPhysics.Engine.Vect3D;
 import miPhysics.Engine.interType;
 import miPhysics.Engine.massType;
@@ -20,16 +22,18 @@ public class ModelRenderer implements PConstants{
 
     protected PApplet app;
 
-    HashMap <massType, MatRenderProps> matStyles;
-    HashMap <interType, LinkRenderProps> linkStyles;
+    HashMap <massType, MatRenderProps> matStyles = new HashMap <> ();
+    HashMap <interType, LinkRenderProps> linkStyles = new HashMap <> ();
 
     MatRenderProps fallbackMat = new MatRenderProps(125, 125, 125, 5);
     LinkRenderProps fallbackLink = new LinkRenderProps(125, 125, 125, 0);
 
+    ArrayList<MatDataHolder> m_matHolders = new ArrayList<>();
+    ArrayList<LinkDataHolder> m_linkHolders = new ArrayList<>();
+
+
     float m_scale;
-
     PVector m_zoomRatio;
-
     boolean m_matDisplay;
 
     public ModelRenderer(PApplet parent){
@@ -38,9 +42,6 @@ public class ModelRenderer implements PConstants{
 
         m_scale = 1;
         m_matDisplay = true;
-
-        matStyles = new HashMap <massType, MatRenderProps> ();
-        linkStyles = new HashMap <interType, LinkRenderProps> ();
 
         m_zoomRatio = new PVector(1,1,1);
 
@@ -68,14 +69,6 @@ public class ModelRenderer implements PConstants{
     public boolean setColor(massType m, int r, int g, int b){
         if(matStyles.containsKey(m)) {
             matStyles.get(m).setColor(r, g, b);
-            return true;
-        }
-        else return false;
-    }
-
-    public boolean setSize(massType m, float size){
-        if(matStyles.containsKey(m)) {
-            matStyles.get(m).setBaseSize(size);
             return true;
         }
         else return false;
@@ -122,70 +115,39 @@ public class ModelRenderer implements PConstants{
     }
 
 
-    /*public boolean setScaling(massType m, float scale){
-        if(matStyles.containsKey(m)) {
-            matStyles.get(m).setInertiaScaling(scale);
-            return true;
-        }
-        else return false;
-    }
-
-
-    public void setScale(float scale){
-        m_scale = scale;
-    }
-
-    public float getScale(){
-        return(m_scale);
-    }*/
-
     public void displayMasses(boolean val){
         m_matDisplay = val;
     }
 
+    public void renderScene(PhysicsContext c){
+        m_matHolders.clear();
+        m_linkHolders.clear();
+
+        addElementsToScene(c.model());
+
+        draw();
+    }
 
 
-    public void renderModel(PhysicalModel mdl) {
-        PVector v;
-        MatRenderProps tmp;
-        LinkRenderProps tmp2;
+    private void addElementsToScene(PhyModel mdl) {
 
-        ArrayList<MatDataHolder> matHolders = new ArrayList<MatDataHolder>();
-        ArrayList<LinkDataHolder> linkHolders = new ArrayList<LinkDataHolder>();
-
-        int nbMats;
-        int nbLinks;
-
-        MatDataHolder mH;
-        LinkDataHolder lH;
-
-
+        for(PhyModel pm : mdl.getSubModels())
+            addElementsToScene(pm);
 
         // Limit the synchronized section to a copy of the model state
         synchronized (mdl.getLock()) {
 
-            nbMats = mdl.getNumberOfMasses();
-            nbLinks = mdl.getNumberOfInteractions();
-
             double dist;
 
             if(m_matDisplay) {
-
-                for(Mass mat : mdl.getMassList()){
-                    matHolders.add(new MatDataHolder(
-                            mat.getPos(),
+                for(int i = 0; i < mdl.getNumberOfMasses(); i++){
+                    Mass m_tmp = mdl.getMassList().get(i);
+                    m_matHolders.add(new MatDataHolder(
+                            m_tmp.getPos(),
                             1,
-                            mat.getParam(param.RADIUS),
-                            mat.getType()));
+                            m_tmp.getParam(param.RADIUS),
+                            m_tmp.getType()));
                 }
-
-                /*
-                for (int i = 0; i < mdl.getNumberOfMats(); i++)
-                    //matHolders.add(new MatDataHolder(mdl.getMat(i)));
-                    matHolders.add(new MatDataHolder(mdl.getMatPosAt(i),
-                            mdl.getMatMassAt(i),
-                            mdl.getMatSizeAt(i),
-                            mdl.getMatTypeAt(i)));*/
             }
 
             for(Interaction inter : mdl.getInteractionList()){
@@ -197,21 +159,25 @@ public class ModelRenderer implements PConstants{
                     dist = 0;
                 else
                     dist = inter.getElongation() / inter.getParam(param.DISTANCE);
-                linkHolders.add(new LinkDataHolder(
+                m_linkHolders.add(new LinkDataHolder(
                         inter.getMat1().getPos(),
                         inter.getMat2().getPos(),
                         dist,
                         inter.getType()));
             }
-            /*
-            for (int i = 0; i < mdl.getNumberOfLinks(); i++)
-                linkHolders.add(new LinkDataHolder(mdl.getLinkPos1At(i),
-                        mdl.getLinkPos2At(i),
-                        mdl.getLinkElongationAt(i) / mdl.getLinkDRestAt(i),
-                        mdl.getLinkTypeAt(i)));
-                        */
-
         }
+    }
+
+    void draw(){
+
+        int nbMats = m_matHolders.size();
+        int nbLinks = m_linkHolders.size();
+        PVector v;
+        MatRenderProps tmp;
+        LinkRenderProps tmp2;
+        MatDataHolder mH;
+        LinkDataHolder lH;
+
 
         if(m_matDisplay){
 
@@ -227,7 +193,7 @@ public class ModelRenderer implements PConstants{
             // Should really structure several lists according to module type
             for (int i = 0; i < nbMats; i++) {
 
-                mH = matHolders.get(i);
+                mH = m_matHolders.get(i);
 
                 if (matStyles.containsKey(mH.getType()))
                     tmp = matStyles.get(mH.getType());
@@ -239,7 +205,6 @@ public class ModelRenderer implements PConstants{
                 app.fill(tmp.red(), tmp.green(), tmp.blue());
                 app.noStroke();
                 app.sphere(m_zoomRatio.x * (float)mH.getRadius());
-                //app.sphere(tmp.getScaledSize(mH.getMass()));
                 app.popMatrix();
             }
         }
@@ -247,7 +212,7 @@ public class ModelRenderer implements PConstants{
 
         for ( int i = 0; i < nbLinks; i++) {
 
-            lH = linkHolders.get(i);
+            lH = m_linkHolders.get(i);
 
             app.strokeWeight(1);
 
@@ -277,75 +242,6 @@ public class ModelRenderer implements PConstants{
                 drawLine(lH.getP1(), lH.getP2());
             }
         }
-
-/*            for (int i = 0; i < mdl.getNumberOfMats(); i++) {
-                matHolders.add(new MatDataHolder(mdl.getMatPosAt(i),
-                                                 mdl.getMatMassAt(i),
-                                                 mdl.getMatTypeAt(i)));
-            }
-
-            if(m_matDisplay) {
-
-                int nbMats = mdl.getNumberOfMats();
-
-                // Scaling the detail of the spheres depending on size of the model
-                if (nbMats < 100)
-                    app.sphereDetail(30);
-                else if (nbMats < 1000)
-                    app.sphereDetail(15);
-                else if (nbMats < 10000)
-                    app.sphereDetail(5);
-
-                for (int i = 0; i < nbMats; i++) {
-                    if (matStyles.containsKey(mdl.getMatTypeAt(i)))
-                        tmp = matStyles.get(mdl.getMatTypeAt(i));
-                    else tmp = fallbackMat;
-
-                    v = mdl.getMatPosAt(i).toPVector().mult(1);
-                    app.pushMatrix();
-                    app.translate(m_zoomRatio.x * v.x, m_zoomRatio.y * v.y, m_zoomRatio.z * v.z);
-                    app.fill(tmp.red(), tmp.green(), tmp.blue());
-                    app.noStroke();
-                    app.sphere(tmp.getScaledSize(mdl.getMatMassAt(i)));
-                    app.popMatrix();
-                }
-            }*/
-
-          /*  synchronized(mdl.getLock()) {
-
-
-            for ( int i = 0; i < mdl.getNumberOfLinks(); i++) {
-                app.strokeWeight(1);
-
-                if (linkStyles.containsKey(mdl.getLinkTypeAt(i)))
-                    tmp2 = linkStyles.get(mdl.getLinkTypeAt(i));
-                else tmp2 = fallbackLink;
-
-                if(tmp2.strainGradient() == true){
-                    if ((tmp2.getAlpha() > 0) || (tmp2.getStrainAlpha() > 0))
-                    {
-                        float stretching = (float)(mdl.getLinkElongationAt(i) / mdl.getLinkDRestAt(i));
-
-                        app.strokeWeight(tmp2.getSize());
-                        app.stroke(tmp2.redStretch(stretching),
-                                   tmp2.greenStretch(stretching),
-                                   tmp2.blueStretch(stretching),
-                                   tmp2.alphaStretch(stretching));
-
-                        drawLine(mdl.getLinkPos1At(i), mdl.getLinkPos2At(i));
-                    }
-
-                }
-
-                else if (tmp2.getAlpha() > 0) {
-                    app.stroke(tmp2.red(), tmp2.green(), tmp2.blue(), tmp2.getAlpha());
-                    app.strokeWeight(tmp2.getSize());
-
-                    drawLine(mdl.getLinkPos1At(i), mdl.getLinkPos2At(i));
-
-                }
-            }
-        }*/
     }
 
 

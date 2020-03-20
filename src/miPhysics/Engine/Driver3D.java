@@ -34,7 +34,7 @@ public class Driver3D extends InOut {
      * @param frc the Vec3D containing the force to apply
      */
     public void applyFrc(Vect3D frc){
-        this.getMat().applyExtForce(frc);
+        this.getMat().applyForce(frc);
     }
 
     /**

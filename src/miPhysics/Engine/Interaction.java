@@ -36,7 +36,7 @@ public abstract class Interaction extends Module {
      * Compute behavior of the Interaction (depends on the concrete implementation of concerned module).
      *
      */
-    protected abstract void compute();
+     public abstract void compute();
 
     /**
      * Connect the Interaction to two Mass modules.
@@ -117,9 +117,7 @@ public abstract class Interaction extends Module {
         return (m_mat1.getPos().z - m_mat2.getPos().z);
     }
 
-
     public abstract int setParam(param p, double val );
-
     public abstract double getParam(param p);
 
 
@@ -260,6 +258,7 @@ public abstract class Interaction extends Module {
 
     protected double m_K;
     protected double m_Z;
+
 
     //protected double m_linkFrc;
 }

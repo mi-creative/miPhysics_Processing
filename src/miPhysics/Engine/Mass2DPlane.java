@@ -24,11 +24,7 @@ public class Mass2DPlane extends Mass {
     double fric = this.getMedium().getMediumFriction();
     tmp.set(m_pos);
 
-    if (m_controlled) {
-      m_pos.add(m_controlVelocity);
-    }
-    else
-    {
+
     // Calculate the update of the mass's position
     m_frc.mult(m_invMass);
     m_pos.mult(2 - m_invMass * fric);
@@ -40,7 +36,7 @@ public class Mass2DPlane extends Mass {
 
     // Constrain to 2D Plane : keep Z axis value constant
     m_pos.z = tmp.z;
-    }
+
     m_posR.set(tmp);
     m_frc.set(0., 0., 0.);
   }
