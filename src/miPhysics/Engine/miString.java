@@ -1,5 +1,8 @@
 package miPhysics.Engine;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 public class miString extends PhyModel {
 
     double m_K;
@@ -32,12 +35,19 @@ public class miString extends PhyModel {
                 SpringDamper3D inter = new SpringDamper3D(l0, K, Z);
                 inter.setName("i_"+(i-1));
                 inter.connect(prev, tmp);
-                m_interactions.add(inter);
-                m_intLabels.put(name, inter);
+                this.m_interactions.add(inter);
+                this.m_intLabels.put(inter.getName(), inter);
             }
             prev = tmp;
         }
     }
+
+
+    /*
+    public Proxy3D createProxy(double r){
+        m_proxyList.add(new )
+    }
+    */
 
 
     public int setParam(param p, double val ){
@@ -81,4 +91,6 @@ public class miString extends PhyModel {
                 return 0.;
         }
     }
+
+    //private ArrayList<Proxy3D> m_proxyList = new ArrayList<>();
 }

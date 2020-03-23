@@ -4,13 +4,15 @@ import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class PhyModel extends Object {
+import miPhysics.Utility.SpacePrint;
+
+public class PhyModel extends PhyObject {
 
     public PhyModel(String name, Medium med) {
-        m_macroName = name;
+        this.setName(name);
         m_lock = new ReentrantLock();
         m_medium = med;
-        System.out.println(m_medium);
+        //System.out.println(m_medium);
     }
 
     public void init(){
@@ -34,6 +36,8 @@ public class PhyModel extends Object {
 
     // Need to check the validity of this... Are mass/interaction phases properly timed when descending recursively?
     public void compute(){
+        // reset the space print of this model.
+        m_sp.reset();
 
         for(Mass m : m_masses)
             m.compute();
@@ -43,6 +47,10 @@ public class PhyModel extends Object {
             i.compute();
         for(InOut io : m_inOuts)
             io.compute();
+
+        // recalculate the space print (will use calculated prints of sub-models)
+        this.calcSpacePrint();
+
     }
 
     // Can always apply a force to all the components of a macro object
@@ -84,8 +92,13 @@ public class PhyModel extends Object {
             return;
         }
         else {
-            m_macros.add(mac);
-            m_macroLabels.put(mac.getName(), mac);
+            if(m_macroLabels.containsKey(mac.getName())){
+                throw new Error("A physical model named " + mac.getName() + "already exists in " + this.getName() + " !");
+            }
+            else {
+                m_macros.add(mac);
+                m_macroLabels.put(mac.getName(), mac);
+            }
         }
     }
 
@@ -156,6 +169,7 @@ public class PhyModel extends Object {
             this.m_errorCode = -1;
             return null;
         }
+
         if (m1 == null) {
             System.out.println("Cannot create interaction " + name
                     + ": " + m1.getName() + " mass doesn't exist. ");
@@ -184,10 +198,45 @@ public class PhyModel extends Object {
     }
 
 
+    private Mass findMassFromAddress(String m_id){
+        String[] address;
+        String name = m_id;
+        Mass m;
+        try {
+            PhyModel m_ref = this;
+            if (m_id.contains("/")) {
+                address = m_id.split("/");
+                for(int i = 0; i < address.length-1; i++) {
+                    if (this.getPhyModel(address[i]) != null)
+                        m_ref = this.getPhyModel(address[i]);
+                    else
+                        throw new Error("Cannot find submodel " + address[i] + " in " + m_ref.getName());
+                }
+                name = address[address.length-1];
+            }
+
+            if(m_ref.massExists(name))
+                m = m_ref.getMass(name);
+            else
+                throw new Error("The mass " + name + " does not exist in " + m_ref.getName());
+            return m;
+        }
+        catch (Error ex){
+            System.out.println(ex.getMessage());
+            return null;
+        }
+
+    }
+
     public <T extends Interaction> T addInteraction(String name, T inter, String m_id1, String m_id2) {
-        Mass m1 = m_massLabels.get(m_id1);
-        Mass m2 = m_massLabels.get(m_id2);
-        return addInteraction(name, inter, m1, m2);
+        try {
+            return addInteraction(name, inter, findMassFromAddress(m_id1), findMassFromAddress(m_id2));
+        }
+        catch (Error ex){
+            System.out.println(ex.getMessage());
+            return null;
+        }
+
     }
 
 
@@ -283,8 +332,6 @@ public class PhyModel extends Object {
 
 
 
-
-
     public boolean massExists(String name) {
         Mass m = m_massLabels.get(name);
         if (m == null)
@@ -322,9 +369,9 @@ public class PhyModel extends Object {
         synchronized (m_lock) {
             try {
                 if(m_intLabels.remove(l.getName()) == null)
-                    throw(new Exception("Couldn't remove Interaction module " + l + "out of label list."));
+                    throw(new Exception("Couldn't remove Interaction module " + l.getName() + " out of label list."));
                 if(m_interactions.remove(l)== false)
-                    throw(new Exception("Couldn't remove Interaction module " + l + "out of Array list."));
+                    throw(new Exception("Couldn't remove Interaction module " + l.getName() + " out of Array list."));
                 return 0;
             } catch (Exception e) {
                 System.out.println("Error removing interaction Module " + l + ": " + e);
@@ -356,7 +403,7 @@ public class PhyModel extends Object {
 
             } catch (Exception e) {
                 System.out.println("Issue removing connected interactions and mass!" + e);
-                System.exit(1);
+                //System.exit(1);
             }
         }
         return -1;
@@ -404,6 +451,20 @@ public class PhyModel extends Object {
             System.exit(1);
         }
         return;
+    }
+
+    public void calcSpacePrint(){
+        for(PhyModel pm : m_macros) {
+            //pm.calcSpacePrint();
+            m_sp.update(pm.m_sp);
+        }
+        for(Mass m : m_masses){
+            m_sp.update(m);
+        }
+    }
+
+    public SpacePrint getSpacePrint(){
+        return m_sp;
     }
 
     public void translate(float tx, float ty, float tz){
@@ -491,11 +552,11 @@ public class PhyModel extends Object {
     HashMap<String, Interaction> m_intLabels = new HashMap<>();
     HashMap<String, InOut> m_inOutLabels = new HashMap<>();
 
-    String m_macroName;
-
     private velUnit m_velUnits = velUnit.PER_SEC;
     private int m_errorCode = 0;
     private int m_simRate = 1000;
+
+    private SpacePrint m_sp = new SpacePrint();
 
     private Lock m_lock;
 

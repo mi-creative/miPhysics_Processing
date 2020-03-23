@@ -1,14 +1,12 @@
 package miPhysics.Engine;
 
-import org.omg.CORBA.ObjectHelper;
-
 /**
  * Abstract class defining Material points.
  *
  * @author James Leonard / james.leonard@gipsa-lab.fr
  *
  */
-public abstract class Mass extends Object {
+public abstract class Mass extends PhyObject {
 
     /**
      * Constructor method.

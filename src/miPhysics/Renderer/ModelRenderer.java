@@ -12,6 +12,7 @@ import miPhysics.Engine.Vect3D;
 import miPhysics.Engine.interType;
 import miPhysics.Engine.massType;
 import miPhysics.Engine.param;
+import miPhysics.Utility.SpacePrint;
 import processing.core.PVector;
 
 import processing.core.*;
@@ -138,6 +139,39 @@ public class ModelRenderer implements PConstants{
         synchronized (mdl.getLock()) {
 
             double dist;
+
+
+            // TODO : Don't draw in the locked section! Get info then draw bounding shapes later
+            SpacePrint sp = mdl.getSpacePrint();
+            app.beginShape();
+            app.stroke(255, 120, 100,100 );
+            app.noFill();
+
+            app.vertex((float)sp.x_min, (float)sp.y_min, (float)sp.z_min);
+            app.vertex((float)sp.x_max, (float)sp.y_min, (float)sp.z_min);
+            app.vertex((float)sp.x_max, (float)sp.y_max, (float)sp.z_min);
+            app.vertex((float)sp.x_min, (float)sp.y_max, (float)sp.z_min);
+            app.vertex((float)sp.x_min, (float)sp.y_min, (float)sp.z_min);
+
+            app.vertex((float)sp.x_min, (float)sp.y_min, (float)sp.z_max);
+            app.vertex((float)sp.x_max, (float)sp.y_min, (float)sp.z_max);
+            app.vertex((float)sp.x_max, (float)sp.y_max, (float)sp.z_max);
+            app.vertex((float)sp.x_min, (float)sp.y_max, (float)sp.z_max);
+            app.vertex((float)sp.x_min, (float)sp.y_min, (float)sp.z_max);
+
+            app.vertex((float)sp.x_min, (float)sp.y_min, (float)sp.z_min);
+            app.vertex((float)sp.x_min, (float)sp.y_min, (float)sp.z_max);
+            app.vertex((float)sp.x_max, (float)sp.y_min, (float)sp.z_max);
+            app.vertex((float)sp.x_max, (float)sp.y_min, (float)sp.z_min);
+            app.vertex((float)sp.x_min, (float)sp.y_min, (float)sp.z_min);
+
+            app.vertex((float)sp.x_min, (float)sp.y_max, (float)sp.z_min);
+            app.vertex((float)sp.x_min, (float)sp.y_max, (float)sp.z_max);
+            app.vertex((float)sp.x_max, (float)sp.y_max, (float)sp.z_max);
+            app.vertex((float)sp.x_max, (float)sp.y_max, (float)sp.z_min);
+            app.vertex((float)sp.x_min, (float)sp.y_max, (float)sp.z_min);
+
+            app.endShape();
 
             if(m_matDisplay) {
                 for(int i = 0; i < mdl.getNumberOfMasses(); i++){

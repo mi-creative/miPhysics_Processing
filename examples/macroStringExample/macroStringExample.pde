@@ -22,6 +22,8 @@ float k = 0.001;
 float z = 0.01;
 float dist = 70;
 
+PhyModel mac3;
+
 /*  global physical model object : will contain the model and run calculations. */
 PhysicsContext phys;
 
@@ -30,10 +32,11 @@ ModelRenderer renderer;
 
 void setup() {
   frameRate(displayRate);
-  size(1000, 700, P3D);
+  //size(1000, 700, P3D);
+  fullScreen(P3D);
   cam = new PeasyCam(this, 100);
   cam.setMinimumDistance(100);
-  cam.setMaximumDistance(500);
+  cam.setMaximumDistance(1500);
   
   phys = new PhysicsContext(300, displayRate);
   
@@ -56,19 +59,20 @@ void setup() {
   Medium med = new Medium(0.0001, new Vect3D(0, -0.01,0.0));
   
   // Build an encapsulated macro element.
-  PhyModel mac = new miString("str", med, 30, 2, 0.01, 0.001, 0.0001, 10, 3);
+  miString mac = new miString("str1", med, 30, 2, 0.01, 0.001, 0.0001, 10, 3);
   mac.changeToFixedPoint("m_29");
   mac.rotate(0,PI/4,0);
   
-  PhyModel mac2 = new miString("str", med, 37, 2, 0.01, 0.001, 0.0001, 8, 3);
+  PhyModel mac2 = new miString("str2", med, 37, 2, 0.01, 0.001, 0.0001, 8, 3);
   mac2.changeToFixedPoint("m_36");
   mac2.rotate(0,3*PI/4,0);
  
-  PhyModel mac3 = new miString("str", med, 30, 2, 0.01, 0.001, 0.0001, 8, 3);
+  mac3 = new miString("str3", med, 30, 2, 0.01, 0.001, 0.0001, 8, 3);
   mac3.rotate(0,0,0);
   mac3.translate(100,0,0);
   mac3.addMass("bigMass", new Mass3D(0.05, 30, new Vect3D(100, 100, 100)));
-  mac3.addInteraction("sp", new SpringDamper3D(100,0.001, 0.001), mac3.getMass("bigMass"), mac3.getMass("m_10"));
+  mac3.addInteraction("sp", new SpringDamper3D(100,0.001, 0.001), "bigMass", "m_10");
+ 
 
   // Add the macro element to the top-level physics scene
   phys.model().addPhyModel(mac);
@@ -77,11 +81,23 @@ void setup() {
   
   
   // Now add a connection between the top level model and the encapsulated macro model !
+  
+  // TODO: protect against creating an interaction that connects elements above its model level!
+  // this goes against the principles of encapsulation.
+  
+  // We can either directly give the module references to the addInteraction method...
+  /*
   phys.model().addInteraction("sp", new SpringDamper3D(0,0.001, 0.001), phys.model().getMass("mass"), mac.getMass("m_0"));
   phys.model().addInteraction("sp2", new SpringDamper3D(0,0.001, 0.001), phys.model().getMass("mass"), mac2.getMass("m_0"));
   phys.model().addInteraction("sp3", new SpringDamper3D(0,0.001, 0.001), mac.getMass("m_10"), mac3.getMass("m_0"));
   phys.model().addInteraction("sp4", new SpringDamper3D(0,0.001, 0.001), mac2.getMass("m_20"), mac3.getMass("m_19"));
-
+  */
+  
+  //Or use an "OSC-like" naming pattern.
+  phys.model().addInteraction("sp", new SpringDamper3D(0,0.001, 0.001), "mass", "str1/m_0");
+  phys.model().addInteraction("sp2", new SpringDamper3D(0,0.001, 0.001), "mass", "str2/m_0");
+  phys.model().addInteraction("sp3", new SpringDamper3D(0,0.001, 0.001), "str1/m_10", "str3/m_0");
+  phys.model().addInteraction("sp4", new SpringDamper3D(0,0.001, 0.001), "str2/m_20", "str3/m_19");
   
   phys.init(); 
   
@@ -97,7 +113,14 @@ void draw() {
   
   /* Calculate Physics */
   phys.compute();
+
+  //mac3.getSpacePrint().reset();
+  //phys.model().getSpacePrint().reset();
+  //phys.model().calcSpacePrint();
+  //println(mac3.getSpacePrint().toString());
+
   renderer.renderScene(phys);
+  
 
 }
 
@@ -107,4 +130,8 @@ void keyPressed() {
     for(Driver3D driver : phys.model().getDrivers())
       driver.applyFrc(new Vect3D(random(-5,5),random(-5,5),random(-5,5)));
   }
+  if(key == 'a')
+    phys.model().getPhyModel("str3").removeMassAndConnectedInteractions("m_11");
+  if(key == 'z')
+    phys.model().removeInteraction("sp2");
 }
