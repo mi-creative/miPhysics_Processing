@@ -282,6 +282,18 @@ public class PhyModel extends PhyObject {
         return m_masses;
     }
 
+//
+//    // EXPERIMENTAL, find a better way to do this than creating a new array at each step!
+//    public ArrayList<Mass> getMassListRec(){
+//        ArrayList<Mass> dynamicList = new ArrayList<>();
+//        if(m_macros.size()>0){
+//            for(PhyModel pm : m_macros)
+//                dynamicList.add(pm.getMassListRec());
+//        }
+//        return m_masses;
+//    }
+
+
     public ArrayList<Interaction> getInteractionList(){
         return m_interactions;
     }

@@ -39,6 +39,8 @@ public class PhysicsContext {
 
 	private PhyModel m_topLevelModel = new PhyModel("top", m_medium);
 
+	private CollisionEngine m_colEng = new CollisionEngine();
+
 	/* Library version */
 	public final static String VERSION = "##library.prettyVersion##";
 
@@ -156,10 +158,11 @@ public class PhysicsContext {
 		return m_errorCode;
 	}
 
-	public PhyModel model(){
+	public PhyModel mdl(){
 		return m_topLevelModel;
 	}
 
+	public CollisionEngine colEngine(){return m_colEng;}
 
 	/*************************************************/
 	/* Compute simulation steps */
@@ -191,6 +194,9 @@ public class PhysicsContext {
 		synchronized (m_lock) {
 			for (int j = 0; j < N; j++) {
 				m_topLevelModel.compute();
+				// TODO: in and out updates should occur AFTER collision calculations!
+				m_colEng.runCollisions();
+
 			}
 		}
 	}
