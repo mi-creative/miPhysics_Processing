@@ -96,7 +96,7 @@ public abstract class Mass extends PhyObject {
      * Get the value in the force buffer.
      * @return force value.
      */
-    protected Vect3D getFrc() {
+    public Vect3D getFrc() {
         return m_frc;
     }
 

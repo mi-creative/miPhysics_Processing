@@ -50,15 +50,8 @@ public class SpringDamper3D extends Interaction {
     }
 
     public void compute() {
-
-        //m_distSquared = m_mat1.m_pos.sqDist(m_mat2.m_pos);
-        //interSize = m_mat1.m_size + m_mat2.m_size;
-
         m_dist = m_mat1.m_pos.dist(m_mat2.m_pos);
         applyForcesAndShift(-(m_dist - m_dRest) * m_K - (m_dist - m_prevDist) * m_Z);
-
-
-
 
         //updateSquaredDist();
         //applyForces( -getElongation() * m_K - getRelativeVelocity() *  m_Z );

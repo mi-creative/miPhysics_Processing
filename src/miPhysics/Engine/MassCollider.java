@@ -2,9 +2,7 @@ package miPhysics.Engine;
 
 import javafx.util.Pair;
 import miPhysics.Utility.SpacePrint;
-
 import java.util.ArrayList;
-import java.util.ConcurrentModificationException;
 
 public class MassCollider {
 

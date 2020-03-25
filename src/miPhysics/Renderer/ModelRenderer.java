@@ -25,9 +25,19 @@ public class ModelRenderer implements PConstants{
     private ArrayList<MatDataHolder> m_matHolders = new ArrayList<>();
     private ArrayList<LinkDataHolder> m_linkHolders = new ArrayList<>();
 
+    private ArrayList<SpacePrint> m_objectPrints = new ArrayList<>();
+    private ArrayList<SpacePrint> m_intersecPrints = new ArrayList<>();
+
+
     private PVector m_zoomRatio = new PVector(1,1,1);
     private boolean m_matDisplay = true;
     private boolean m_topSceneFlag = true;
+
+    private boolean m_showObjectBoxes = false;
+    private boolean m_showIntersectionBoxes = false;
+
+    private boolean m_drawForces = false;
+    private float m_forceZoom = 1;
 
     public ModelRenderer(PApplet parent){
 
@@ -102,21 +112,38 @@ public class ModelRenderer implements PConstants{
         else return false;
     }
 
-
     public void displayMasses(boolean val){
         m_matDisplay = val;
+    }
+
+    public void displayObjectVolumes(boolean val){
+        m_showObjectBoxes = val;
+    }
+
+    public void displayForceVectors(boolean val){
+        m_drawForces = val;
+    }
+
+    public void setForceVectorScale(float val){
+        m_forceZoom = val;
+    }
+
+    public void displayIntersectionVolumes(boolean val){
+        m_showIntersectionBoxes = val;
     }
 
     public void renderScene(PhysicsContext c){
         m_matHolders.clear();
         m_linkHolders.clear();
+        m_intersecPrints.clear();
+        m_objectPrints.clear();
         m_topSceneFlag = true;
 
-        drawCollisionVolumes(c.colEngine());
-        addElementsToScene(c.mdl());
-
-
-        draw();
+        synchronized (c.getLock()) {
+            addIntersectionVolumes(c.colEngine());
+            addElementsToScene(c.mdl());
+        }
+        drawScene();
     }
 
     private void drawSpacePrint(SpacePrint sp){
@@ -135,38 +162,53 @@ public class ModelRenderer implements PConstants{
         }
     }
 
-    private void drawCollisionVolumes(CollisionEngine col){
-        app.stroke(0, 255, 0, 100);
-        for(MassCollider mc : col.getMassColliders()){
-            drawSpacePrint(mc.getSpacePrint());
-
+    private void addIntersectionVolumes(CollisionEngine col){
+        if(m_showIntersectionBoxes) {
+            for (MassCollider mc : col.getMassColliders()) {
+                m_intersecPrints.add(new SpacePrint(mc.getSpacePrint()));
+            }
         }
     }
 
+    private void drawIntersectionVolumes(){
+        app.stroke(0, 255, 0, 100);
+        for(SpacePrint sp : m_intersecPrints)
+            drawSpacePrint(sp);
+    }
+
+    private void drawObjectVolumes(){
+        app.stroke(255, 50, 50, 100);
+        for(SpacePrint sp: m_objectPrints)
+            drawSpacePrint(sp);
+    }
+
+    private void drawScene(){
+        this.drawMassesAndInteractions();
+        if(m_showObjectBoxes)
+            this.drawObjectVolumes();
+        if(m_showIntersectionBoxes)
+            this.drawIntersectionVolumes();
+    }
+
     private void addElementsToScene(PhyModel mdl) {
-
-        // Limit the synchronized section to a copy of the model state
-        synchronized (mdl.getLock()) {
-
             double dist;
 
-            if(!m_topSceneFlag) {
-                // TODO : Don't draw in the locked section! Get info then draw bounding shapes later
-                //SpacePrint sp = mdl.getSpacePrint();
-                app.stroke(255, 50, 50, 100);
-                drawSpacePrint(mdl.getSpacePrint());
+            if(m_showObjectBoxes) {
+                if (!m_topSceneFlag)
+                    m_objectPrints.add(new SpacePrint(mdl.getSpacePrint()));
+                else
+                    m_topSceneFlag = false;
             }
-            else
-                m_topSceneFlag = false;
 
             if(m_matDisplay) {
                 for(int i = 0; i < mdl.getNumberOfMasses(); i++){
                     Mass m_tmp = mdl.getMassList().get(i);
-                    m_matHolders.add(new MatDataHolder(
+                    m_matHolders.add(new MatDataHolder(m_tmp));
+                    /*m_matHolders.add(new MatDataHolder(
                             m_tmp.getPos(),
                             1,
                             m_tmp.getParam(param.RADIUS),
-                            m_tmp.getType()));
+                            m_tmp.getType()));*/
                 }
             }
 
@@ -185,12 +227,11 @@ public class ModelRenderer implements PConstants{
                         dist,
                         inter.getType()));
             }
-        }
         for(PhyModel pm : mdl.getSubModels())
             addElementsToScene(pm);
     }
 
-    void draw(){
+    void drawMassesAndInteractions(){
 
         int nbMats = m_matHolders.size();
         int nbLinks = m_linkHolders.size();
@@ -221,12 +262,18 @@ public class ModelRenderer implements PConstants{
                     tmp = matStyles.get(mH.getType());
                 else tmp = fallbackMat;
 
-                v = mH.getPos().toPVector().mult(1);
+                v = mH.getPos().mult(1);
                 app.pushMatrix();
                 app.translate(m_zoomRatio.x * v.x, m_zoomRatio.y * v.y, m_zoomRatio.z * v.z);
                 app.fill(tmp.red(), tmp.green(), tmp.blue());
                 app.noStroke();
                 app.sphere(m_zoomRatio.x * (float)mH.getRadius());
+                if(m_drawForces){
+                    app.strokeWeight(2);
+                    app.stroke(255, 0, 0);
+                    drawLine(mH.getFrc().mult(m_forceZoom));
+                }
+
                 app.popMatrix();
             }
         }
@@ -267,12 +314,19 @@ public class ModelRenderer implements PConstants{
     }
 
 
-    private void drawLine(Vect3D pos1, Vect3D pos2) {
-        app.line(m_zoomRatio.x * (float)pos1.x,
-                m_zoomRatio.y * (float)pos1.y,
-                m_zoomRatio.z * (float)pos1.z,
-                m_zoomRatio.x * (float)pos2.x,
-                m_zoomRatio.y * (float)pos2.y,
-                m_zoomRatio.z * (float)pos2.z);
+    private void drawLine(PVector pos1, PVector pos2) {
+        app.line(m_zoomRatio.x * pos1.x,
+                m_zoomRatio.y * pos1.y,
+                m_zoomRatio.z * pos1.z,
+                m_zoomRatio.x * pos2.x,
+                m_zoomRatio.y * pos2.y,
+                m_zoomRatio.z * pos2.z);
+    }
+
+    private void drawLine(PVector pos2) {
+        app.line(0,0,0,
+                m_zoomRatio.x * pos2.x,
+                m_zoomRatio.y * pos2.y,
+                m_zoomRatio.z * pos2.z);
     }
 }

@@ -46,22 +46,29 @@ void setup()
 
   phys = new PhysicsContext(44100);
 
-  miString string = new miString("string", med, 300, 0.3, 1, 0.4, 0.01, 0.1, 0.01);
-  string.rotate(0, PI/2, 0);
-  string.changeToFixedPoint("m_0");
-  string.changeToFixedPoint("m_299");
+  miTopoCreator string = new miTopoCreator("string", med);
+  string.setDim(300,1,1,1);
+  string.setGeometry(0.1,0.001);
+  string.setParams(1,0.4,0.01);
+  string.setMassRadius(0.3);
+  string.set2DPlane(true);
+  string.addBoundaryCondition(Bound.X_LEFT);
+  string.addBoundaryCondition(Bound.X_RIGHT);
+  string.generate();
+  
+  //string.rotate(0, PI/2, 0);
   
   
   
   PhyModel perc = new PhyModel("pluck", med);
 
-  input = perc.addMass("input", new PosInput3D(2, new Vect3D(30, 30, 0), 100));
+  input = perc.addMass("input", new PosInput3D(1, new Vect3D(30, 30, 0), 100));
 
   phys.mdl().addPhyModel(string);
   phys.mdl().addPhyModel(perc);
 
-  phys.mdl().addInOut("listener1", new Observer3D(filterType.HIGH_PASS), phys.mdl().getPhyModel("string").getMass("m_10"));
-  phys.mdl().addInOut("listener2", new Observer3D(filterType.HIGH_PASS), phys.mdl().getPhyModel("string").getMass("m_100"));
+  phys.mdl().addInOut("listener1", new Observer3D(filterType.HIGH_PASS), phys.mdl().getPhyModel("string").getMass("m_10_0_0"));
+  phys.mdl().addInOut("listener2", new Observer3D(filterType.HIGH_PASS), phys.mdl().getPhyModel("string").getMass("m_30_0_0"));
 
    // OPTION 1: add collisions manually between objects
   /*
@@ -72,7 +79,7 @@ void setup()
   }*/
 
   // OPTION 2: add a general collision between objects
-  phys.colEngine().addCollision(string, perc, 0.1, 0.01);
+  phys.colEngine().addCollision(string, perc, 0.005, 0.001);
 
   phys.init();
 
@@ -107,7 +114,7 @@ void draw()
 
   float x = 40 * (float)mouseX / width - 20;
   float y = 30 * (float)mouseY / height - 15;
-  input.drivePosition(new Vect3D(x, y, 0));
+  input.drivePosition(new Vect3D(x, y, 0.01));
 
   renderer.renderScene(phys);
 
