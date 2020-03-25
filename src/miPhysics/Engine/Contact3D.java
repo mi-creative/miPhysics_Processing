@@ -10,6 +10,12 @@ package miPhysics.Engine;
  */
 public class Contact3D extends Interaction {
 
+    // Monitor if this contact was previously active!
+    private boolean prev_state = false;
+    //private double dist;
+    //private double prev_dist;
+
+    private double interSize;
     /**
      * @param distance
      * @param K_param
@@ -25,9 +31,20 @@ public class Contact3D extends Interaction {
     }
 
     public void compute() {
-        updateSquaredDist();
-        if (m_distSquared < this.interRadiusSquared())
-            this.applyForces( - getInterpenetration() * m_K - getRelativeVelocity() *  m_Z  );
+
+        m_distSquared = m_mat1.m_pos.sqDist(m_mat2.m_pos);
+        interSize = m_mat1.m_size + m_mat2.m_size;
+
+        if (m_distSquared < (interSize * interSize)) {
+            // Only recalcultate the previous distance if the contact was inactive in previous step
+            // otherwise it is automatically updated at the end of the cycle.
+            m_dist = Math.sqrt(m_distSquared);
+            if(!prev_state)
+                m_prevDist = m_mat1.m_posR.dist(m_mat2.m_posR);
+            applyForcesAndShift(-(m_dist - interSize) * m_K - (m_dist - m_prevDist) * m_Z);
+            prev_state = true;
+        }
+        else prev_state = false;
     }
 
     public int setParam(param p, double val ){

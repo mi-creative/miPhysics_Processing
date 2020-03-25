@@ -34,7 +34,7 @@ void setup() {
   
   
   
-  Medium med = new Medium(0.000001, new Vect3D(0, -0.00,0.0));
+  Medium med = new Medium(0.00001, new Vect3D(0, -0.00,0.0));
   
   // Build an encapsulated macro element.
   miString mac = new miString("str1", med, 60, 10, 1, 0.005, 0.01, 10, 0.1);
@@ -43,14 +43,22 @@ void setup() {
   mac.rotate(0,PI/2,0);
   mac.translate(0, 0, 100);
   mac.addInOut("driver", new Driver3D(), "m_10");
+  
+  PhyModel miniModel = new PhyModel("extra", med);
+  miniModel.addMass("mass", new Mass3D(140, 40, new Vect3D(400,0,20)));
+  mac.addPhyModel(miniModel); 
+  mac.addInteraction("sp", new SpringDamper3D(60, 0.01, 0.1), mac.getMass("m_35"), miniModel.getMass("mass"));
+
+  miString miniModel2 = new miString("ministr", med, 60, 10, 0.1, 0.005, 0.01, 10, 10);
+  miniModel2.rotate(0,PI/2,0);
+  miniModel2.translate(400, 0, 20);
+  mac.addPhyModel(miniModel2);
+  mac.addInteraction("sp2", new SpringDamper3D(20, 0.01, 0.1), miniModel2.getMass("m_0"), miniModel.getMass("mass"));
+
 
    PhyModel m = new PhyModel("collider", med);
-   //miString m = new miString("str2", med, 3, 10, 1, 0.005, 0.01, 10, 10);
-   //m.rotate(0, PI/2, 00);
-   //   m.translate(-50, 0, -50);
-
-   m.addMass("mass", new Mass3D(140, 40, new Vect3D(100,0,0)));
-   m.addMass("mass2", new Mass3D(140, 40, new Vect3D(140,0,0)));
+   m.addMass("mass", new Mass3D(140, 40, new Vect3D(200,0,0)));
+   m.addMass("mass2", new Osc3D(140, 40, 0.001, 0.001, new Vect3D(240,0,0)));
    m.addInteraction("sp", new SpringDamper3D(40, 100, 10), "mass", "mass2" );
    
    m.addInOut("driver", new Driver3D(), "mass");
@@ -59,8 +67,8 @@ void setup() {
   phys.mdl().addPhyModel(mac);
   phys.mdl().addPhyModel(m);
   
-  phys.colEngine().addCollision(mac,m,0.1);
-  
+  phys.colEngine().addCollision(mac,m,0.1, 0.01);
+  phys.colEngine().addCollision(mac, miniModel2, 0.01, 0.03);
   phys.init(); 
   
   renderer = new ModelRenderer(this);
@@ -88,7 +96,7 @@ void keyPressed() {
   }
   if(key == 'a'){
     for(Driver3D driver: phys.mdl().getPhyModel("collider").getDrivers())
-      driver.applyFrc(new Vect3D(0, 0, 35));
+      driver.applyFrc(new Vect3D(0, 0, 55));
   }
   if(key == 'z')
     phys.mdl().removeInteraction("sp2");

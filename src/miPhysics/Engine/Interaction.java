@@ -88,6 +88,9 @@ public abstract class Interaction extends Module {
     protected void initDistances() {
         m_distSquared = m_mat1.getPos().sqDist(m_mat2.getPos());
         m_prevDistSquared = m_mat1.getPosR().sqDist(m_mat2.getPosR());
+
+        m_prevDist = Math.sqrt(m_prevDistSquared);
+        m_dist = Math.sqrt(m_distSquared);
     }
 
     /**
@@ -231,6 +234,24 @@ public abstract class Interaction extends Module {
         getMat2().m_frc.z -= lnkFrc * z_proj;
     }
 
+    protected void applyForcesAndShift(double lnkFrc){
+        double invDist = 1. / m_dist;
+
+        double x_proj = (m_mat1.m_pos.x - m_mat2.m_pos.x) * invDist;
+        double y_proj = (m_mat1.m_pos.y - m_mat2.m_pos.y) * invDist;
+        double z_proj = (m_mat1.m_pos.z - m_mat2.m_pos.z) * invDist;
+
+        m_mat1.m_frc.x += lnkFrc * x_proj;
+        m_mat1.m_frc.y += lnkFrc * y_proj;
+        m_mat1.m_frc.z += lnkFrc * z_proj;
+
+        m_mat2.m_frc.x -= lnkFrc * x_proj;
+        m_mat2.m_frc.y -= lnkFrc * y_proj;
+        m_mat2.m_frc.z -= lnkFrc * z_proj;
+
+        m_prevDist = m_dist;
+    }
+
     protected void applyForces(Vect3D frcVect) {
         getMat1().m_frc.add(frcVect);
         getMat2().m_frc.sub(frcVect);
@@ -243,18 +264,21 @@ public abstract class Interaction extends Module {
 
     /* Class attributes */
     private interType m_type;
-    private Mass m_mat1;
-    private Mass m_mat2;
+    protected Mass m_mat1;
+    protected Mass m_mat2;
 
 
     protected double m_distSquared;
     protected double m_prevDistSquared;
 
+    protected double m_dist;
+    protected double m_prevDist;
+
     protected double m_dRest;
     protected double m_dRsquared;
 
-    protected double m_interRadiusSquared;
-    protected double m_interRadius;
+    //protected double m_interRadiusSquared;
+    //protected double m_interRadius;
 
     protected double m_K;
     protected double m_Z;

@@ -25,10 +25,10 @@ public class miPhyAudioClient implements  AudioClient{
 
     private final AudioServer server;
     protected long step;
-    private PhyModel mdl;
+    private PhysicsContext phys;
 
-    public PhyModel getMdl() {
-        return mdl;
+    public PhysicsContext getPhyContext() {
+        return phys;
     }
 
     //protected String[] listeningPoint;
@@ -56,10 +56,10 @@ public class miPhyAudioClient implements  AudioClient{
         this.listeningPointsInd = listeningPointsInd;
     }*/
 
-    public static miPhyAudioClient miPhyJack(float sampleRate,int bufS, int inputChannelCount, int outputChannelCount, PhyModel mdl)
+    public static miPhyAudioClient miPhyJack(float sampleRate,int bufS, int inputChannelCount, int outputChannelCount, PhysicsContext c)
     {
         try {
-            return new miPhyAudioClient(sampleRate, inputChannelCount, outputChannelCount, mdl, bufS, "JACK");
+            return new miPhyAudioClient(sampleRate, inputChannelCount, outputChannelCount, c, bufS, "JACK");
         }
         catch(Exception e)
         {
@@ -68,10 +68,10 @@ public class miPhyAudioClient implements  AudioClient{
         return null;
     }
 
-    public static miPhyAudioClient miPhyClassic(float sampleRate, int bufS, int inputChannelCount, int outputChannelCount, PhyModel mdl)
+    public static miPhyAudioClient miPhyClassic(float sampleRate, int bufS, int inputChannelCount, int outputChannelCount, PhysicsContext c)
     {
         try {
-            return new miPhyAudioClient(sampleRate, inputChannelCount, outputChannelCount, mdl, bufS, "JavaSound");
+            return new miPhyAudioClient(sampleRate, inputChannelCount, outputChannelCount, c, bufS, "JavaSound");
         }
         catch(Exception e)
         {
@@ -80,7 +80,7 @@ public class miPhyAudioClient implements  AudioClient{
         return null;
     }
 
-    public miPhyAudioClient(float sampleRate, int inputChannelCount, int outputChannelCount, PhyModel mdl, int bufferSize, String serverType) throws Exception
+    public miPhyAudioClient(float sampleRate, int inputChannelCount, int outputChannelCount, PhysicsContext c, int bufferSize, String serverType) throws Exception
     {
         AudioServerProvider provider = null;
         for (AudioServerProvider p : ServiceLoader.load(AudioServerProvider.class)) {
@@ -105,8 +105,8 @@ public class miPhyAudioClient implements  AudioClient{
         server = provider.createServer(config, this);
 
         // Set the physical model from arguments (seems better than forcing to create it in here)
-        this.mdl = mdl;
-        mdl.setSimRate(44100);
+        this.phys = c;
+        this.phys.setSimRate(44100);
 
         buffers = new ArrayList<>(outputChannelCount);
 
@@ -177,11 +177,11 @@ public class miPhyAudioClient implements  AudioClient{
             }
             */
 
-                mdl.compute();
+                phys.computeSingleStep();
 
 
                 // This stuff could surely be a bit cleaner / efficient, this is a start...
-                ArrayList<Observer3D> obs = mdl.getObservers();
+                ArrayList<Observer3D> obs = phys.mdl().getObservers();
                 Observer3D tmp;
 
                 for (float[] buff : buffers) {

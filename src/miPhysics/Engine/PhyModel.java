@@ -1,6 +1,7 @@
 package miPhysics.Engine;
 
 import java.util.*;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -38,18 +39,33 @@ public class PhyModel extends PhyObject {
     public void compute(){
         // reset the space print of this model.
         m_sp.reset();
+        m_sp_overall.reset();
 
-        for(Mass m : m_masses)
+        /*
+        m_masses.parallelStream().forEach(p -> {
+            p.compute();
+            this.m_sp.update(p);
+        });
+        */
+        for(Mass m : m_masses) {
             m.compute();
+            m_sp.update(m);
+        }
+
         for(PhyModel o : m_macros)
             o.compute();
+        /*
+        m_interactions.parallelStream().forEach(p -> {
+            p.compute();
+        });
+        */
         for(Interaction i : m_interactions)
             i.compute();
         for(InOut io : m_inOuts)
             io.compute();
 
         // recalculate the space print (will use calculated prints of sub-models)
-        this.calcSpacePrint();
+        //this.calcSpacePrint();
 
     }
 
@@ -89,7 +105,6 @@ public class PhyModel extends PhyObject {
     public void addPhyModel(PhyModel mac){
         if(mac == null){
             System.out.println("Cannot add sub-macro " + mac + " !!! To " + m_name);
-            return;
         }
         else {
             if(m_macroLabels.containsKey(mac.getName())){
@@ -282,7 +297,7 @@ public class PhyModel extends PhyObject {
         return m_masses;
     }
 
-//
+
 //    // EXPERIMENTAL, find a better way to do this than creating a new array at each step!
 //    public ArrayList<Mass> getMassListRec(){
 //        ArrayList<Mass> dynamicList = new ArrayList<>();
@@ -322,6 +337,8 @@ public class PhyModel extends PhyObject {
 
     public ArrayList<Observer3D> getObservers(){
         ArrayList<Observer3D> list = new ArrayList<>();
+        for(PhyModel pm : m_macros)
+            list.addAll(pm.getObservers());
         for(InOut element : m_inOuts){
             if(element.getType() == inOutType.OBSERVER3D) {
                 Observer3D tmp = ((Observer3D)element);
@@ -466,13 +483,25 @@ public class PhyModel extends PhyObject {
     }
 
     public void calcSpacePrint(){
-        for(PhyModel pm : m_macros) {
-            //pm.calcSpacePrint();
-            m_sp.update(pm.m_sp);
-        }
+        /*ForkJoinPool pool = null;
+        pool = new ForkJoinPool(8);
+        pool.submit(() -> m_masses.parallelStream().forEach(p-> m_sp.update(p)));
+        */
+        // Calculate the space print for this object.
+        //m_masses.parallelStream().forEach(p-> m_sp.update(p));
+
         for(Mass m : m_masses){
             m_sp.update(m);
         }
+
+        /*
+        // Get the overall space print by adding prints from any submodules.
+        m_sp_overall.set(m_sp);
+        for(PhyModel pm : m_macros) {
+            //pm.calcSpacePrint();
+            m_sp_overall.update(pm.m_sp);
+        }
+        */
     }
 
     public SpacePrint getSpacePrint(){
@@ -569,6 +598,7 @@ public class PhyModel extends PhyObject {
     private int m_simRate = 1000;
 
     private SpacePrint m_sp = new SpacePrint();
+    private SpacePrint m_sp_overall = new SpacePrint();
 
     private Lock m_lock;
 

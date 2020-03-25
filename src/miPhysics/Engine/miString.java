@@ -12,7 +12,7 @@ public class miString extends PhyModel {
     double m_len;
     double m_dist;
 
-    public miString(String name, Medium m, int len, int size, double M, double K, double Z, double dist, double l0){
+    public miString(String name, Medium m, int len, float size, double M, double K, double Z, double dist, double l0){
         super(name, m);
         m_len  = len;
         m_size = size;

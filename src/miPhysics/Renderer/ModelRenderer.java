@@ -3,15 +3,8 @@ package miPhysics.Renderer;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import miPhysics.Engine.Interaction;
-import miPhysics.Engine.Mass;
-import miPhysics.Engine.PhyModel;
+import miPhysics.Engine.*;
 
-import miPhysics.Engine.PhysicsContext;
-import miPhysics.Engine.Vect3D;
-import miPhysics.Engine.interType;
-import miPhysics.Engine.massType;
-import miPhysics.Engine.param;
 import miPhysics.Utility.SpacePrint;
 import processing.core.PVector;
 
@@ -23,28 +16,22 @@ public class ModelRenderer implements PConstants{
 
     protected PApplet app;
 
-    HashMap <massType, MatRenderProps> matStyles = new HashMap <> ();
-    HashMap <interType, LinkRenderProps> linkStyles = new HashMap <> ();
+    private HashMap <massType, MatRenderProps> matStyles = new HashMap <> ();
+    private HashMap <interType, LinkRenderProps> linkStyles = new HashMap <> ();
 
-    MatRenderProps fallbackMat = new MatRenderProps(125, 125, 125, 5);
-    LinkRenderProps fallbackLink = new LinkRenderProps(125, 125, 125, 0);
+    private MatRenderProps fallbackMat = new MatRenderProps(125, 125, 125, 5);
+    private LinkRenderProps fallbackLink = new LinkRenderProps(125, 125, 125, 0);
 
-    ArrayList<MatDataHolder> m_matHolders = new ArrayList<>();
-    ArrayList<LinkDataHolder> m_linkHolders = new ArrayList<>();
+    private ArrayList<MatDataHolder> m_matHolders = new ArrayList<>();
+    private ArrayList<LinkDataHolder> m_linkHolders = new ArrayList<>();
 
-
-    float m_scale;
-    PVector m_zoomRatio;
-    boolean m_matDisplay;
+    private PVector m_zoomRatio = new PVector(1,1,1);
+    private boolean m_matDisplay = true;
+    private boolean m_topSceneFlag = true;
 
     public ModelRenderer(PApplet parent){
 
         this.app = parent;
-
-        m_scale = 1;
-        m_matDisplay = true;
-
-        m_zoomRatio = new PVector(1,1,1);
 
         // Default renderer settings for modules
         matStyles.put(massType.MASS3D, new MatRenderProps(180, 100, 0, 10));
@@ -65,7 +52,7 @@ public class ModelRenderer implements PConstants{
         linkStyles.put(interType.BUBBLE3D, new LinkRenderProps(30, 100, 100, 0));
         linkStyles.put(interType.ROPE3D, new LinkRenderProps(0, 255, 100, 255));
 
-    };
+    }
 
     public boolean setColor(massType m, int r, int g, int b){
         if(matStyles.containsKey(m)) {
@@ -123,55 +110,54 @@ public class ModelRenderer implements PConstants{
     public void renderScene(PhysicsContext c){
         m_matHolders.clear();
         m_linkHolders.clear();
+        m_topSceneFlag = true;
 
-        addElementsToScene(c.model());
+        drawCollisionVolumes(c.colEngine());
+        addElementsToScene(c.mdl());
+
 
         draw();
     }
 
+    private void drawSpacePrint(SpacePrint sp){
+        if(sp.isValid()) {
+            app.noFill();
+            Vect3D center = sp.center();
+            Vect3D size = sp.size();
+            app.pushMatrix();
+            app.translate(m_zoomRatio.x * (float) center.x,
+                    m_zoomRatio.y * (float) center.y,
+                    m_zoomRatio.z * (float) center.z);
+            app.box(m_zoomRatio.x * (float) size.x,
+                    m_zoomRatio.y * (float) size.y,
+                    m_zoomRatio.z * (float) size.z);
+            app.popMatrix();
+        }
+    }
+
+    private void drawCollisionVolumes(CollisionEngine col){
+        app.stroke(0, 255, 0, 100);
+        for(MassCollider mc : col.getMassColliders()){
+            drawSpacePrint(mc.getSpacePrint());
+
+        }
+    }
 
     private void addElementsToScene(PhyModel mdl) {
-
-        for(PhyModel pm : mdl.getSubModels())
-            addElementsToScene(pm);
 
         // Limit the synchronized section to a copy of the model state
         synchronized (mdl.getLock()) {
 
             double dist;
 
-
-            // TODO : Don't draw in the locked section! Get info then draw bounding shapes later
-            SpacePrint sp = mdl.getSpacePrint();
-            app.beginShape();
-            app.stroke(255, 120, 100,100 );
-            app.noFill();
-
-            app.vertex((float)sp.x_min, (float)sp.y_min, (float)sp.z_min);
-            app.vertex((float)sp.x_max, (float)sp.y_min, (float)sp.z_min);
-            app.vertex((float)sp.x_max, (float)sp.y_max, (float)sp.z_min);
-            app.vertex((float)sp.x_min, (float)sp.y_max, (float)sp.z_min);
-            app.vertex((float)sp.x_min, (float)sp.y_min, (float)sp.z_min);
-
-            app.vertex((float)sp.x_min, (float)sp.y_min, (float)sp.z_max);
-            app.vertex((float)sp.x_max, (float)sp.y_min, (float)sp.z_max);
-            app.vertex((float)sp.x_max, (float)sp.y_max, (float)sp.z_max);
-            app.vertex((float)sp.x_min, (float)sp.y_max, (float)sp.z_max);
-            app.vertex((float)sp.x_min, (float)sp.y_min, (float)sp.z_max);
-
-            app.vertex((float)sp.x_min, (float)sp.y_min, (float)sp.z_min);
-            app.vertex((float)sp.x_min, (float)sp.y_min, (float)sp.z_max);
-            app.vertex((float)sp.x_max, (float)sp.y_min, (float)sp.z_max);
-            app.vertex((float)sp.x_max, (float)sp.y_min, (float)sp.z_min);
-            app.vertex((float)sp.x_min, (float)sp.y_min, (float)sp.z_min);
-
-            app.vertex((float)sp.x_min, (float)sp.y_max, (float)sp.z_min);
-            app.vertex((float)sp.x_min, (float)sp.y_max, (float)sp.z_max);
-            app.vertex((float)sp.x_max, (float)sp.y_max, (float)sp.z_max);
-            app.vertex((float)sp.x_max, (float)sp.y_max, (float)sp.z_min);
-            app.vertex((float)sp.x_min, (float)sp.y_max, (float)sp.z_min);
-
-            app.endShape();
+            if(!m_topSceneFlag) {
+                // TODO : Don't draw in the locked section! Get info then draw bounding shapes later
+                //SpacePrint sp = mdl.getSpacePrint();
+                app.stroke(255, 50, 50, 100);
+                drawSpacePrint(mdl.getSpacePrint());
+            }
+            else
+                m_topSceneFlag = false;
 
             if(m_matDisplay) {
                 for(int i = 0; i < mdl.getNumberOfMasses(); i++){
@@ -200,6 +186,8 @@ public class ModelRenderer implements PConstants{
                         inter.getType()));
             }
         }
+        for(PhyModel pm : mdl.getSubModels())
+            addElementsToScene(pm);
     }
 
     void draw(){
