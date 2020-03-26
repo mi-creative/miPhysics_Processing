@@ -8,7 +8,7 @@ package miPhysics.Engine;
  *
  */
 public class Bubble3D extends Interaction {
-
+    private boolean prev_state = false;
     /**
      * Create the Bubble Interaction.
      * @param distance distance (radius) between both Mats.
@@ -29,9 +29,18 @@ public class Bubble3D extends Interaction {
      * @see physicalModelling.Interaction#compute()
      */
     public void compute() {
-        updateSquaredDist();
-        if (m_distSquared > m_dRsquared)
-            applyForces( - getElongation()* m_K - getRelativeVelocity() *  m_Z );
+        m_distSquared = m_mat1.m_pos.sqDist(m_mat2.m_pos);
+
+        if (m_distSquared > m_dRsquared) {
+            // Only recalcultate the previous distance if the contact was inactive in previous step
+            // otherwise it is automatically updated at the end of the cycle.
+            m_dist = Math.sqrt(m_distSquared);
+            if(!prev_state)
+                m_prevDist = m_mat1.m_posR.dist(m_mat2.m_posR);
+            applyForcesAndShift(-(m_dist - m_dRest) * m_K - (m_dist - m_prevDist) * m_Z);
+            prev_state = true;
+        }
+        else prev_state = false;
     }
 
     public int setParam(param p, double val ){

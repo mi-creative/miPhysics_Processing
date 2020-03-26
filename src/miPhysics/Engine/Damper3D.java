@@ -15,8 +15,9 @@ public class Damper3D extends Interaction {
   }
 
   public void compute() {
-    updateSquaredDist();
-    applyForces( - getRelativeVelocity() *  m_Z );
+    m_dist = m_mat1.m_pos.dist(m_mat2.m_pos);
+    applyForcesAndShift( - (m_dist - m_prevDist) * m_Z);
+
   }
 
 

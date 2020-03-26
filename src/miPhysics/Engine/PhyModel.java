@@ -79,6 +79,14 @@ public class PhyModel extends PhyObject {
         return m_massLabels.get(name);
     }
 
+    public Interaction getInteraction(String name){
+        if(m_intLabels.get(name) == null){
+            System.out.println("Cannot find interaction " + name + " in macro " + m_name);
+            return null;
+        }
+        return m_intLabels.get(name);
+    }
+
     public PhyModel getPhyModel(String name){
         if(m_macroLabels.get(name) == null){
             System.out.println("Cannot find sub-macro " + name + " in macro " + m_name);

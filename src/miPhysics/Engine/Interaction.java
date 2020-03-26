@@ -197,7 +197,7 @@ public abstract class Interaction extends Module {
      * @return elongation value.
      */
     public double getElongation() {
-        return getDist() - m_dRest;
+        return m_dist - m_dRest;
     }
 
     protected double getInterpenetration(){

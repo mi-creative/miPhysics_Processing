@@ -17,8 +17,8 @@ public class Spring3D extends Interaction {
   }
 
   public void compute() {
-    updateSquaredDist();
-    applyForces( - getElongation() * m_K );
+    m_dist = m_mat1.m_pos.dist(m_mat2.m_pos);
+    applyForcesAndShift(-(m_dist - m_dRest) * m_K - (m_dist - m_prevDist) * m_Z);
   }
 
   public int setParam(param p, double val ){
