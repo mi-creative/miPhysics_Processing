@@ -31,14 +31,8 @@ public class miPhyAudioClient implements  AudioClient{
         return phys;
     }
 
-    //protected String[] listeningPoint;
-    //protected int[] listeningPointsInd;
-    //private float[] data;
 
     private List<float[]> buffers;
-
-    //private int idx;
-    //private float prevSample;
 
     private listenerAxis axis = listenerAxis.ALL;
     private boolean listenFrc = false;
@@ -47,14 +41,6 @@ public class miPhyAudioClient implements  AudioClient{
 
     private Thread runner;
 
-    /*
-    public void setListeningPoint(String[] listeningPoint) {
-        this.listeningPoint = listeningPoint;
-    }
-    public void setListeningPoint(String[] listeningPoint,int[] listeningPointsInd) {
-        this.listeningPoint = listeningPoint;
-        this.listeningPointsInd = listeningPointsInd;
-    }*/
 
     public static miPhyAudioClient miPhyJack(float sampleRate,int bufS, int inputChannelCount, int outputChannelCount, PhysicsContext c)
     {
@@ -169,13 +155,14 @@ public class miPhyAudioClient implements  AudioClient{
             for (int i = 0; i < nframes; i++) {
                 int currentChannel = 0;
 
-            /*
-            for(PositionController pc:mdl.getPositionControllers())
-            {
-                FloatBuffer input = inputs.get(pc.getInputIndex());
-                pc.setValue(input.get(i));
-            }
-            */
+                //TODO : Not handling audio inputs yet! Should implement this sometime
+                /*
+                for(PositionController pc:mdl.getPositionControllers())
+                {
+                    FloatBuffer input = inputs.get(pc.getInputIndex());
+                    pc.setValue(input.get(i));
+                }
+                */
 
                 phys.computeSingleStep();
 

@@ -21,6 +21,7 @@ public class MatDataHolder{
         this.m_type = element.getType();
         this.m_radius = element.getParam(param.RADIUS);
         this.m_frc = element.getFrc().toPVector();
+        this.m_name = element.getName();
     }
 
     public MatDataHolder(Vect3D p, double m, double radius, massType t){
@@ -52,6 +53,10 @@ public class MatDataHolder{
     public double getMass(){return this.m_mass;}
     public massType getType(){return this.m_type;}
     public double getRadius(){return this.m_radius;}
+
+    public String getName(){
+        return m_name;
+    }
 
     public PVector getFrc(){return this.m_frc;}
 

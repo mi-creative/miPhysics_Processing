@@ -45,7 +45,6 @@ public class Driver3D extends InOut {
         this.connect(m);
     }
 
-    public void setParam(param p, double val ){}
 
 
 }

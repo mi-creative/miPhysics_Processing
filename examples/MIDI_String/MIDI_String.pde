@@ -1,8 +1,12 @@
 import peasy.*;
+import themidibus.*; //Import the library
+
+MidiBus myBus; // The MidiBus
 
 import miPhysics.Renderer.*;
 import miPhysics.Engine.*;
 import miPhysics.Engine.Sound.*;
+import miPhysics.Control.*;
 
 /* Phyiscal parameters for the model */
 float m = 1.0;
@@ -23,11 +27,17 @@ float currAudio = 0;
 PeasyCam cam;
 
 PhysicsContext phys; 
-Observer3D listener;
 PosInput3D input;
+Driver3D d;
+
+
+
 ModelRenderer renderer;
 
 miPhyAudioClient audioStreamHandler;
+
+ArrayList<MidiController> midiCtrls = new ArrayList<MidiController>();
+ArrayList<midiNote> midiNotes = new ArrayList<midiNote>();
 
 float audioOut = 0;
 int smoothing = 100;
@@ -60,12 +70,13 @@ void setup()
   string.addBoundaryCondition(Bound.X_RIGHT);
   string.generate();
   
-  for(Mass m : string.getMassList())
+  for(Mass m : string.getMassList()){
     phys.addMassToSubset(m,"masses");
+    println(m.getName());
+  }
   for(Interaction i : string.getInteractionList())
     phys.addInteractionToSubset(i,"springs");  
-  
-  
+    
   
   PhyModel perc = new PhyModel("pluck", med);
 
@@ -73,19 +84,14 @@ void setup()
 
   phys.mdl().addPhyModel(string);
   phys.mdl().addPhyModel(perc);
+  
+  
+  d = phys.mdl().addInOut("driver", new Driver3D(), "string/m_10_0_0");
 
-  phys.mdl().addInOut("listener1", new Observer3D(filterType.HIGH_PASS), phys.mdl().getPhyModel("string").getMass("m_10_0_0"));
-  phys.mdl().addInOut("listener2", new Observer3D(filterType.HIGH_PASS), phys.mdl().getPhyModel("string").getMass("m_30_0_0"));
+  phys.mdl().addInOut("listener1", new Observer3D(filterType.HIGH_PASS), "string/m_10_0_0");
+  phys.mdl().addInOut("listener2", new Observer3D(filterType.HIGH_PASS), "string/m_30_0_0");
 
-   // OPTION 1: add collisions manually between objects
-  /*
-  int i = 0;
-  for(Mass m : string.getMassList()){
-    phys.mdl().addInteraction("cnt"+i, new Contact3D(0.3, 0.01), m, perc.getMass("input"));
-    i++;
-  }*/
 
-  // OPTION 2: add a general collision between objects
   phys.colEngine().addCollision(string, perc, 0.005, 0.001);
 
   phys.init();
@@ -101,6 +107,23 @@ void setup()
   renderer.displayIntersectionVolumes(true);
   renderer.displayForceVectors(false);
   //renderer.setForceVectorScale(1000);
+  
+  
+  
+    //Adjust this to your settings using 
+   MidiBus.list();  
+  // Knowing that first integer paramater below is the input MIDI device and the second the output MIDI device
+  myBus = new MidiBus(this, 0, 1); // Create a new MidiBus with no input device and the default Java Sound Synthesizer as the output device.
+  
+  
+  // !! The previous param control modifier is currently broken...
+  midiCtrls.add(MidiController.addMidiController(phys,1, 0.01, 0.3, "sprd", "stiffness",0.05));
+  midiCtrls.add(MidiController.addMidiController(phys,2, 0.0001, 0.1, "sprd", "damping",0.05));
+  midiCtrls.add(MidiController.addMidiController(phys,3, 0.5, 1.5, "str", "mass",0.05));
+  midiCtrls.add(MidiController.addMidiController(phys,4, 20, 100, "gnd", "distX",0.05));
+
+  midiNotes.add(new midiNote(0, 1, string, "impulse"));
+  
 
   audioStreamHandler = miPhyAudioClient.miPhyClassic(44100, 128, 0, 2, phys);
   audioStreamHandler.setListenerAxis(listenerAxis.Y);
@@ -152,5 +175,41 @@ void keyPressed(){
       phys.setParamForInteractionSubset("springs", param.STIFFNESS, 0.4);
       break;
   }
+}
 
+
+void controllerChange(int channel, int number, int value) {
+  println("controller : " + channel + " " + number + " " + value);
+  synchronized(phys.getLock())
+  {
+    if(number == 74)
+      phys.setParamForMassSubset("masses", param.MASS, value+1);
+    /*
+    for (MidiController mc : midiCtrls)
+    {
+      mc.changeParam(number, value);
+    }
+    */
+  }
+}
+
+void noteOn(int channel, int pitch, int velocity) {
+  synchronized(phys.getLock())
+  {
+  for (midiNote mn : midiNotes)
+  {
+    mn.on(pitch, velocity);
+  }
+  }
+}
+
+void noteOff(int channel,int pitch,int velocity)
+{
+  synchronized(phys.getLock())
+  {
+  for (midiNote mn : midiNotes)
+  {
+    mn.off(pitch, velocity);
+  }
+  }
 }

@@ -23,19 +23,8 @@ public abstract class Module {
     }
 
     protected abstract void compute();
+    public abstract int setParam(param p, double val );
+    public abstract double getParam(param p);
 
     String m_name;
 }
-
-
-/*
-interface Module {
-
-    void setName();
-    String getName();
-    void compute();
-    int setParam(param p, double val );
-    double getParam(param p);
-
-}
-*/

@@ -44,7 +44,6 @@ public class MassCollider {
         // Clear possible collisions from previous step
         m_massList1.clear();
         m_massList2.clear();
-        boolean fake = false;
         // Generate the new intersection box between both physical models
         m_intersect.intersection(getMdl1().getSpacePrint(), getMdl2().getSpacePrint());
 
@@ -52,36 +51,16 @@ public class MassCollider {
         if(m_intersect.isValid()){
             //System.out.println("Valid intersection : Looking for potentially colliding masses...");
             // Get all masses from model 1 that may be touching this box
-
-            /*
-            getMdl1().getMassList().parallelStream().forEach(p-> {
-                if(m_intersect.intersectsWithMass(p))
-                    m_massList1.add(p);
-
-            });
-            */
-
             for(Mass m : getMdl1().getMassList()){
                 if(m_intersect.intersectsWithMass(m))
                     m_massList1.add(m);
             }
 
-            /*
-            getMdl2().getMassList().parallelStream().forEach(p-> {
-                if(m_intersect.intersectsWithMass(p))
-                    m_massList2.add(p);
-            });
-            */
-
             // Get all masses from model 2 that may be touching this box
-
             for(Mass m : getMdl2().getMassList()){
                 if(m_intersect.intersectsWithMass(m))
                     m_massList2.add(m);
             }
-
-
-
             //System.out.println("Found " + m_massList1.size() + " and " + m_massList2.size() + " masses to test");
         }else{
             //System.out.println("No masses to run the collision engine with.");
@@ -97,8 +76,6 @@ public class MassCollider {
         for(int i = 0; i < m_massList1.size(); i++){
             for(int j = 0; j < m_massList2.size(); j++){
                 // CAREFUL ! the delayed distance could be false here !
-                //System.out.println(m_massList1.get(i).getName());
-                //System.out.println(m_massList2.get(j).getName());
                 contactLink.connect(m_massList1.get(i), m_massList2.get(j));
                 contactLink.compute();
                 //System.out.println("Computing collision...");

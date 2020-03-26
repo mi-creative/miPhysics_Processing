@@ -13,11 +13,12 @@ import peasy.*;
 
 PeasyCam cam;
 PhysicsContext phys;
+PhyModel mdl;
 ModelRenderer renderer;
 
 Driver3D d;
 
-boolean applyFrc = false;
+boolean applyFrc = true;
 
 int displayRate = 60;
 
@@ -26,50 +27,39 @@ void setup() {
   
   cam = new PeasyCam(this, 100);
   cam.setMinimumDistance(50);
-  cam.setMaximumDistance(1500);
+  cam.setMaximumDistance(3500);
   cam.rotateX(radians(-90));
   cam.setDistance(500);  // distance from looked-at point
 
-  size(900, 850, P3D);
+  //size(900, 850, P3D);
+  fullScreen(P3D);
   background(0);
 
   // instantiate our physical model context
-  phys = new PhysicsContext(1050, displayRate);
+  phys = new PhysicsContext(550, displayRate);
+  mdl = phys.mdl();
   renderer = new ModelRenderer(this);
 
-
-  // some initial coordinates for the modules.
-  Vect3D initPos = new Vect3D(270., 0., 200.);
-  Vect3D initPos2 = new Vect3D(180., 0., 200.);
-  Vect3D initPos3 = new Vect3D(90., 0., 200.);
-  Vect3D initPos4 = new Vect3D(0., 0., 200.);
-  Vect3D initV = new Vect3D(0., 0., 0.);
-
-  phys.setGlobalGravity(0, 0, 0.005);
-  phys.setGlobalFriction(0.005);
+  phys.setGlobalGravity(0, 0, 0.00);
+  phys.setGlobalFriction(0.0001);
   
-  phys.mdl().addMass("mass1", new Mass3D(20, 50, initPos, initV));
-  phys.mdl().addMass("mass2", new Mass3D(1, 15, initPos2, initV));
-  phys.mdl().addMass("mass3", new Mass3D(1, 10, initPos3, initV));
-  phys.mdl().addMass("ground1", new Ground3D(5, initPos4));
-
-  phys.mdl().addInteraction("rope1", new Rope3D(90, 0.02, 0.08), "mass1", "mass2");
-  phys.mdl().addInteraction("rope2", new Rope3D(90, 0.02, 0.08), "mass2", "mass3");
-  phys.mdl().addInteraction("rope3", new Rope3D(90, 0.02, 0.08), "mass3", "ground1");
+  phys.mdl().addPhyModel(buildWreckingBall("ball", phys.getGlobalMedium()));
+  phys.mdl().addPhyModel(buildPyramid("pyramid", phys.getGlobalMedium(),10, 30, 10));
   
-  for(int i = 1; i <=3; i++)
-    phys.mdl().addInteraction("plane"+i, new PlaneContact3D(0.1, 0.1, 0, -160),"mass"+i);
-    
-  d = phys.mdl().addInOut("driver", new Driver3D(), "mass1");
-
+  phys.colEngine().addCollision(phys.mdl().getPhyModel("pyramid"), phys.mdl().getPhyModel("ball"), 0.1, 0.01);
+  phys.colEngine().addAutoCollision(phys.mdl().getPhyModel("pyramid"),100,30,0.1,0.1);
     
   renderer.displayMasses(true);
   renderer.setColor(interType.ROPE3D, 155, 200, 200, 255);
   renderer.setSize(interType.ROPE3D, 3);
-  renderer.displayModuleNames(true);
+  renderer.displayModuleNames(false);
   renderer.setTextSize(30);
   renderer.setTextRotation(-PI/2,0,0);
   renderer.setForceVectorScale(500);
+  
+  renderer.displayObjectVolumes(true);
+  renderer.displayIntersectionVolumes(true);
+  renderer.displayAutoCollisionVolumes(true);
 
   // initialise the model before starting calculations.
   phys.init();
@@ -79,27 +69,17 @@ void setup() {
 void draw() {
   
   directionalLight(251, 182, 126, 0, -1, 0);
-  ambientLight(102, 102, 102);
+  ambientLight(152, 152, 152);
   background(0);
   strokeWeight(1);
-  drawPlane(0, -160, 160); 
+  drawPlane(2, 0, 1600); 
   
   displayModelInstructions();
 
   phys.computeScene();
   renderer.renderScene(phys);
 
-  if(applyFrc == true)
-    d.applyFrc(new Vect3D(1, 0.1, 0));
-
-  Vect3D pos1 = phys.mdl().getMass("mass1").getPos();
-  Vect3D pos2 = phys.mdl().getMass("mass2").getPos();
-  Vect3D pos3 = phys.mdl().getMass("mass3").getPos();
-
-  println("Mass 1 position: " + pos1);
-  println("Mass 2 position: " + pos2);
-  println("Mass 3 position: " + pos3);
-  
+  println(frameRate);
 }
 
 
@@ -108,7 +88,7 @@ void draw() {
 void keyPressed() {
   switch(key){
     case ' ':
-      applyFrc = true;
+      phys.setGlobalGravity(0, 0, 0.005);
       break;
     case 'i':
       renderer.toggleModuleNameDisplay();
@@ -136,7 +116,7 @@ void keyReleased(){
 
 
 void drawPlane(int orientation, float position, float size){
-  fill(0, 255, 100, 100);
+  fill(170, 255, 200, 100);
   stroke(255);
   
   beginShape();
@@ -165,8 +145,6 @@ void displayModelInstructions(){
   textMode(MODEL);
   textSize(16);
   fill(255, 255, 255);
-  text("Maintain the space bar to pull mass back, release to unleash it", 10, 30);
-  text("Press 'i' to toggle module name display", 10, 55);
-  text("Press 'f' to toggle force display", 10, 80);
+  text("Press the space bar to enable gravity and wreck the pyramid !", 10, 30);
   cam.endHUD();
 }

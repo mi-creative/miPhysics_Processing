@@ -1,7 +1,6 @@
 package miPhysics.Engine;
 
 import java.util.*;
-import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -41,12 +40,6 @@ public class PhyModel extends PhyObject {
         m_sp.reset();
         m_sp_overall.reset();
 
-        /*
-        m_masses.parallelStream().forEach(p -> {
-            p.compute();
-            this.m_sp.update(p);
-        });
-        */
         for(Mass m : m_masses) {
             m.compute();
             m_sp.update(m);
@@ -54,19 +47,11 @@ public class PhyModel extends PhyObject {
 
         for(PhyModel o : m_macros)
             o.compute();
-        /*
-        m_interactions.parallelStream().forEach(p -> {
-            p.compute();
-        });
-        */
+
         for(Interaction i : m_interactions)
             i.compute();
         for(InOut io : m_inOuts)
             io.compute();
-
-        // recalculate the space print (will use calculated prints of sub-models)
-        //this.calcSpacePrint();
-
     }
 
     // Can always apply a force to all the components of a macro object
@@ -284,8 +269,7 @@ public class PhyModel extends PhyObject {
 
 
     public <T extends InOut> T addInOut(String name, T mod, String m_id) {
-        Mass m = m_massLabels.get(m_id);
-        return addInOut(name, mod, m);
+        return addInOut(name, mod, findMassFromAddress(m_id));
     }
 
 
@@ -296,17 +280,6 @@ public class PhyModel extends PhyObject {
     public ArrayList<Mass> getMassList(){
         return m_masses;
     }
-
-
-//    // EXPERIMENTAL, find a better way to do this than creating a new array at each step!
-//    public ArrayList<Mass> getMassListRec(){
-//        ArrayList<Mass> dynamicList = new ArrayList<>();
-//        if(m_macros.size()>0){
-//            for(PhyModel pm : m_macros)
-//                dynamicList.add(pm.getMassListRec());
-//        }
-//        return m_masses;
-//    }
 
 
     public ArrayList<Interaction> getInteractionList(){
@@ -350,6 +323,8 @@ public class PhyModel extends PhyObject {
 
     public ArrayList<Driver3D> getDrivers(){
         ArrayList<Driver3D> list = new ArrayList<>();
+        for(PhyModel pm : m_macros)
+            list.addAll(pm.getDrivers());
         for(InOut element : m_inOuts){
             if(element.getType() == inOutType.DRIVER3D) {
                 Driver3D tmp = ((Driver3D)element);
@@ -442,6 +417,18 @@ public class PhyModel extends PhyObject {
     public int removeMassAndConnectedInteractions(String mName) {
         Mass m = m_massLabels.get(mName);
         return removeMassAndConnectedInteractions(m);
+    }
+
+    // CHEAP HACK: have to implement these if we want them to be inherited from the Module class
+    public int setParam(param p, double val ){
+        System.out.println("This method is empty for a general physical model but can be overriden" +
+                "for specific cases (e.g. strings, regular topologies, etc.");
+        return -1;
+    }
+    public double getParam(param p){
+        System.out.println("This method is empty for a general physical model but can be overriden" +
+                "for specific cases (e.g. strings, regular topologies, etc.");
+        return -1;
     }
 
 

@@ -125,6 +125,33 @@ public abstract class Mass extends PhyObject {
     public abstract double getParam(param p);
 
 
+    // This stuff should probably be set differently...
+    // Keeping it here so the MIDI/Control examples don't break.
+
+    /**
+     * Trigger a temporary velocity control
+     * @param v the velocity used to displace the mat at each step
+     */
+
+    public void triggerVelocityControl(Vect3D v)
+    {
+        m_controlled = true;
+        m_controlVelocity = v;
+    }
+
+    /**
+     * Stop the current temporary velocity control
+     */
+    public void stopVelocityControl()
+    {
+        m_controlled = false;
+    }
+
+
+    protected boolean m_controlled=false;
+    protected Vect3D m_controlVelocity = new Vect3D(0,0,0);
+
+
 
     /* Class attributes */
 

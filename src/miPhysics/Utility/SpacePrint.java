@@ -33,6 +33,16 @@ public class SpacePrint {
         valid = sp.valid;
     }
 
+    public void set(double x_mi, double x_ma, double y_mi, double y_ma, double z_mi, double z_ma){
+        x_max = x_ma;
+        x_min = x_mi;
+        y_max = y_ma;
+        y_min = y_mi;
+        z_max = z_ma;
+        z_min = z_mi;
+        valid = true;
+    }
+
     // TODO: this is a crap initialisation !!
     public void reset(){
         x_max = -100000;

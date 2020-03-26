@@ -27,7 +27,7 @@ public class ModelRenderer implements PConstants{
 
     private ArrayList<SpacePrint> m_objectPrints = new ArrayList<>();
     private ArrayList<SpacePrint> m_intersecPrints = new ArrayList<>();
-
+    private ArrayList<SpacePrint> m_autoColPrints = new ArrayList<>();
 
     private PVector m_zoomRatio = new PVector(1,1,1);
     private boolean m_matDisplay = true;
@@ -35,9 +35,14 @@ public class ModelRenderer implements PConstants{
 
     private boolean m_showObjectBoxes = false;
     private boolean m_showIntersectionBoxes = false;
+    private boolean m_showAutoCollisionBoxes = false;
 
     private boolean m_drawForces = false;
     private float m_forceZoom = 1;
+    private boolean m_drawNames = false;
+    private float m_textSize = 8;
+
+    private PVector m_textRot = new PVector();
 
     public ModelRenderer(PApplet parent){
 
@@ -120,6 +125,11 @@ public class ModelRenderer implements PConstants{
         m_showObjectBoxes = val;
     }
 
+    public void displayAutoCollisionVolumes(boolean val){
+        m_showAutoCollisionBoxes = val;
+    }
+
+
     public void displayForceVectors(boolean val){
         m_drawForces = val;
     }
@@ -132,6 +142,28 @@ public class ModelRenderer implements PConstants{
         m_showIntersectionBoxes = val;
     }
 
+    public void setTextSize(float i){
+        m_textSize = i;
+    }
+
+    public void setTextRotation(float x, float y, float z){
+        m_textRot.x = x;
+        m_textRot.y = y;
+        m_textRot.z = z;
+    }
+
+    public void displayModuleNames(boolean val){
+        m_drawNames = val;
+    }
+
+    public void toggleModuleNameDisplay(){
+        m_drawNames = !m_drawNames;
+    }
+
+    public void toggleForceDisplay(){
+        m_drawForces = !m_drawForces;
+    }
+
     public void renderScene(PhysicsContext c){
         m_matHolders.clear();
         m_linkHolders.clear();
@@ -140,7 +172,7 @@ public class ModelRenderer implements PConstants{
         m_topSceneFlag = true;
 
         synchronized (c.getLock()) {
-            addIntersectionVolumes(c.colEngine());
+            addCollisionVolumes(c.colEngine());
             addElementsToScene(c.mdl());
         }
         drawScene();
@@ -162,13 +194,32 @@ public class ModelRenderer implements PConstants{
         }
     }
 
-    private void addIntersectionVolumes(CollisionEngine col){
+    private void addCollisionVolumes(CollisionEngine col){
         if(m_showIntersectionBoxes) {
             for (MassCollider mc : col.getMassColliders()) {
                 m_intersecPrints.add(new SpacePrint(mc.getSpacePrint()));
             }
         }
+        if(m_showAutoCollisionBoxes){
+            for(AutoCollider ac : col.getAutoColliders()){
+                m_autoColPrints = ac.activeVoxelSpacePrints();
+            }
+        }
     }
+
+
+
+    private void drawScene(){
+        this.drawMassesAndInteractions();
+        if(m_showObjectBoxes)
+            this.drawObjectVolumes();
+        if(m_showIntersectionBoxes)
+            this.drawIntersectionVolumes();
+        if(m_showAutoCollisionBoxes){
+            this.drawAutoCollisionVolumes();
+        }
+    }
+
 
     private void drawIntersectionVolumes(){
         app.stroke(0, 255, 0, 100);
@@ -182,13 +233,13 @@ public class ModelRenderer implements PConstants{
             drawSpacePrint(sp);
     }
 
-    private void drawScene(){
-        this.drawMassesAndInteractions();
-        if(m_showObjectBoxes)
-            this.drawObjectVolumes();
-        if(m_showIntersectionBoxes)
-            this.drawIntersectionVolumes();
+    void drawAutoCollisionVolumes() {
+        app.stroke(0, 0, 255, 100);
+        for(SpacePrint sp : m_autoColPrints)
+            drawSpacePrint(sp);
     }
+
+
 
     private void addElementsToScene(PhyModel mdl) {
             double dist;
@@ -213,6 +264,8 @@ public class ModelRenderer implements PConstants{
             }
 
             for(Interaction inter : mdl.getInteractionList()){
+                m_linkHolders.add(new LinkDataHolder(inter));
+                /*
                 if(inter.getType() == interType.SPRINGDAMPER1D)
                     dist = inter.calcDist1D();
                 else if(inter.getType() == interType.CONTACT3D)
@@ -226,12 +279,13 @@ public class ModelRenderer implements PConstants{
                         inter.getMat2().getPos(),
                         dist,
                         inter.getType()));
+                 */
             }
         for(PhyModel pm : mdl.getSubModels())
             addElementsToScene(pm);
     }
 
-    void drawMassesAndInteractions(){
+    private void drawMassesAndInteractions(){
 
         int nbMats = m_matHolders.size();
         int nbLinks = m_linkHolders.size();
@@ -241,6 +295,10 @@ public class ModelRenderer implements PConstants{
         MatDataHolder mH;
         LinkDataHolder lH;
 
+        //app.textMode(SHAPE);
+
+        app.pushStyle();
+        app.textAlign(BOTTOM, CENTER);
 
         if(m_matDisplay){
 
@@ -273,6 +331,16 @@ public class ModelRenderer implements PConstants{
                     app.stroke(255, 0, 0);
                     drawLine(mH.getFrc().mult(m_forceZoom));
                 }
+                if(m_drawNames) {
+                    float rad = (float) (mH.getRadius()* 1.1);
+                    app.rotateX(m_textRot.x);
+                    app.rotateY(m_textRot.y);
+                    app.rotateZ(m_textRot.z);
+                    app.translate(0, rad+ m_textSize*(float)0.2, 0);
+                    app.fill(255);
+                    app.textSize(m_textSize);
+                    app.text(mH.getName(), 0,0,0);
+                }
 
                 app.popMatrix();
             }
@@ -296,9 +364,9 @@ public class ModelRenderer implements PConstants{
 
                     app.strokeWeight(tmp2.getSize());
                     app.stroke(tmp2.redStretch(stretching),
-                            tmp2.greenStretch(stretching),
-                            tmp2.blueStretch(stretching),
-                            tmp2.alphaStretch(stretching));
+                        tmp2.greenStretch(stretching),
+                        tmp2.blueStretch(stretching),
+                        tmp2.alphaStretch(stretching));
 
                     drawLine(lH.getP1(), lH.getP2());
                 }
@@ -310,7 +378,26 @@ public class ModelRenderer implements PConstants{
 
                 drawLine(lH.getP1(), lH.getP2());
             }
+
+            if(m_drawNames) {
+                if(lH.getType() != interType.PLANECONTACT3D) {
+                    app.pushMatrix();
+
+                    app.translate((lH.getP1().x + lH.getP2().x) * (float) 0.5,
+                            (lH.getP1().y + lH.getP2().y) * (float) 0.5 + m_textSize / 2,
+                            (lH.getP1().z + lH.getP2().z) * (float) 0.5);
+                    app.rotateX(m_textRot.x);
+                    app.rotateY(m_textRot.y);
+                    app.rotateZ(m_textRot.z);
+
+                    app.fill(255);
+                    app.textSize(m_textSize);
+                    app.text(lH.getName(), 0, 0, 0);
+                    app.popMatrix();
+                }
+            }
         }
+        app.popStyle();
     }
 
 

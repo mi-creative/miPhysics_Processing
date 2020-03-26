@@ -42,14 +42,14 @@ void setup()
   cam.setMinimumDistance(50);
   cam.setMaximumDistance(5500);
 
-  Medium med = new Medium(0.000001, new Vect3D(0, -0.00, 0.0));
+  Medium med = new Medium(0.00001, new Vect3D(0, -0.00, 0.0));
 
   phys = new PhysicsContext(44100);
 
   miTopoCreator string = new miTopoCreator("string", med);
-  string.setDim(35,2,1,1);
-  string.setGeometry(0.1,0.09);
-  string.setParams(1,0.05,0.0001);
+  string.setDim(65,1,1,1);
+  string.setGeometry(0.1,0.05);
+  string.setParams(1,0.3,0.001);
   string.setMassRadius(0.1);
   string.set2DPlane(true);
   string.addBoundaryCondition(Bound.X_LEFT);
@@ -58,9 +58,9 @@ void setup()
   string.rotate(-PI/12, 0, 0);
   
   miTopoCreator shape = new miTopoCreator("more", med);
-  shape.setDim(45,2,1,1);
-  shape.setGeometry(0.1,0.08);
-  shape.setParams(1,0.05,0.0001);
+  shape.setDim(95,1,1,1);
+  shape.setGeometry(0.1,0.05);
+  shape.setParams(1,0.3,0.001);
   shape.setMassRadius(0.1);
   shape.set2DPlane(true);
   shape.addBoundaryCondition(Bound.X_LEFT);
@@ -69,15 +69,14 @@ void setup()
   shape.translate(2, 0., 0);
   
   miTopoCreator mini = new miTopoCreator("end", med);
-  mini.setDim(15,2,1,1);
-  mini.setGeometry(0.1,0.08);
-  mini.setParams(1,0.05,0.0001);
+  mini.setDim(45,1,1,1);
+  mini.setGeometry(0.1,0.01);
+  mini.setParams(1,0.05,0.001);
   mini.setMassRadius(0.1);
   mini.set2DPlane(true);
   mini.addBoundaryCondition(Bound.X_LEFT);
   mini.addBoundaryCondition(Bound.X_RIGHT);
   mini.generate();
-  mini.rotate(PI/12,0, 0);
   mini.translate(5.5, -0.8, 0);
   
   //phys.mdl().addInteraction("link", new SpringDamper3D(0.6, 0.001, 0.01), shape.getMass("m_3_0_0") ,string.getMass("m_33_0_0"));
@@ -88,7 +87,7 @@ void setup()
   
   PhyModel perc = new PhyModel("pluck", med);
 
-  input = perc.addMass("input", new PosInput3D(0.2, new Vect3D(30, 30, 0), 100));
+  input = perc.addMass("input", new PosInput3D(0.5, new Vect3D(30, 30, 0), 100));
 
   phys.mdl().addPhyModel(string);
   phys.mdl().addPhyModel(perc);

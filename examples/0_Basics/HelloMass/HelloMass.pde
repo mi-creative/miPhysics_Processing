@@ -17,14 +17,8 @@ PeasyCam cam;
 
 int displayRate = 90;
 
-float m = 1.0;
-float k = 0.001;
-float z = 0.01;
-float dist = 70;
-
-/*  global physical model object : will contain the model and run calculations. */
-PhysicalModel mdl;
-
+PhysicsContext phys;
+PhyModel mdl;
 ModelRenderer renderer;
 
 
@@ -35,7 +29,14 @@ void setup() {
   cam.setMinimumDistance(100);
   cam.setMaximumDistance(500);
   
-  mdl = new PhysicalModel(300, displayRate);
+  float m = 1.0;
+float k = 0.001;
+float z = 0.01;
+float dist = 70;
+  
+  // Create a global physics context and get the "top level" physical model from this context.
+  phys = new PhysicsContext(300, displayRate);
+  mdl = phys.mdl();
   
   /* Create a mass, connected to fixed points via Spring Dampers */
   mdl.addMass("mass", new Mass3D(m, 15, new Vect3D(0., 0., 0.), new Vect3D(0., 0., 0.)));
@@ -57,28 +58,55 @@ void setup() {
   
   mdl.addInOut("drive",new Driver3D(),"mass");
   
-  mdl.init(); 
+  phys.init(); 
   
   renderer = new ModelRenderer(this);
   renderer.setZoomVector(1,1,1);
+  renderer.displayModuleNames(true);
+  renderer.setTextSize(6);
+  renderer.setForceVectorScale(1000);
 }
 
 void draw() {
-  directionalLight(251, 102, 126, 0, -1, 0);
-  ambientLight(102, 102, 102);
+  directionalLight(251, 102, 126, 0, 1, 0);
+  ambientLight(142, 142, 142);
   background(0);
   stroke(255);
   
-  /* Calculate Physics */
-  mdl.compute();
-  renderer.renderModel(mdl);
+  displayModelInstructions();
+  
+  phys.computeScene();
+  renderer.renderScene(phys);
 
 }
 
 /* Trigger random forces on the mass */
 void keyPressed() {
-  if (key == ' '){
-    for(Driver3D driver : mdl.getDrivers())
-      driver.applyFrc(new Vect3D(random(-5,5),random(-5,5),random(-5,5)));
+  switch(key){
+    case ' ':
+      for(Driver3D driver : mdl.getDrivers())
+        driver.applyFrc(new Vect3D(random(-5,5),random(-5,5),random(-5,5)));
+      break;
+    case 'i':
+      renderer.toggleModuleNameDisplay();
+      break;
+    case 'f':
+      renderer.toggleForceDisplay();
+      break;
+    default:
+      break;
   }
+}
+
+
+
+void displayModelInstructions(){
+  cam.beginHUD();
+  textMode(MODEL);
+  textSize(16);
+  fill(255, 255, 255);
+  text("Press the space bar to trigger random forces on the mass", 10, 30);
+  text("Press 'i' to toggle module name display", 10, 55);
+  text("Press 'f' to toggle force display", 10, 80);
+  cam.endHUD();
 }

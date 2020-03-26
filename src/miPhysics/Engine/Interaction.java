@@ -120,8 +120,7 @@ public abstract class Interaction extends Module {
         return (m_mat1.getPos().z - m_mat2.getPos().z);
     }
 
-    public abstract int setParam(param p, double val );
-    public abstract double getParam(param p);
+
 
 
     /**

@@ -62,6 +62,17 @@ public abstract class InOut extends Module {
     }
 
 
+    // CHEAP HACK: have to implement these if we want them to be inherited from the Module class
+    public int setParam(param p, double val ){
+        System.out.println("Currently no accessible params for InOut Modules");
+        return -1;
+    }
+    public double getParam(param p){
+        System.out.println("Currently no accessible params for InOut Modules");
+        return -1;
+    }
+
+
 
     /* Class attributes */
     private inOutType m_type;

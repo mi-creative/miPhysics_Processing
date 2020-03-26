@@ -5,6 +5,7 @@ import java.util.ArrayList;
 public class CollisionEngine {
 
     ArrayList<MassCollider> m_colliders = new ArrayList<>();
+    ArrayList<AutoCollider> m_autoColliders = new ArrayList<>();
 
     public CollisionEngine(){
 
@@ -18,6 +19,12 @@ public class CollisionEngine {
         //mc.setStiffness(stiffness);
         //m_colliders.add(mc);
     }
+
+
+    public void addAutoCollision(PhyModel mdl, double size, int dim, double stiffness, double damping){
+        m_autoColliders.add(new AutoCollider(mdl, size, dim, dim, dim, stiffness, damping));
+    }
+
 
     private void recursiveColliders(PhyModel m1, PhyModel m2, double K, double Z,  ArrayList<MassCollider> colList){
         for(PhyModel pm1 : m1.getSubModels()){
@@ -40,13 +47,19 @@ public class CollisionEngine {
             mc.detectCollisions();
             mc.computeCollisions();
         }
+        for(AutoCollider ac : m_autoColliders){
+            ac.generateSpaceTags();
+            ac.computeCollisions();
+        }
     }
 
     public ArrayList<MassCollider> getMassColliders(){
         return m_colliders;
     }
 
-
+    public ArrayList<AutoCollider> getAutoColliders(){
+        return m_autoColliders;
+    }
 
 
 }

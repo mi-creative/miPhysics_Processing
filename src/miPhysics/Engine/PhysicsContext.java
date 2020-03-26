@@ -4,7 +4,7 @@ import java.util.*;
 import java.util.concurrent.locks.*;
 import java.lang.Math;
 
-//import miPhysics.Control.ParamController;
+import miPhysics.Control.ParamController;
 
 import processing.core.*;
 
@@ -35,19 +35,20 @@ public class PhysicsContext {
 
 	private int m_errorCode = 0;
 
-	//private Map<String, ParamController> param_controllers;
-
 	private PhyModel m_topLevelModel = new PhyModel("top", m_medium);
 
 	private CollisionEngine m_colEng = new CollisionEngine();
+
+	private Map<String, ParamController> param_controllers = new HashMap<>();
+
 
 	/* Library version */
 	public final static String VERSION = "##library.prettyVersion##";
 
 	public PhysicsContext(int sRate, int displayRate, paramSystem sys) {
 
-		m_mass_subsets = new HashMap<String, ArrayList<Mass>>();
-		m_int_subsets = new HashMap<String, ArrayList<Interaction>>();
+		m_mass_subsets = new HashMap<>();
+		m_int_subsets = new HashMap<>();
 
 
 		m_unit_system = sys;
@@ -111,13 +112,7 @@ public class PhysicsContext {
 	 * Delete all modules in the model and start from scratch.
 	 */
 	public void clearModel() {
-		/*
-		for (int i = m_masses.size() - 1; i >= 0; i--) {
-			m_masses.remove(i);
-		}
-		for (int i = m_interactions.size() - 1; i >= 0; i--) {
-			m_interactions.remove(i);
-		}*/
+		m_topLevelModel.clear();
 	}
 
 
@@ -175,7 +170,7 @@ public class PhysicsContext {
 	 * the init() method has been called.
 	 *
 	 */
-	public void compute() {
+	public void computeScene() {
 		double floatFrames = this.simDisplayFactor + this.residue;
 		int nbSteps = (int) Math.floor(floatFrames);
 		this.residue = floatFrames - (double) nbSteps;
@@ -193,6 +188,10 @@ public class PhysicsContext {
 	public void computeNSteps(int N) {
 		synchronized (m_lock) {
 			for (int j = 0; j < N; j++) {
+
+				if(!param_controllers.isEmpty())
+					param_controllers.forEach((k,v)-> v.updateParams());
+
 				m_topLevelModel.compute();
 				// TODO: in and out updates should occur AFTER collision calculations!
 				m_colEng.runCollisions();
@@ -251,6 +250,13 @@ public class PhysicsContext {
 		System.out.println("Finished model init.\n");
 	}
 
+	public void addParamController(String name,String subsetName,String paramName,float rampTime)
+	{
+		param_controllers.put(name,new ParamController(this,rampTime,subsetName,paramName));
+	}
+
+	public ParamController getParamController(String name) {return param_controllers.get(name);}
+
 
 	/**
 	 * Create an empty Mass module subset item. Module references will be associated to
@@ -262,7 +268,7 @@ public class PhysicsContext {
 	 */
 	public int createMassSubset(String name) {
 		if (!this.m_mass_subsets.containsKey(name)) {
-			this.m_mass_subsets.put(name, new ArrayList<Mass>());
+			this.m_mass_subsets.put(name, new ArrayList<>());
 			return 0;
 		}
 		return -1;
@@ -276,24 +282,14 @@ public class PhysicsContext {
 	 *            the subset to add the module to.
 	 * @return 0 if success, -1 if fail.
 	 */
-//	public int addMassToSubset(Mass m, String subsetName) {
-//		if (m != null) {
-//			this.m_mass_subsets.get(subsetName).add(m);
-//			return 0;
-//		}
-//		else
-//			return -1;
-//	}
-//
-//	public int addMassToSubset(String name, String subsetName) {
-//		Mass m = m_massLabels.get(name);
-//		if (m != null){
-//			this.addMassToSubset(m, subsetName);
-//			return 0;
-//		}
-//		else
-//			return -1;
-//	}
+	public int addMassToSubset(Mass m, String subsetName) {
+		if (m != null) {
+			this.m_mass_subsets.get(subsetName).add(m);
+			return 0;
+		}
+		else
+			return -1;
+	}
 
 
 	/**
@@ -306,58 +302,45 @@ public class PhysicsContext {
 	 */
 	public int createInteractionSubset(String name) {
 		if (!this.m_int_subsets.containsKey(name)) {
-			this.m_int_subsets.put(name, new ArrayList<Interaction>());
+			this.m_int_subsets.put(name, new ArrayList<>());
 			return 0;
 		}
 		return -1;
 	}
 
-//
-//	public int addInteractionToSubset(Interaction l, String subsetName) {
-//		if (l != null) {
-//			this.m_int_subsets.get(subsetName).add(l);
-//			return 0;
-//		}
-//		return -1;
-//	}
-//
-//	public int addInteractionToSubset(String name, String subsetName) {
-//		Interaction l = m_intLabels.get(name);
-//		if (l != null){
-//			this.addInteractionToSubset(l, subsetName);
-//			return 0;
-//		}
-//		else
-//			return -1;
-//	}
+
+	public int addInteractionToSubset(Interaction l, String subsetName) {
+		if (l != null) {
+			this.m_int_subsets.get(subsetName).add(l);
+			return 0;
+		}
+		return -1;
+	}
 
 
-	public int setParamForMassSubset(param p, double value, String subsetName){
+	private <T extends Module> void setParamForGroup(ArrayList<T> m, param p, double value){
+		for(int i = m.size()-1; i >= 0; i--){
+			if(m.get(i) == null)
+				m.remove(i);
+			else
+				m.get(i).setParam(p, value);
+		}
+	}
+
+	public int setParamForMassSubset(String subsetName, param p, double value){
 		if (this.m_mass_subsets.containsKey(subsetName)) {
 			ArrayList<Mass> mList = this.m_mass_subsets.get(subsetName);
-
-			for(int i = mList.size()-1; i >= 0; i--){
-				if(mList.get(i) == null)
-					mList.remove(i);
-				else
-					mList.get(i).setParam(p, value);
-			}
+				this.setParamForGroup(mList, p, value);
 			return 0;
 		}
 		else return -1;
 	}
 
 
-	public int setParamForInteractionSubset(param p, double value, String subsetName){
+	public int setParamForInteractionSubset(String subsetName, param p, double value){
 		if (this.m_int_subsets.containsKey(subsetName)) {
 			ArrayList<Interaction> iList = this.m_int_subsets.get(subsetName);
-
-			for(int i = iList.size()-1; i >= 0; i--){
-				if(iList.get(i) == null)
-					iList.remove(i);
-				else
-					iList.get(i).setParam(p, value);
-			}
+			this.setParamForGroup(iList, p, value);
 			return 0;
 		}
 		else return -1;
