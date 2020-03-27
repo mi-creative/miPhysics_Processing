@@ -13,6 +13,11 @@ public class miString extends PhyModel {
     double m_dist;
 
     public miString(String name, Medium m, int len, float size, double M, double K, double Z, double dist, double l0){
+        this(name, m, len, size, M, K, Z, dist, l0, "3D");
+    }
+
+
+    public miString(String name, Medium m, int len, float size, double M, double K, double Z, double dist, double l0, String twoD){
         super(name, m);
         m_len  = len;
         m_size = size;
@@ -26,7 +31,12 @@ public class miString extends PhyModel {
 
         // should definitely to some try catching in here...
         for(int i = 0; i < len; i++) {
-            Mass3D tmp = new Mass3D(M, size, new Vect3D(0,0,i*dist), new Vect3D(0,0,i*dist));
+            Mass tmp;
+            if(twoD.equals("2D"))
+                tmp = new Mass2DPlane(M, size, new Vect3D(0,0,i*dist), new Vect3D(0,0,i*dist));
+            else
+                tmp = new Mass3D(M, size, new Vect3D(0,0,i*dist), new Vect3D(0,0,i*dist));
+
             tmp.setName("m_"+i);
             tmp.setMedium(m_medium);
             this.m_masses.add(tmp);

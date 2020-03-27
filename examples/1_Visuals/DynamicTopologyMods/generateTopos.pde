@@ -1,4 +1,6 @@
-void generatePinScreen(PhysicalModel mdl, int dimX, int dimY, String mName, String lName, double masValue, double dist, double K_osc, double Z_osc, double K, double Z) {
+
+
+void generatePinScreen(PhyModel mdl, int dimX, int dimY, String mName, String lName, double masValue, double dist, double K_osc, double Z_osc, double K, double Z) {
   // add the masses to the model: name, mass, initial pos, init speed
   String masName;
   Vect3D X0, V0;

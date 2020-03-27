@@ -82,7 +82,7 @@ void draw() {
   stroke(255);
   
   /* Calculate Physics */
-  phys.compute();
+  phys.computeScene();
   renderer.renderScene(phys);
   
 

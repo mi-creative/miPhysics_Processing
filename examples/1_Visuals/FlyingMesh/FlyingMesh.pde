@@ -11,7 +11,7 @@ Press and release space bar to invert gravity.
 */
 
 import miPhysics.Engine.*;
-import miPhysics.ModelRenderer.*;
+import miPhysics.Renderer.*;
 
 import peasy.*;
 
@@ -27,7 +27,7 @@ int dimX = 80;
 int dimY = 80;
 
 /*  global physical model object : will contain the model and run calculations. */
-PhysicalModel mdl;
+PhysicsContext phys;
 ModelRenderer renderer;
 
 
@@ -46,20 +46,22 @@ void setup() {
   background(0);
 
   // instantiate our physical model context
-  mdl = new PhysicalModel(300, displayRate);
+  phys = new PhysicsContext(300, displayRate);
   
-  generateVolume(mdl, dimX, dimY, 1, "mass", "spring", 1., 20, 0.2, 0.06);
-  
-  mdl.setGlobalGravity(0,0, 0.0001);
-  mdl.setGlobalFriction(0.0001);
+  generateVolume(phys.mdl(), dimX, dimY, 1, "mass", "spring", 1., 20, 0.2, 0.06);
+    
+  phys.setGlobalGravity(0,0, 0.001);
+  phys.setGlobalFriction(0.0001);
 
-  for (int i = 0; i <mdl.getNumberOfMasses(); i++)
-    mdl.addInteraction("plane"+i, new PlaneContact3D(0.01, 0.01, 2, -160), "mass"+(i+1));
+  for (int i = 0; i <phys.mdl().getNumberOfMasses(); i++)
+    phys.mdl().addInteraction("plane"+i, new PlaneContact3D(0.01, 0.01, 2, 0), "mass"+(i+1));
 
   // initialise the model before starting calculations.
-  mdl.init();
+  phys.init();
   
   renderer = new ModelRenderer(this);
+  
+  
   
   if (BASIC_VISU){
     renderer.displayMasses(false);
@@ -81,26 +83,28 @@ void setup() {
 
 void draw() {
 
-  mdl.compute();
+  phys.computeScene();
 
   directionalLight(251, 102, 126, 0, -1, 0);
   ambientLight(102, 102, 102);
   background(0);
-  drawPlane(2, -160, 800); 
+  drawPlane(2, 0, 800); 
+
+  displayModelInstructions();
 
   translate(-700,-700,0);
-  renderer.renderModel(mdl);
+  renderer.renderScene(phys);
 }
 
 
 void keyPressed() {
   if (key == ' ')
-    mdl.setGlobalGravity(0,0,-0.001);
+    phys.setGlobalGravity(0,0,-0.001);
 }
 
 void keyReleased() {
   if (key == ' ')
-    mdl.setGlobalGravity(0,0,0.001);
+    phys.setGlobalGravity(0,0,0.001);
 }
 
 
@@ -126,4 +130,16 @@ void drawPlane(int orientation, float position, float size){
     vertex(position,-size, size);
   }
   endShape(CLOSE);
+}
+
+
+void displayModelInstructions(){
+  cam.beginHUD();
+  textMode(MODEL);
+  textSize(16);
+  fill(255, 255, 255);
+  text("Not much to say about this model...", 10, 30);
+  text("The mesh has no auto-collision, so it folds 'into' itself", 10, 55);
+  cam.endHUD();
+
 }

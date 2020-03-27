@@ -77,6 +77,7 @@ public class MassCollider {
             for(int j = 0; j < m_massList2.size(); j++){
                 // CAREFUL ! the delayed distance could be false here !
                 contactLink.connect(m_massList1.get(i), m_massList2.get(j));
+                contactLink.forceRecalculateVelocity();
                 contactLink.compute();
                 //System.out.println("Computing collision...");
 

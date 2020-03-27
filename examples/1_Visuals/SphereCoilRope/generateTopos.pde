@@ -1,4 +1,4 @@
-void generatePinSphere(PhysicalModel mdl, String mName, String lName, float masValue, float dist, float K_osc, float Z_osc, float K, float Z) {
+void generatePinSphere(PhyModel mdl, String mName, String lName, float masValue, float dist, float K_osc, float Z_osc, float K, float Z) {
   // add the masses to the model: name, mass, initial pos, init speed
   String celName;
   Vect3D X0, V0;

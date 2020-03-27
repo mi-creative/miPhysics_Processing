@@ -21,6 +21,8 @@ PhysicsContext phys;
 PhyModel mdl;
 ModelRenderer renderer;
 
+boolean showInstructions = true;
+
 
 void setup() {
   frameRate(displayRate);
@@ -62,7 +64,7 @@ float dist = 70;
   
   renderer = new ModelRenderer(this);
   renderer.setZoomVector(1,1,1);
-  renderer.displayModuleNames(true);
+  renderer.displayModuleNames(false);
   renderer.setTextSize(6);
   renderer.setForceVectorScale(1000);
 }
@@ -73,7 +75,8 @@ void draw() {
   background(0);
   stroke(255);
   
-  displayModelInstructions();
+  if(showInstructions)
+    displayModelInstructions();
   
   phys.computeScene();
   renderer.renderScene(phys);
@@ -93,6 +96,9 @@ void keyPressed() {
     case 'f':
       renderer.toggleForceDisplay();
       break;
+    case 'h':
+      showInstructions = !showInstructions;
+      break;    
     default:
       break;
   }
@@ -108,5 +114,7 @@ void displayModelInstructions(){
   text("Press the space bar to trigger random forces on the mass", 10, 30);
   text("Press 'i' to toggle module name display", 10, 55);
   text("Press 'f' to toggle force display", 10, 80);
+  text("Press 'h' to hide instructions", 10, 110);
+
   cam.endHUD();
 }

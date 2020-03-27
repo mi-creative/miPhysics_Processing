@@ -94,7 +94,7 @@ void setup()
   renderer.setStrainGradient(interType.SPRINGDAMPER3D, true, 0.1);
   renderer.setStrainColor(interType.SPRINGDAMPER3D, 105, 100, 200, 255);
 
-  audioStreamHandler = miPhyAudioClient.miPhyClassic(44100, 256, 0, 2, phys);
+  audioStreamHandler = miPhyAudioClient.miPhyClassic(44100, 512, 0, 2, phys);
   audioStreamHandler.setListenerAxis(listenerAxis.Y);
   audioStreamHandler.start();
 

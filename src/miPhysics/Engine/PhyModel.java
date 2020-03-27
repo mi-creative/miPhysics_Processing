@@ -32,6 +32,11 @@ public class PhyModel extends PhyObject {
         m_masses.clear();
         // And clear the list of interactions...
         m_interactions.clear();
+
+        m_massLabels.clear();
+        m_macroLabels.clear();
+        m_intLabels.clear();
+        m_inOutLabels.clear();
     }
 
     // Need to check the validity of this... Are mass/interaction phases properly timed when descending recursively?
@@ -421,7 +426,6 @@ public class PhyModel extends PhyObject {
         return -1;
     }
 
-
     public int removeMassAndConnectedInteractions(String mName) {
         Mass m = m_massLabels.get(mName);
         return removeMassAndConnectedInteractions(m);
@@ -439,42 +443,49 @@ public class PhyModel extends PhyObject {
         return -1;
     }
 
+    private void replaceMassInModel(Mass m, int idx){
+        m_masses.set(idx, m);
+        m_massLabels.replace(m.getName(), m);
+        for(Interaction i: m_interactions){
+            if(i.getMat1() == m)
+                i.connect(m, i.getMat2());
+            if(i.getMat2() == m)
+                i.connect(i.getMat1(), m);
+        }
+    }
 
-    /**
-     * Quick module substitution (for boundary conditions).
-     *
-     * @param masName
-     *            identifier of the Mass module.
-     * @return
-     */
-    public void changeToFixedPoint(String masName) {
+
+    public void changeToFixedPoint(String masName){
         Mass m = m_massLabels.get(masName);
+        this.changeToFixedPoint(m);
+    }
 
+
+    public void changeToFixedPoint(Mass m) {
         try {
 
             String name = m.getName();
-            System.out.println("Changing to fixed point:  " + m.getName());
+            //System.out.println("Changing to fixed point:  " + m.getName());
             int idx = m_masses.indexOf(m);
 
             Ground3D tmp = new Ground3D(m.getParam(param.RADIUS), m.getPos());
             tmp.setName(name);
-            //m = tmp;
-            m_masses.set(idx, tmp);
-            m_massLabels.replace(name, tmp);
 
-            Mass m1, m2;
-            for(Interaction i: m_interactions){
-                if(i.getMat1() == m)
-                    i.connect(tmp, i.getMat2());
-                if(i.getMat2() == m)
-                    i.connect(i.getMat1(), tmp);
-            }
+            replaceMassInModel(tmp, idx);
 
         } catch (Exception e) {
             System.out.println("Couldn't change into fixed point:  " + m.getName() + ": " + e);
             System.exit(1);
         }
-        return;
+    }
+
+
+    public Mass getFirstMass(){
+        return m_masses.get(0);
+    }
+
+    public Mass getLastMass(){
+        return m_masses.get(m_masses.size()-1);
     }
 
     public void calcSpacePrint(){
@@ -551,7 +562,7 @@ public class PhyModel extends PhyObject {
             Mass tmp = this.getMassList().get(i);
             mdlPos = tmp.getPos();
 
-            System.out.println("Input pos: " + mdlPos);
+            //System.out.println("Input pos: " + mdlPos);
 
             mdlPos.x -= offset.x;
             mdlPos.y -= offset.y;
@@ -561,7 +572,7 @@ public class PhyModel extends PhyObject {
             v.y = Ayx*mdlPos.x + Ayy*mdlPos.y + Ayz*mdlPos.z;
             v.z = Azx*mdlPos.x + Azy*mdlPos.y + Azz*mdlPos.z;
 
-            System.out.println("Position: " + v);
+            //System.out.println("Position: " + v);
 
             v.x += offset.x + tx;
             v.y += offset.y + ty;

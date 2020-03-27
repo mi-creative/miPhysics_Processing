@@ -1,5 +1,11 @@
+/* 
+We could acually replace all of this by using the miTopoCreator class !
+The explicit version below is left to show how you can build structures
+using loops, etc.
+*/
 
-void generateVolume(PhysicalModel mdl, int dimX, int dimY, int dimZ, String mName, String lName, float masValue, float dist, float K, float Z) {
+
+void generateVolume(PhyModel mdl, int dimX, int dimY, int dimZ, String mName, String lName, float masValue, float dist, float K, float Z) {
   // add the masses to the model: name, mass, initial pos, init speed
   String masName;
   Vect3D X0, V0;

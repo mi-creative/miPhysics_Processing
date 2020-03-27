@@ -31,6 +31,7 @@ public class ModelRenderer implements PConstants{
 
     private PVector m_zoomRatio = new PVector(1,1,1);
     private boolean m_matDisplay = true;
+    private boolean m_interactionDisplay = true;
     private boolean m_topSceneFlag = true;
 
     private boolean m_showObjectBoxes = false;
@@ -121,6 +122,10 @@ public class ModelRenderer implements PConstants{
         m_matDisplay = val;
     }
 
+    public void displayInteractions(boolean val){
+        m_interactionDisplay = val;
+    }
+
     public void displayObjectVolumes(boolean val){
         m_showObjectBoxes = val;
     }
@@ -159,10 +164,19 @@ public class ModelRenderer implements PConstants{
     public void toggleModuleNameDisplay(){
         m_drawNames = !m_drawNames;
     }
-
     public void toggleForceDisplay(){
         m_drawForces = !m_drawForces;
     }
+    public void toggleAutoCollisonVolumesDisplay(){
+        m_showAutoCollisionBoxes = !m_showAutoCollisionBoxes;
+    }
+    public void toggleIntersectionVolumesDisplay(){
+        m_showIntersectionBoxes = !m_showIntersectionBoxes;
+    }
+    public void toggleObjectVolumesDisplay(){
+        m_showObjectBoxes = !m_showObjectBoxes;
+    }
+
 
     public void renderScene(PhysicsContext c){
         m_matHolders.clear();
@@ -263,8 +277,9 @@ public class ModelRenderer implements PConstants{
                 }
             }
 
-            for(Interaction inter : mdl.getInteractionList()){
-                m_linkHolders.add(new LinkDataHolder(inter));
+            if(m_interactionDisplay) {
+                for (Interaction inter : mdl.getInteractionList()) {
+                    m_linkHolders.add(new LinkDataHolder(inter));
                 /*
                 if(inter.getType() == interType.SPRINGDAMPER1D)
                     dist = inter.calcDist1D();
@@ -280,6 +295,7 @@ public class ModelRenderer implements PConstants{
                         dist,
                         inter.getType()));
                  */
+                }
             }
         for(PhyModel pm : mdl.getSubModels())
             addElementsToScene(pm);
@@ -346,54 +362,55 @@ public class ModelRenderer implements PConstants{
             }
         }
 
+        if(m_interactionDisplay){
+            for ( int i = 0; i < nbLinks; i++) {
 
-        for ( int i = 0; i < nbLinks; i++) {
+                lH = m_linkHolders.get(i);
 
-            lH = m_linkHolders.get(i);
+                app.strokeWeight(1);
 
-            app.strokeWeight(1);
+                if (linkStyles.containsKey(lH.getType()))
+                    tmp2 = linkStyles.get(lH.getType());
+                else tmp2 = fallbackLink;
 
-            if (linkStyles.containsKey(lH.getType()))
-                tmp2 = linkStyles.get(lH.getType());
-            else tmp2 = fallbackLink;
+                if(tmp2.strainGradient()){
+                    if ((tmp2.getAlpha() > 0) || (tmp2.getStrainAlpha() > 0))
+                    {
+                        float stretching = (float)lH.getElongation();
 
-            if(tmp2.strainGradient()){
-                if ((tmp2.getAlpha() > 0) || (tmp2.getStrainAlpha() > 0))
-                {
-                    float stretching = (float)lH.getElongation();
+                        app.strokeWeight(tmp2.getSize());
+                        app.stroke(tmp2.redStretch(stretching),
+                            tmp2.greenStretch(stretching),
+                            tmp2.blueStretch(stretching),
+                            tmp2.alphaStretch(stretching));
 
+                        drawLine(lH.getP1(), lH.getP2());
+                    }
+                }
+
+                else if (tmp2.getAlpha() > 0) {
+                    app.stroke(tmp2.red(), tmp2.green(), tmp2.blue(), tmp2.getAlpha());
                     app.strokeWeight(tmp2.getSize());
-                    app.stroke(tmp2.redStretch(stretching),
-                        tmp2.greenStretch(stretching),
-                        tmp2.blueStretch(stretching),
-                        tmp2.alphaStretch(stretching));
 
                     drawLine(lH.getP1(), lH.getP2());
                 }
-            }
 
-            else if (tmp2.getAlpha() > 0) {
-                app.stroke(tmp2.red(), tmp2.green(), tmp2.blue(), tmp2.getAlpha());
-                app.strokeWeight(tmp2.getSize());
+                if(m_drawNames) {
+                    if(lH.getType() != interType.PLANECONTACT3D) {
+                        app.pushMatrix();
 
-                drawLine(lH.getP1(), lH.getP2());
-            }
+                        app.translate((lH.getP1().x + lH.getP2().x) * (float) 0.5,
+                                (lH.getP1().y + lH.getP2().y) * (float) 0.5 + m_textSize / 2,
+                                (lH.getP1().z + lH.getP2().z) * (float) 0.5);
+                        app.rotateX(m_textRot.x);
+                        app.rotateY(m_textRot.y);
+                        app.rotateZ(m_textRot.z);
 
-            if(m_drawNames) {
-                if(lH.getType() != interType.PLANECONTACT3D) {
-                    app.pushMatrix();
-
-                    app.translate((lH.getP1().x + lH.getP2().x) * (float) 0.5,
-                            (lH.getP1().y + lH.getP2().y) * (float) 0.5 + m_textSize / 2,
-                            (lH.getP1().z + lH.getP2().z) * (float) 0.5);
-                    app.rotateX(m_textRot.x);
-                    app.rotateY(m_textRot.y);
-                    app.rotateZ(m_textRot.z);
-
-                    app.fill(255);
-                    app.textSize(m_textSize);
-                    app.text(lH.getName(), 0, 0, 0);
-                    app.popMatrix();
+                        app.fill(255);
+                        app.textSize(m_textSize);
+                        app.text(lH.getName(), 0, 0, 0);
+                        app.popMatrix();
+                    }
                 }
             }
         }

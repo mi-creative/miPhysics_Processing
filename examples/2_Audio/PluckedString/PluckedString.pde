@@ -4,6 +4,9 @@ import miPhysics.Renderer.*;
 import miPhysics.Engine.*;
 import miPhysics.Engine.Sound.*;
 
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+
 /* Phyiscal parameters for the model */
 float m = 1.0;
 float k = 0.4;
@@ -22,14 +25,13 @@ float currAudio = 0;
 
 PeasyCam cam;
 
-  PhysicalModel mdl; 
+  PhysicsContext phys; 
   Observer3D listener;
   PosInput3D input;
   ModelRenderer renderer;
   
   miPhyAudioClient audioStreamHandler;
 
-  float audioOut = 0;
   int smoothing = 100;
 
 ///////////////////////////////////////
@@ -43,32 +45,34 @@ void setup()
   cam.setMaximumDistance(3500);
   
 
-    this.mdl = new PhysicalModel(44100, (int)baseFrameRate);
-    mdl.setGlobalGravity(0., 0, grav);
-    mdl.setGlobalFriction(fric);
+    phys = new PhysicsContext(44100, (int)baseFrameRate);
+    phys.setGlobalGravity(0., 0, grav);
+    phys.setGlobalFriction(fric);
     
-    input = this.mdl.addMass("percMass", new PosInput3D(1., new Vect3D(3, -4, 0.), smoothing));
     
-    this.mdl.addMass("gnd0", new Ground3D(0.3, new Vect3D(- dist * nbmass/2, 0, 0.)));
-    this.mdl.addInteraction("colg0", new Contact3D(c_k, c_z), "percMass", "gnd0");
+    // Entirely explicit creation of the string and the contacts with the plucking mass...
+    
+    input = phys.mdl().addMass("percMass", new PosInput3D(1., new Vect3D(3, -4, 0.), smoothing));
+    
+    phys.mdl().addMass("gnd0", new Ground3D(0.3, new Vect3D(- dist * nbmass/2, 0, 0.)));
+    phys.mdl().addInteraction("colg0", new Contact3D(c_k, c_z), "percMass", "gnd0");
     
     for (int i= 0; i< nbmass; i++){
-      this.mdl.addMass("str"+i, new Mass2DPlane(m, 0.1, new Vect3D(dist*(i+1 - nbmass/2), 0., 0.)));
-      this.mdl.addInteraction("col"+i, new Contact3D(c_k, c_z), "percMass", "str"+i);
+      phys.mdl().addMass("str"+i, new Mass2DPlane(m, 0.1, new Vect3D(dist*(i+1 - nbmass/2), 0., 0.)));
+      phys.mdl().addInteraction("col"+i, new Contact3D(c_k, c_z), "percMass", "str"+i);
     }
-    this.mdl.addMass("gnd1", new Ground3D(0.3, new Vect3D(dist*(nbmass+1 - nbmass/2), 0, 0.)));
-    this.mdl.addInteraction("colg1", new Contact3D(c_k, c_z), "percMass", "gnd1");
+    phys.mdl().addMass("gnd1", new Ground3D(0.3, new Vect3D(dist*(nbmass+1 - nbmass/2), 0, 0.)));
+    phys.mdl().addInteraction("colg1", new Contact3D(c_k, c_z), "percMass", "gnd1");
 
-    this.mdl.addInteraction("sprdg0", new SpringDamper3D(l0, k, z), "str0", "gnd0");
+    phys.mdl().addInteraction("sprdg0", new SpringDamper3D(l0, k, z), "str0", "gnd0");
     for (int i= 0; i< nbmass-1; i++)
-      this.mdl.addInteraction("sprd"+i, new SpringDamper3D(l0, k, z), "str"+i, "str"+(i+1));
-    this.mdl.addInteraction("sprdg1", new SpringDamper3D(l0, k, z), "str"+(nbmass-1), "gnd1");
+      phys.mdl().addInteraction("sprd"+i, new SpringDamper3D(l0, k, z), "str"+i, "str"+(i+1));
+    phys.mdl().addInteraction("sprdg1", new SpringDamper3D(l0, k, z), "str"+(nbmass-1), "gnd1");
 
-    this.listener = this.mdl.addInOut("obs1", new Observer3D(filterType.HIGH_PASS), "str5");
-        this.listener = this.mdl.addInOut("obs2", new Observer3D(filterType.HIGH_PASS), "str130");
+    phys.mdl().addInOut("obs1", new Observer3D(filterType.HIGH_PASS), "str10");
+    listener = phys.mdl().addInOut("obs2", new Observer3D(filterType.HIGH_PASS), "str100");
 
-
-    this.mdl.init();
+    phys.init();
   
   renderer = new ModelRenderer(this);  
   renderer.setZoomVector(100,100,100);  
@@ -78,8 +82,9 @@ void setup()
   renderer.setStrainGradient(interType.SPRINGDAMPER3D, true, 0.1);
   renderer.setStrainColor(interType.SPRINGDAMPER3D, 105, 100, 200, 255);
   
-  audioStreamHandler = miPhyAudioClient.miPhyClassic(44100, 128, 0, 2, mdl);
+  audioStreamHandler = miPhyAudioClient.miPhyClassic(44100, 128, 0, 2, phys);
   audioStreamHandler.setListenerAxis(listenerAxis.Y);
+  audioStreamHandler.setGain(0.5);
   audioStreamHandler.start();
     
   cam.setDistance(500);  // distance from looked-at point
@@ -100,7 +105,7 @@ void draw()
   float y = 30 * (float)mouseY / height - 15;
   input.drivePosition(new Vect3D(x, y, 0));
 
-  renderer.renderModel(mdl);
+  renderer.renderScene(phys);
 
   cam.beginHUD();
   stroke(125,125,255);
@@ -109,15 +114,10 @@ void draw()
   rect(0,0, 250, 50);
   textSize(16);
   fill(255, 255, 255);
-  text("Curr Audio: " + currAudio, 10, 30);
+  
+  DecimalFormat df = new DecimalFormat("#.####");
+  df.setRoundingMode(RoundingMode.CEILING);
+  text("Curr Audio: " + df.format(listener.observePos().y), 10, 30);
   cam.endHUD();
   
-  //println(frameRate);
-
 }
-
-/*
-void exit(){
-  audioStreamHandler.shutdown();
-}
-*/

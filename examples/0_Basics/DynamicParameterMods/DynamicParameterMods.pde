@@ -32,16 +32,18 @@ float z3 = 0.01;
 float dist = 70;
 
 /*  global physical model object : will contain the model and run calculations. */
-PhysicalModel mdl;
+PhysicsContext phys;
+PhyModel mdl;
 
 void setup() {
   frameRate(displayRate);
-  size(1000, 700, P3D);
+  size(1000, 800, P3D);
   cam = new PeasyCam(this, 100);
   cam.setMinimumDistance(100);
   cam.setMaximumDistance(500);
   
-  mdl = new PhysicalModel(300, displayRate);
+  phys = new PhysicsContext(300, displayRate);
+  mdl = phys.mdl();
   
   /* Create a mass, connected to fixed points via Spring Dampers */
   mdl.addMass("mass", new Mass3D(m, 15, new Vect3D(0., 0., 0.), new Vect3D(0., 0., 0.)));
@@ -66,20 +68,20 @@ void setup() {
   mdl.init(); 
   
   /* Group modules into subsets for parameter modifications */
-  mdl.createMassSubset("massmod");
-  mdl.addMassToSubset("mass","massmod");
+  phys.createMassSubset("massmod");
+  phys.addMassToSubset(mdl.getMass("mass"),"massmod");
   
-  mdl.createInteractionSubset("X_springs");
-  mdl.addInteractionToSubset("spring1","X_springs");
-  mdl.addInteractionToSubset("spring2","X_springs");
+  phys.createInteractionSubset("X_springs");
+  phys.addInteractionToSubset(mdl.getInteraction("spring1"),"X_springs");
+  phys.addInteractionToSubset(mdl.getInteraction("spring2"),"X_springs");
   
-  mdl.createInteractionSubset("Y_springs");
-  mdl.addInteractionToSubset("spring3","Y_springs");
-  mdl.addInteractionToSubset("spring4","Y_springs");
+  phys.createInteractionSubset("Y_springs");
+  phys.addInteractionToSubset(mdl.getInteraction("spring3"),"Y_springs");
+  phys.addInteractionToSubset(mdl.getInteraction("spring4"),"Y_springs");
   
-  mdl.createInteractionSubset("Z_springs");
-  mdl.addInteractionToSubset("spring5","Z_springs");
-  mdl.addInteractionToSubset("spring6","Z_springs");
+  phys.createInteractionSubset("Z_springs");
+  phys.addInteractionToSubset(mdl.getInteraction("spring5"),"Z_springs");
+  phys.addInteractionToSubset(mdl.getInteraction("spring6"),"Z_springs");
   
   mdl.init(); 
 }
@@ -90,8 +92,10 @@ void draw() {
   background(0);
   stroke(255);
   
+  displayModelInstructions();
+  
   /* Calculate Physics */
-  mdl.compute();
+  phys.computeScene();
   
   /* Draw the mass and the springs */
   PVector pos = mdl.getMass("mass").getPos().toPVector();
@@ -119,19 +123,7 @@ void printModelState(){
   
   println("---");
   println("Population of the physical model:");
-  
-  //for (int i= 0; i < mdl.getNbOfMasses();i++){
-  //  print("Mat at index " + i +":\t");
-  //  print(mdl.getMatNameAt(i) +"\ttype: " + mdl.getMatTypeAt(i) +"\t");
-  //  println("Mass = " + mdl.getMatMassAt(i) +", ");
-  //}
-  
-  //for (int i= 0; i < mdl.getNbOfLinks();i++){
-  //  print("Link at index " + i +":\t");
-  //  print(mdl.getLinkNameAt(i) +"\ttype: " + mdl.getLinkTypeAt(i) +"\t");
-  //  print("Stiffness = " + mdl.getLinkStiffnessAt(i) +", ");
-  //  println("Damping = " + mdl.getLinkDampingAt(i));
-  //}
+
   println("---");
 
 }
@@ -143,27 +135,40 @@ void keyPressed() {
       driver.applyFrc(new Vect3D(random(-5,5),random(-5,5),random(-5,5)));  // randomly modify the inertia of the mass module
   if (key == 'a'){
     m = random(1.0, 20);
-    mdl.setParamForMassSubset(param.MASS, m, "massmod");
+    phys.setParamForMassSubset("massmod", param.MASS, m);
   }
   if (key == 'z'){
     k = random(0.000001, 0.1);
-    mdl.setParamForInteractionSubset(param.STIFFNESS, k, "X_springs");
+    phys.setParamForInteractionSubset("X_springs", param.STIFFNESS, k);
     z = random(0.001, 0.1);
-    mdl.setParamForInteractionSubset(param.DAMPING, z, "X_springs");
+    phys.setParamForInteractionSubset("X_springs", param.DAMPING, z);
   }
   if (key == 'e'){
     k2 = random(0.000001, 0.1);
-    mdl.setParamForInteractionSubset(param.STIFFNESS, k2, "Y_springs");
+    phys.setParamForInteractionSubset("Y_springs", param.STIFFNESS, k2);
     z2 = random(0.001, 0.1);
-    mdl.setParamForInteractionSubset(param.DAMPING, z2, "Y_springs");
+    phys.setParamForInteractionSubset("Y_springs", param.DAMPING, z2);
   }
   if (key == 'r'){
     k3 = random(0.000001, 0.1);
-    mdl.setParamForInteractionSubset(param.STIFFNESS, k3, "Z_springs");
+    phys.setParamForInteractionSubset("Z_springs", param.STIFFNESS, k3);
     z3 = random(0.001, 0.1);
-    mdl.setParamForInteractionSubset(param.DAMPING, z3, "Z_springs");
+    phys.setParamForInteractionSubset("Z_springs", param.DAMPING, z3);
   }
   if (key == 'w'){
     printModelState();
   }
+}
+
+
+void displayModelInstructions(){
+  cam.beginHUD();
+  textMode(MODEL);
+  textSize(16);
+  fill(255, 255, 255);
+  text("Press 'a' to randomly change the mass parameter", 10, 30);
+  text("Press 'z' to randomly change the the stiffness and damping of X springs", 10, 55);
+  text("Press 'e' to randomly change the the stiffness and damping of Y springs", 10, 80);
+  text("Press 'r' to randomly change the the stiffness and damping of Z springs", 10, 105);
+  cam.endHUD();
 }

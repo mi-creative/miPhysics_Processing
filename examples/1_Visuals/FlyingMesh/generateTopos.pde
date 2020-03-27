@@ -1,6 +1,6 @@
 
 
-void generateVolume(PhysicalModel mdl, int dimX, int dimY, int dimZ, String mName, String lName, float masValue, float dist, float K, float Z){
+void generateVolume(PhyModel mdl, int dimX, int dimY, int dimZ, String mName, String lName, float masValue, float dist, float K, float Z){
   // add the masses to the model: name, mass, initial pos, init speed
   String masName;
   Vect3D X0, V0;
@@ -22,7 +22,7 @@ void generateVolume(PhysicalModel mdl, int dimX, int dimY, int dimZ, String mNam
         }
         //println(V0);
         
-        mdl.addMass(masName, new Mass3D(masValue, 1, X0, V0));
+        mdl.addMass(masName, new Mass3D(masValue, dist/2, X0, V0));
       }
     }
   }

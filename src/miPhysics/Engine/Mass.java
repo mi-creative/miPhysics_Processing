@@ -68,6 +68,8 @@ public abstract class Mass extends PhyObject {
         return m_pos;
     }
 
+    public Vect3D getVel(){return new Vect3D(m_pos).sub(m_posR);}
+
     /**
      * Set the current position of this Mass module.
      * @param newPos the target position to set.

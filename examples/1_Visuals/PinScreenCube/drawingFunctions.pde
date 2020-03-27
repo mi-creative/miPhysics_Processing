@@ -10,7 +10,7 @@ void drawPoint(PVector pos, int size){
 
 
 
-void renderModelPnScrn3D(PhysicalModel mdl, int matSize){
+void renderModelPnScrn3D(PhyModel mdl, int matSize){
 
    stroke(255, 255, 0);
 

@@ -4,19 +4,11 @@ import miPhysics.Renderer.*;
 import miPhysics.Engine.*;
 import miPhysics.Engine.Sound.*;
 
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+
 /* Phyiscal parameters for the model */
-float m = 1.0;
-float k = 0.4;
-float z = 0.01;
-float l0 = 0.01;
-float dist = 0.1;
-float fric = 0.00003;
-float grav = 0.;
 
-float c_k = 0.01;
-float c_z = 0.001;
-
-int nbmass = 340;
 int baseFrameRate = 60;
 float currAudio = 0;
 
@@ -29,8 +21,9 @@ ModelRenderer renderer;
 
 miPhyAudioClient audioStreamHandler;
 
-float audioOut = 0;
 int smoothing = 100;
+
+boolean showInstructions = true;
 
 ///////////////////////////////////////
 
@@ -46,33 +39,26 @@ void setup()
 
   phys = new PhysicsContext(44100);
 
-  miString string = new miString("string", med, 300, 0.3, 1, 0.4, 0.01, 0.1, 0.01);
+  double dist = 0.1;
+  int nbMass = 340;
+
+  miString string = new miString("string", med, nbMass, 0.1, 1, 0.4, 0.01, 0.1, 0.01, "2D");
   string.rotate(0, PI/2, 0);
-  string.changeToFixedPoint("m_0");
-  string.changeToFixedPoint("m_299");
-  
+  string.translate((float)-dist*nbMass/2, 0, 0);
+  string.changeToFixedPoint(string.getFirstMass());
+  string.changeToFixedPoint(string.getLastMass());
   
   
   PhyModel perc = new PhyModel("pluck", med);
-
-  input = perc.addMass("input", new PosInput3D(2, new Vect3D(30, 30, 0), 100));
+  input = perc.addMass("input", new PosInput3D(1, new Vect3D(3, -4, 0), 100));
 
   phys.mdl().addPhyModel(string);
   phys.mdl().addPhyModel(perc);
 
-  phys.mdl().addInOut("listener1", new Observer3D(filterType.HIGH_PASS), phys.mdl().getPhyModel("string").getMass("m_10"));
+  listener = phys.mdl().addInOut("listener1", new Observer3D(filterType.HIGH_PASS), phys.mdl().getPhyModel("string").getMass("m_10"));
   phys.mdl().addInOut("listener2", new Observer3D(filterType.HIGH_PASS), phys.mdl().getPhyModel("string").getMass("m_100"));
 
-   // OPTION 1: add collisions manually between objects
-  /*
-  int i = 0;
-  for(Mass m : string.getMassList()){
-    phys.mdl().addInteraction("cnt"+i, new Contact3D(0.3, 0.01), m, perc.getMass("input"));
-    i++;
-  }*/
-
-  // OPTION 2: add a general collision between objects
-  phys.colEngine().addCollision(string, perc, 0.1, 0.01);
+  phys.colEngine().addCollision(string, perc, 0.01, 0.001);
 
   phys.init();
 
@@ -86,10 +72,10 @@ void setup()
   
   renderer.displayIntersectionVolumes(true);
   renderer.displayForceVectors(false);
-  //renderer.setForceVectorScale(1000);
 
   audioStreamHandler = miPhyAudioClient.miPhyClassic(44100, 128, 0, 2, phys);
   audioStreamHandler.setListenerAxis(listenerAxis.Y);
+  audioStreamHandler.setGain(0.5);
   audioStreamHandler.start();
 
   cam.setDistance(500);  // distance from looked-at point
@@ -101,7 +87,6 @@ void draw()
 {
   noCursor();
   background(0, 0, 25);
-
   directionalLight(126, 126, 126, 100, 0, -1);
   ambientLight(182, 182, 182);
 
@@ -109,17 +94,39 @@ void draw()
   float y = 30 * (float)mouseY / height - 15;
   input.drivePosition(new Vect3D(x, y, 0));
 
-  renderer.renderScene(phys);
+  if(showInstructions)
+    displayModelInstructions();
 
+  renderer.renderScene(phys);
+}
+
+void keyPressed(){
+  switch(key){
+    case 'o':
+      renderer.toggleObjectVolumesDisplay();
+      break;
+    case 'v':
+      renderer.toggleIntersectionVolumesDisplay();
+      break;
+    case 'h':
+      showInstructions = !showInstructions;
+  
+  }
+}
+
+
+void displayModelInstructions(){
   cam.beginHUD();
-  stroke(125, 125, 255);
-  strokeWeight(2);
-  fill(0, 0, 60, 220);
-  rect(0, 0, 250, 50);
+  textMode(MODEL);
   textSize(16);
   fill(255, 255, 255);
-  text("Curr Audio: " + currAudio, 10, 30);
+  text("Use the mouse to pluck the string with the red Position Input module", 10, 30);
+  text("Press 'o' to toggle object volumes display", 10, 55);
+  text("Press 'v' to toggle intersection volumes display", 10, 80);
+  text("Press 'h' to hide help", 10, 105);
+  text("FrameRate : " + frameRate, 10, 130);
+  DecimalFormat df = new DecimalFormat("#.####");
+  df.setRoundingMode(RoundingMode.CEILING);
+  text("Curr Audio: " + df.format(listener.observePos().y), 10, 155);
   cam.endHUD();
-
-  //println(frameRate);
 }

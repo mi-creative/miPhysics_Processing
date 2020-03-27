@@ -290,6 +290,7 @@ public class AutoCollider {
                                 m_colTable[cur][second] = true;
 
                                 contactLink.connect(current.getMass(), m2);
+                                contactLink.forceRecalculateVelocity();
                                 contactLink.compute();
                             } else {
                                 //System.out.println("\t\t This collision has already been taken care of");

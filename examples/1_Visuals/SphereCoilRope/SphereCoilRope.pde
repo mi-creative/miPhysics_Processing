@@ -8,7 +8,7 @@ Hit the space bar to pull at random masses and undo the coils!
 */
 
 import miPhysics.Engine.*;
-import miPhysics.ModelRenderer.*;
+import miPhysics.Renderer.*;
 
 import peasy.*;
 
@@ -23,7 +23,7 @@ boolean BASIC_VISU = false;
 float rot = 0.01;
 
 /*  global physical model object : will contain the model and run calculations. */
-PhysicalModel mdl;
+PhysicsContext phys;
 ModelRenderer renderer;
 
 Driver3D d;
@@ -50,18 +50,18 @@ void setup() {
   background(0);
 
   // instantiate our physical model context
-  mdl = new PhysicalModel(250, displayRate);
+  phys = new PhysicsContext(250, displayRate);
 
-  mdl.setGlobalGravity(0,0,0);
-  mdl.setGlobalFriction(0.000);
+  phys.setGlobalGravity(0,0,0);
+  phys.setGlobalFriction(0.000);
  
-  generatePinSphere(mdl, "osc", "spring", 1., 5, 0., 0.0, 0.1, 0.1);
+  generatePinSphere(phys.mdl(), "osc", "spring", 1., 5, 0., 0.0, 0.1, 0.1);
   
-  d = mdl.addInOut("driver", new Driver3D(), "osc0");
+  d = phys.mdl().addInOut("driver", new Driver3D(), "osc0");
 
 
   // initialise the model before starting calculations.
-  mdl.init();
+  phys.init();
   
   renderer = new ModelRenderer(this);
   
@@ -76,15 +76,13 @@ void setup() {
     renderer.setStrainGradient(interType.SPRINGDAMPER3D, true, 0.1);
     renderer.setStrainColor(interType.SPRINGDAMPER3D, 255, 250, 255, 255);
   }  
-  
-  
+    
   frameRate(displayRate);
 } 
 
-// DRAW: THIS IS WHERE WE RUN THE MODEL SIMULATION AND DISPLAY IT
 
 void draw() {
-  mdl.compute();
+  phys.computeScene();
 
   directionalLight(251, 102, 126, 0, -1, 0);
   ambientLight(102, 102, 102);
@@ -94,14 +92,14 @@ void draw() {
 
   // Drawing style
   pushMatrix();  
-  renderer.renderModel(mdl);
+  renderer.renderScene(phys);
   popMatrix();
 }
 
 
 void fExt(){
   String matName = "osc" + floor(random(19000));
-  d.moveDriver(mdl.getMass(matName));
+  d.moveDriver(phys.mdl().getMass(matName));
   d.applyFrc(new Vect3D(random(100) , random(100), random(500)));
 }
 

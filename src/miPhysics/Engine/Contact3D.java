@@ -47,6 +47,10 @@ public class Contact3D extends Interaction {
         else prev_state = false;
     }
 
+    protected void forceRecalculateVelocity(){
+        prev_state = false;
+    }
+
     public int setParam(param p, double val ){
         switch(p){
             case STIFFNESS:

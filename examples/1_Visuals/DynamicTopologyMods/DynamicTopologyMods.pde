@@ -25,7 +25,7 @@ boolean BASIC_VISU = false;
 int dimX = 115;
 int dimY = 65;
 
-PhysicalModel mdl;
+PhysicsContext phys;
 ModelRenderer renderer;
 
 int mouseDragged = 0;
@@ -45,17 +45,15 @@ void setup() {
   fullScreen(P3D);
   background(0);
 
-  mdl = new PhysicalModel(550, displayRate);
-  mdl.setGlobalGravity(0, 0, 0);
-  mdl.setGlobalFriction(fric);
+  phys = new PhysicsContext(550, displayRate);
+  phys.setGlobalGravity(0, 0, 0);
+  phys.setGlobalFriction(fric);
   
   gridSpacing = (int)((height/dimX)*2);
-  generatePinScreen(mdl, dimX, dimY, "osc", "spring", 1., gridSpacing, 0.0006, 0.0, 0.09, 0.1);
   
-  d = mdl.addInOut("driver", new Driver3D(), "osc0_0");
-
-
-  mdl.init();
+  generatePinScreen(phys.mdl(), dimX, dimY, "osc", "spring", 1., gridSpacing, 0.0006, 0.0, 0.09, 0.1);
+  d = phys.mdl().addInOut("driver", new Driver3D(), "osc0_0");
+  phys.init();
   
   renderer = new ModelRenderer(this);
   
@@ -82,19 +80,19 @@ void draw() {
   noCursor();
   camera(width/2.0, height/2.0, (height/2.0) / tan(PI*30.0 / 180.0), width/2, height/2.0, 0, 0, 1, 0);
 
-  mdl.compute();
+  phys.computeScene();
 
   background(0);
 
   pushMatrix();
   translate(xOffset,yOffset, 0.);
-  renderer.renderModel(mdl);
+  renderer.renderScene(phys);
   popMatrix();
 
   fill(255);
   textSize(13); 
 
-  text("Friction: " + mdl.getGlobalFriction(), 50, 50, 50);
+  text("Friction: " + phys.getGlobalFriction(), 50, 50, 50);
   text("Zoom: " + zZoom, 50, 100, 50);
 
   
@@ -113,7 +111,7 @@ void draw() {
 
 void engrave(float mX, float mY){
   String matName = "osc" + floor(mX/ gridSpacing)+"_"+floor(mY/ gridSpacing);
-  Mass m = mdl.getMass(matName);
+  Mass m = phys.mdl().getMass(matName);
   if(m != null){
     d.moveDriver(m);
     d.applyFrc(new Vect3D(0., 0., 15.));
@@ -122,9 +120,9 @@ void engrave(float mX, float mY){
 
 void chisel(float mX, float mY){
   String matName = "osc" + floor(mX/ gridSpacing)+"_"+floor(mY/ gridSpacing);
-  Mass m = mdl.getMass(matName);
+  Mass m = phys.mdl().getMass(matName);
   if(m != null){
-    mdl.removeMassAndConnectedInteractions(m);
+    phys.mdl().removeMassAndConnectedInteractions(m);
   }
 }
 
@@ -141,24 +139,41 @@ void mouseReleased() {
 
 
 void keyPressed() {
-  if(keyCode == UP){
-    fric += 0.001;
-    mdl.setGlobalFriction(fric);
-    println(fric);
-
+  switch(key){
+    case 'r':
+      println("Resetting the model");
+      synchronized(phys.getLock()){
+        phys.clearModel();
+        generatePinScreen(phys.mdl(), dimX, dimY, "osc", "spring", 1., gridSpacing, 0.0006, 0.0, 0.09, 0.1);
+        d = phys.mdl().addInOut("driver", new Driver3D(), "osc0_0");
+        phys.init();
+      }
+      break;
+    default:
+      break;
   }
-  else if (keyCode == DOWN){
-    fric -= 0.001;
-    fric = max(fric, 0);
-    mdl.setGlobalFriction(fric);
-    println(fric);
-  }
-  else if (keyCode == LEFT){
-    zZoom ++;
-    renderer.setZoomVector(1,1, zZoom);
-  }
-  else if (keyCode == RIGHT){
-    zZoom --;
-    renderer.setZoomVector(1,1, zZoom);
+  
+  switch(keyCode){
+    case UP:
+      fric += 0.001;
+      phys.setGlobalFriction(fric);
+      println(fric);
+      break;
+    case DOWN:
+      fric -= 0.001;
+      fric = max(fric, 0);
+      phys.setGlobalFriction(fric);
+      println(fric);
+      break;
+    case LEFT:
+      zZoom ++;
+      renderer.setZoomVector(1,1, zZoom);
+      break;
+    case RIGHT:
+      zZoom --;
+      renderer.setZoomVector(1,1, zZoom);
+      break;
+    default:
+      break;
   }
 }

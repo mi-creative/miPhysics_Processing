@@ -25,7 +25,7 @@ int dimX = 80;
 int dimY = 80;
 
 /*  global physical model object : will contain the model and run calculations. */
-PhysicalModel mdl;
+PhysicsContext phys;
 ModelRenderer renderer;
 
 
@@ -45,27 +45,24 @@ Driver3D d;
 
 void setup() {
 
-  //size(700, 700, P3D);
   fullScreen(P3D);
   background(0);
 
   // instantiate our physical model context
-  mdl = new PhysicalModel(550, displayRate, paramSystem.ALGO_UNITS);
+  phys = new PhysicsContext(550, displayRate, paramSystem.ALGO_UNITS);
   renderer = new ModelRenderer(this);
   
 
-
-  mdl.setGlobalGravity(new Vect3D(0, 0, 0));
-  mdl.setGlobalFriction(fric);
+  phys.setGlobalGravity(new Vect3D(0, 0, 0));
+  phys.setGlobalFriction(fric);
   gridSpacing = height/dimX;
+  generateMesh(phys.mdl(), dimX, dimY, "osc", "spring", 1., 1., gridSpacing, 0.0002, 0.0, 0.06, 0.1);
 
-  generatePinScreen(mdl, dimX, dimY, "osc", "spring", 1., 1., gridSpacing, 0.0002, 0.0, 0.06, 0.1);
-
-  d = mdl.addInOut("driver", new Driver3D(), "osc0_0");
+  d = phys.mdl().addInOut("driver", new Driver3D(), "osc0_0");
 
 
   // initialise the model before starting calculations.
-  mdl.init();
+  phys.init();
 
   if (BASIC_VISU) {
     renderer.displayMasses(false);
@@ -80,8 +77,6 @@ void setup() {
 
 
   frameRate(displayRate);
-  
-  
 
   xOffset = height/2;
   yOffset = 50;
@@ -94,22 +89,20 @@ void draw() {
   noCursor();
   camera(width/2.0, height/2.0, (height/2.0) / tan(PI*30.0 / 180.0), width/2, height/2.0, 0, 0, 1, 0);
 
-  mdl.compute();
+  phys.computeScene();
 
   background(0);
 
   pushMatrix();
   translate(xOffset, yOffset, 0.);
-  renderer.renderModel(mdl);
+  renderer.renderScene(phys);
   popMatrix();
 
-  fill(255);
-  textSize(10); 
-  
   println("FrameRate:" + frameRate);
 
-  text("Friction: " + fric, 50, 50, 50);
-
+  displayModelInstructions();
+  
+  
   if (mouseDragged == 1) {
     if ((mouseX) < (dimX*gridSpacing+xOffset) & (mouseY) < (dimY*gridSpacing+yOffset) & mouseX>xOffset & mouseY > yOffset) { // Garde fou pour ne pas sortir des limites du pinScreen
       println(mouseX, mouseY);
@@ -121,7 +114,7 @@ void draw() {
 void engrave(float mX, float mY) {
   String matName = "osc" + floor(mX/ gridSpacing)+"_"+floor(mY/ gridSpacing);
   
-  d.moveDriver(mdl.getMass(matName));
+  d.moveDriver(phys.mdl().getMass(matName));
   d.applyFrc(new Vect3D(0., 0., 15.));
 }
 
@@ -138,20 +131,20 @@ void keyPressed() {
 
   if(keyCode == UP){
     fric += 0.001;
-    mdl.setGlobalFriction(fric);
+    phys.setGlobalFriction(fric);
     println(fric);
 
   }
   else if (keyCode == DOWN){
     fric -= 0.001;
     fric = max(fric, 0);
-    mdl.setGlobalFriction(fric);
+    phys.setGlobalFriction(fric);
     println(fric);
   }
 }
 
 
-void generatePinScreen(PhysicalModel mdl, int dimX, int dimY, String mName, String lName, double masValue, double radius, double dist, double K_osc, double Z_osc, double K, double Z) {
+void generateMesh(PhyModel mdl, int dimX, int dimY, String mName, String lName, double masValue, double radius, double dist, double K_osc, double Z_osc, double K, double Z) {
 
   String masName;
   Vect3D X0, V0;
@@ -185,17 +178,15 @@ void generatePinScreen(PhysicalModel mdl, int dimX, int dimY, String mName, Stri
       mdl.addInteraction(lName + "2_" +i+"_"+j, new SpringDamper3D(dist, K, Z), masName1, masName2);
     }
   }
-  /*
-    for (int i = 0; i < dimX-1; i++) {
-   for (int j = 0; j < dimY-1; j++) {
-   masName1 = mName + i +"_"+ j;
-   masName2 = mName + (i+1) +"_"+ str(j+1);
-   mdl.addSpringDamper3D(lName + "1_" +i+j, sqrt(2. * (float)dist*(float)dist), K, Z, masName1, masName2);
-   
-   masName1 = mName + (i+1) +"_"+ j;
-   masName2 = mName + (i) +"_"+ str(j+1);
-   mdl.addSpringDamper3D(lName + "1_" +i+j, sqrt(2. * (float)dist*(float)dist), K, Z, masName1, masName2);
-   }
-   }
-   */
+}
+
+
+
+void displayModelInstructions(){
+  textMode(MODEL);
+  textSize(16);
+  fill(255, 255, 255);
+  text("Drag mouse along the mesh !", 10, 30);
+  text("Use up and down arrows to modify global air friction", 10, 50);
+  text("Current air friction: " + fric, 10, 75);
 }

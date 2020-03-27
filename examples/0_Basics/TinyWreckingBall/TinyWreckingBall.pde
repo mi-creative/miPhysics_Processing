@@ -18,6 +18,7 @@ ModelRenderer renderer;
 Driver3D d;
 
 boolean applyFrc = false;
+boolean showInstructions = true;
 
 int displayRate = 60;
 
@@ -66,7 +67,7 @@ void setup() {
   renderer.displayMasses(true);
   renderer.setColor(interType.ROPE3D, 155, 200, 200, 255);
   renderer.setSize(interType.ROPE3D, 3);
-  renderer.displayModuleNames(true);
+  renderer.displayModuleNames(false);
   renderer.setTextSize(30);
   renderer.setTextRotation(-PI/2,0,0);
   renderer.setForceVectorScale(500);
@@ -84,7 +85,8 @@ void draw() {
   strokeWeight(1);
   drawPlane(0, -160, 160); 
   
-  displayModelInstructions();
+  if(showInstructions)
+    displayModelInstructions();
 
   phys.computeScene();
   renderer.renderScene(phys);
@@ -115,6 +117,9 @@ void keyPressed() {
       break;
     case 'f':
       renderer.toggleForceDisplay();
+      break;
+    case 'h':
+      showInstructions = !showInstructions;
       break;
     default:
       break;
@@ -168,5 +173,7 @@ void displayModelInstructions(){
   text("Maintain the space bar to pull mass back, release to unleash it", 10, 30);
   text("Press 'i' to toggle module name display", 10, 55);
   text("Press 'f' to toggle force display", 10, 80);
+  text("Press 'h' to hide instructions", 10, 110);
+
   cam.endHUD();
 }
