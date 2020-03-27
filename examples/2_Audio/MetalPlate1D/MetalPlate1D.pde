@@ -1,30 +1,32 @@
+import miPhysics.Engine.*;
+import miPhysics.Engine.Sound.*;
+import miPhysics.Renderer.*;
 
-import ddf.minim.*;
-import ddf.minim.ugens.*;
-import peasy.*;
-
-import miPhysics.ModelRenderer.*;
 
 int displayRate = 60;
 
 int mouseDragged = 0;
 
-int gridSpacing = 2;
+PhysicsContext phys;
+PhyModel mesh;
+Observer3D listener;
+Driver3D driver;
+
+miPhyAudioClient audioStreamHandler;
+
+int gridSpacing;
 int xOffset= 0;
 int yOffset= 0;
 
 int zZoom = 1;
-
-PeasyCam cam;
-
-Minim minim;
-PhyUGen simUGen;
-Gain gain;
-
-AudioOutput out;
-AudioRecorder recorder;
+int dimX = 30;
+int dimY = 16;
+double fric = 0.00001;
 
 ModelRenderer renderer;
+
+boolean showInstructions = true;
+
 
 ///////////////////////////////////////
 
@@ -32,22 +34,23 @@ void setup()
 {
   //size(1000, 700, P3D);
   fullScreen(P3D, 2);
-  cam = new PeasyCam(this, 100);
-  cam.setMinimumDistance(50);
-  cam.setMaximumDistance(2500);
 
-  minim = new Minim(this);
+  phys = new PhysicsContext(44100, displayRate);
+  
+  phys.setGlobalGravity(0, 0, 0);
+  phys.setGlobalFriction(0.00001);
+  
+  gridSpacing = (int)((width/dimX));
+ 
+  mesh = createMesh(dimX, dimY, "osc", "spring", 1., gridSpacing, 0.006, 0.00001, 0.09, 0.0001);
+  driver = mesh.addInOut("driver", new Driver3D(), "osc0_0");
+  mesh.addInOut("listener1", new Observer3D(),"osc5_5");
+  mesh.addInOut("listener2", new Observer3D(),"osc25_12");
 
-  // use the getLineOut method of the Minim object to get an AudioOutput object
-  out = minim.getLineOut();
+  
+  phys.mdl().addPhyModel(mesh);
 
-  recorder = minim.createRecorder(out, "myrecording.wav");
-
-  // start the Gain at 0 dB, which means no change in amplitude
-  gain = new Gain(0);
-
-  simUGen = new PhyUGen(44100);
-  simUGen.patch(gain).patch(out);
+  phys.init();
 
   renderer = new ModelRenderer(this);
   renderer.displayMasses(false);
@@ -55,8 +58,12 @@ void setup()
   renderer.setStrainGradient(interType.SPRINGDAMPER1D, true, 1);
   renderer.setStrainColor(interType.SPRINGDAMPER1D, 255, 250, 255, 255);
 
+  audioStreamHandler = miPhyAudioClient.miPhyClassic(44100, 256, 0, 2, phys);
+  audioStreamHandler.listenPos();
+  audioStreamHandler.setListenerAxis(listenerAxis.Z);
+  audioStreamHandler.setGain(0.01);
+  audioStreamHandler.start();
 
-  cam.setDistance(500);  // distance from looked-at point
 }
 
 void draw()
@@ -65,52 +72,45 @@ void draw()
 
   background(0);
 
+  if(showInstructions)
+    displayModelInstructions();
+
+
   renderer.setZoomVector(1, 1, 0.1 * zZoom);
 
   pushMatrix();
-  translate(xOffset, yOffset, 0.);
-  renderer.renderModel(simUGen.mdl);
+  translate(xOffset + 15, yOffset + 45, 0.);
+  renderer.renderScene(phys);
   popMatrix();
 
-  fill(255);
-  textSize(13); 
-  text("Friction: " + fric, 50, 50, 50);
-  text("Zoom: " + zZoom, 50, 100, 50);
+
 
   if (mouseDragged == 1) {
     if ((mouseX) < (dimX*gridSpacing+xOffset) & (mouseY) < (dimY*gridSpacing+yOffset) & mouseX>xOffset & mouseY > yOffset) { // Garde fou pour ne pas sortir des limites du pinScreen
-      println(mouseX, mouseY);
       if (mouseButton == LEFT)
         engrave(mouseX-xOffset, mouseY - yOffset);
       if (mouseButton == RIGHT)
         chisel(mouseX-xOffset, mouseY - yOffset);
     }
   }
-
-  if ( recorder.isRecording() )
-  {
-    text("Currently recording...", 5, 15);
-  } else
-  {
-    text("Not recording.", 5, 15);
-  }
 }
 
 
 void engrave(float mX, float mY) {
   String matName = "osc" + floor(mX/ gridSpacing)+"_"+floor(mY/ gridSpacing);
-  Mass m = simUGen.mdl.getMass(matName);
+  Mass m = mesh.getMass(matName);
   if (m != null) {
-    simUGen.d.moveDriver(m);
-    simUGen.d.applyFrc(new Vect3D(0., 0., 15.));
+    driver.moveDriver(m);
+    driver.applyFrc(new Vect3D(0., 0., 15.));
   }
 }
 
 void chisel(float mX, float mY) {
   String matName = "osc" + floor(mX/ gridSpacing)+"_"+floor(mY/ gridSpacing);
-  Mass m = simUGen.mdl.getMass(matName);
-  if (m != null) {
-    simUGen.mdl.removeMassAndConnectedInteractions(m);
+  synchronized(phys.getLock()){
+    Mass m = mesh.getMass(matName);
+    if (m != null)
+      mesh.removeMassAndConnectedInteractions(m);
   }
 }
 
@@ -126,19 +126,42 @@ void mouseReleased() {
 
 
 void keyPressed() {
-
-  if (keyCode == UP) {
-    fric += 0.001;
-    simUGen.mdl.setGlobalFriction(0.);
-    println(fric);
-  } else if (keyCode == DOWN) {
-    fric -= 0.001;
-    fric = max((float)fric, 0.);
-    simUGen.mdl.setGlobalFriction(fric);
-    println(fric);
-  } else if (keyCode == LEFT) {
-    zZoom ++;
-  } else if (keyCode == RIGHT) {
-    zZoom --;
+  switch(keyCode){
+    case UP:
+      fric += 0.001;
+      phys.setGlobalFriction(0.);
+      break;
+    case DOWN:
+      fric -= 0.001;
+      fric = max((float)fric, 0.);
+      phys.setGlobalFriction(fric);
+      break;
+    case LEFT:
+      zZoom++;
+      break;
+    case RIGHT:
+      zZoom--;
+      break;
+    default:
+      break;
   }
+  
+  switch(key){
+    case 'h':
+      showInstructions = ! showInstructions;
+    default:
+      break;
+  }
+}
+
+void displayModelInstructions(){
+  textMode(MODEL);
+  textSize(16);
+  fill(255, 255, 255);
+  text("Left-click and drag over the mesh to excite it.", 10, 30);
+  text("Right-click and drag to create holes in the mesh", 10, 55);
+  text("Press 'h' to hide help", 10, 80);
+  text("FrameRate : " + frameRate, 10, 105);
+  text("Friction: " + fric, 50, 50, 130);
+  text("Zoom: " + zZoom, 50, 100, 155);
 }

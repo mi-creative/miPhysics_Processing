@@ -1,4 +1,7 @@
-void generateMesh(PhysicalModel mdl, int dimX, int dimY, String mName, String lName, double masValue, double dist,double K, double Z) {
+PhyModel createMesh(int dimX, int dimY, String mName, String lName, double masValue, double dist, double K, double Z) {
+  
+  PhyModel mdl = new PhyModel("mesh", phys.getGlobalMedium());
+  
   // add the masses to the model: name, mass, initial pos, init speed
   String masName;
   Vect3D X0;
@@ -31,4 +34,6 @@ void generateMesh(PhysicalModel mdl, int dimX, int dimY, String mName, String lN
         mdl.addInteraction(lName + "2_" +i+"_"+j, new SpringDamper3D(dist*0.1, K, Z), masName1, masName2);
       }
     }
+    
+    return mdl;
 }
