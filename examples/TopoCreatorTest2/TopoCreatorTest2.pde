@@ -47,10 +47,10 @@ void setup()
   phys = new PhysicsContext(44100);
 
   miTopoCreator string = new miTopoCreator("string", med);
-  string.setDim(35,2,1,1);
+  string.setDim(25,2,1,1);
   string.setGeometry(0.1,0.09);
   string.setParams(1,0.05,0.0001);
-  string.setMassRadius(0.1);
+  string.setMassRadius(0.05);
   string.set2DPlane(true);
   string.addBoundaryCondition(Bound.X_LEFT);
   string.addBoundaryCondition(Bound.X_RIGHT);
@@ -58,10 +58,10 @@ void setup()
   string.rotate(-PI/12, 0, 0);
   
   miTopoCreator shape = new miTopoCreator("more", med);
-  shape.setDim(45,2,1,1);
+  shape.setDim(35,2,1,1);
   shape.setGeometry(0.1,0.08);
   shape.setParams(1,0.05,0.0001);
-  shape.setMassRadius(0.1);
+  shape.setMassRadius(0.05);
   shape.set2DPlane(true);
   shape.addBoundaryCondition(Bound.X_LEFT);
   shape.addBoundaryCondition(Bound.X_RIGHT);
@@ -72,7 +72,7 @@ void setup()
   mini.setDim(15,2,1,1);
   mini.setGeometry(0.1,0.08);
   mini.setParams(1,0.05,0.0001);
-  mini.setMassRadius(0.1);
+  mini.setMassRadius(0.05);
   mini.set2DPlane(true);
   mini.addBoundaryCondition(Bound.X_LEFT);
   mini.addBoundaryCondition(Bound.X_RIGHT);

@@ -1,3 +1,6 @@
+/* TODO: cleanup this example, and write instructions ! */
+
+
 import peasy.*;
 import themidibus.*; //Import the library
 
@@ -69,6 +72,7 @@ void setup()
   string.addBoundaryCondition(Bound.X_LEFT);
   string.addBoundaryCondition(Bound.X_RIGHT);
   string.generate();
+  string.translate(-0.1*150, 0, 0);
   
   for(Mass m : string.getMassList()){
     phys.addMassToSubset(m,"masses");
@@ -80,7 +84,7 @@ void setup()
   
   PhyModel perc = new PhyModel("pluck", med);
 
-  input = perc.addMass("input", new PosInput3D(1, new Vect3D(30, 30, 0), 100));
+  input = perc.addMass("input", new PosInput3D(1, new Vect3D(-30, -30, 0), 100));
 
   phys.mdl().addPhyModel(string);
   phys.mdl().addPhyModel(perc);

@@ -85,6 +85,10 @@ public class miTopoCreator extends PhyModel {
             mdl.createInteractionSubset(linkSubName);
         */
 
+        System.out.println(this.getName() + ": creating mass elements with naming pattern: "
+                + m_mLabel + "_[X]_[Y]_[Z]");
+
+
         for (int i = 0; i < m_dimX; i++) {
             for (int j = 0; j < m_dimY; j++) {
                 for (int k = 0; k < m_dimZ; k++) {
@@ -103,10 +107,13 @@ public class miTopoCreator extends PhyModel {
                         //if(!matSubName.isEmpty())
                         //    mdl.addMassToSubset(tmp, matSubName);
                     }
-                    System.out.println("Created mass: " + masName);
+                    //System.out.println("Created mass: " + masName);
                 }
             }
         }
+
+        System.out.println(this.getName() + ": creating interaction elements with naming pattern: "
+                + m_iLabel + "_[X1]_[Y1]_[Z1]_[X2]_[Y2]_[Z2]");
 
         // add the springs to the model: length, stiffness, connected mats
         String masName1, masName2;
@@ -150,7 +157,7 @@ public class miTopoCreator extends PhyModel {
                                             //if(!linkSubName.isEmpty())
                                             //    mdl.addInteractionToSubset(tmp, linkSubName);
 
-                                            System.out.println("Created interaction: " + ln);
+                                            //System.out.println("Created interaction: " + ln);
                                         }
                                     }
                                 }

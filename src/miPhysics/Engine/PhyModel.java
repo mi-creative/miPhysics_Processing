@@ -19,22 +19,22 @@ public class PhyModel extends PhyObject {
         /* Initialise the stored distances for the springs */
         for(Interaction inter : m_interactions)
             inter.initDistances();
-        for(PhyModel m : m_macros)
+        for(PhyModel m : m_subModels)
             m.init();
     }
 
     public void clear(){
         // Recursively clear all the sub "objects"...
-        for(PhyModel m : m_macros)
+        for(PhyModel m : m_subModels)
             m.clear();
         // Then clear the list of objects...
-        m_macros.clear();
+        m_subModels.clear();
         m_masses.clear();
         // And clear the list of interactions...
         m_interactions.clear();
 
         m_massLabels.clear();
-        m_macroLabels.clear();
+        m_subModelLabels.clear();
         m_intLabels.clear();
         m_inOutLabels.clear();
     }
@@ -50,7 +50,7 @@ public class PhyModel extends PhyObject {
             m_sp.update(m);
         }
 
-        for(PhyModel o : m_macros)
+        for(PhyModel o : m_subModels)
             o.compute();
 
         for(Interaction i : m_interactions)
@@ -63,7 +63,7 @@ public class PhyModel extends PhyObject {
     protected void applyForce(Vect3D force){
         for(Mass m : m_masses)
             m.applyForce(force);
-        for(PhyModel o: m_macros)
+        for(PhyModel o: m_subModels)
             o.applyForce(force);
     }
 
@@ -93,11 +93,11 @@ public class PhyModel extends PhyObject {
     }
 
     public PhyModel getPhyModel(String name){
-        if(m_macroLabels.get(name) == null){
+        if(m_subModelLabels.get(name) == null){
             System.out.println("Cannot find sub-macro " + name + " in macro " + m_name);
             return null;
         }
-        return m_macroLabels.get(name);
+        return m_subModelLabels.get(name);
     }
 
     public void addPhyModel(PhyModel mac){
@@ -105,12 +105,12 @@ public class PhyModel extends PhyObject {
             System.out.println("Cannot add sub-macro " + mac + " !!! To " + m_name);
         }
         else {
-            if(m_macroLabels.containsKey(mac.getName())){
+            if(m_subModelLabels.containsKey(mac.getName())){
                 throw new Error("A physical model named " + mac.getName() + "already exists in " + this.getName() + " !");
             }
             else {
-                m_macros.add(mac);
-                m_macroLabels.put(mac.getName(), mac);
+                m_subModels.add(mac);
+                m_subModelLabels.put(mac.getName(), mac);
             }
         }
     }
@@ -185,12 +185,12 @@ public class PhyModel extends PhyObject {
 
         if (m1 == null) {
             System.out.println("Cannot create interaction " + name
-                    + ": " + m1.getName() + " mass doesn't exist. ");
+                    + ": " + m1 + " mass doesn't exist. ");
             this.m_errorCode = -2;
             return null;
         } else if (m2 == null) {
             System.out.println("Cannot create interaction " + name
-                    + ": " + m2.getName() + " mass doesn't exist. ");
+                    + ": " + m2 + " mass doesn't exist. ");
             this.m_errorCode = -3;
             return null;
         }
@@ -287,7 +287,7 @@ public class PhyModel extends PhyObject {
 
 
     public ArrayList<PhyModel> getSubModels(){
-        return m_macros;
+        return m_subModels;
     }
 
     public ArrayList<Mass> getMassList(){
@@ -301,14 +301,14 @@ public class PhyModel extends PhyObject {
 
     public int numberOfMassTypes(){
         int nb = m_masses.size();
-        for(PhyModel pm : m_macros)
+        for(PhyModel pm : m_subModels)
             nb += pm.numberOfMassTypes();
         return nb;
     }
 
     public int numberOfInterTypes(){
         int nb = m_interactions.size();
-        for(PhyModel pm : m_macros)
+        for(PhyModel pm : m_subModels)
             nb += pm.numberOfInterTypes();
         return nb;
     }
@@ -323,7 +323,7 @@ public class PhyModel extends PhyObject {
 
     public ArrayList<Observer3D> getObservers(){
         ArrayList<Observer3D> list = new ArrayList<>();
-        for(PhyModel pm : m_macros)
+        for(PhyModel pm : m_subModels)
             list.addAll(pm.getObservers());
         for(InOut element : m_inOuts){
             if(element.getType() == inOutType.OBSERVER3D) {
@@ -336,7 +336,7 @@ public class PhyModel extends PhyObject {
 
     public ArrayList<Driver3D> getDrivers(){
         ArrayList<Driver3D> list = new ArrayList<>();
-        for(PhyModel pm : m_macros)
+        for(PhyModel pm : m_subModels)
             list.addAll(pm.getDrivers());
         for(InOut element : m_inOuts){
             if(element.getType() == inOutType.DRIVER3D) {
@@ -443,13 +443,14 @@ public class PhyModel extends PhyObject {
         return -1;
     }
 
-    private void replaceMassInModel(Mass m, int idx){
+    private void replaceMassInModel(Mass old, Mass m){
+        int idx = m_masses.indexOf(old);
         m_masses.set(idx, m);
         m_massLabels.replace(m.getName(), m);
         for(Interaction i: m_interactions){
-            if(i.getMat1() == m)
+            if(i.getMat1() == old)
                 i.connect(m, i.getMat2());
-            if(i.getMat2() == m)
+            if(i.getMat2() == old)
                 i.connect(i.getMat1(), m);
         }
     }
@@ -466,12 +467,13 @@ public class PhyModel extends PhyObject {
 
             String name = m.getName();
             //System.out.println("Changing to fixed point:  " + m.getName());
-            int idx = m_masses.indexOf(m);
 
             Ground3D tmp = new Ground3D(m.getParam(param.RADIUS), m.getPos());
             tmp.setName(name);
 
-            replaceMassInModel(tmp, idx);
+            replaceMassInModel(m, tmp);
+
+            this.removeMassAndConnectedInteractions(m);
 
         } catch (Exception e) {
             System.out.println("Couldn't change into fixed point:  " + m.getName() + ": " + e);
@@ -503,7 +505,7 @@ public class PhyModel extends PhyObject {
         /*
         // Get the overall space print by adding prints from any submodules.
         m_sp_overall.set(m_sp);
-        for(PhyModel pm : m_macros) {
+        for(PhyModel pm : m_subModels) {
             //pm.calcSpacePrint();
             m_sp_overall.update(pm.m_sp);
         }
@@ -562,7 +564,7 @@ public class PhyModel extends PhyObject {
             Mass tmp = this.getMassList().get(i);
             mdlPos = tmp.getPos();
 
-            //System.out.println("Input pos: " + mdlPos);
+            //System.out.println("Input pos: " + mdlPos + ", " + tmp.getName() + " " + tmp.getType());
 
             mdlPos.x -= offset.x;
             mdlPos.y -= offset.y;
@@ -572,7 +574,7 @@ public class PhyModel extends PhyObject {
             v.y = Ayx*mdlPos.x + Ayy*mdlPos.y + Ayz*mdlPos.z;
             v.z = Azx*mdlPos.x + Azy*mdlPos.y + Azz*mdlPos.z;
 
-            //System.out.println("Position: " + v);
+            //System.out.println("New Position: " + v);
 
             v.x += offset.x + tx;
             v.y += offset.y + ty;
@@ -589,12 +591,12 @@ public class PhyModel extends PhyObject {
     /* Class attributes */
     private massType m_type;
 
-    ArrayList<PhyModel> m_macros = new ArrayList<>();
+    ArrayList<PhyModel> m_subModels = new ArrayList<>();
     ArrayList<Mass> m_masses = new ArrayList<>();
     ArrayList<InOut> m_inOuts = new ArrayList<>();
     ArrayList<Interaction> m_interactions = new ArrayList<>();
 
-    HashMap<String, PhyModel> m_macroLabels = new HashMap<>();
+    HashMap<String, PhyModel> m_subModelLabels = new HashMap<>();
     HashMap<String, Mass> m_massLabels = new HashMap<>();
     HashMap<String, Interaction> m_intLabels = new HashMap<>();
     HashMap<String, InOut> m_inOutLabels = new HashMap<>();

@@ -19,6 +19,14 @@ public class Driver3D extends InOut {
     }
 
     public void compute() {
+        if (m_rampActive) {
+            m_steps++;
+            m_currentForce.set(m_targetForce).mult((double)m_steps/(double)m_rampSteps);
+            this.applyFrc(m_currentForce);
+
+            if(m_steps > m_rampSteps)
+                m_rampActive =false;
+        }
     }
 
     /**
@@ -29,12 +37,22 @@ public class Driver3D extends InOut {
         this.getMat().setPos(pos);
     }
 
+    public void applyPos(double x, double y, double z){
+        Vect3D newPos = new Vect3D(x,y,z);
+        this.applyPos(newPos);
+    }
+
     /**
      * Apply force to connected Mass module
      * @param frc the Vec3D containing the force to apply
      */
     public void applyFrc(Vect3D frc){
         this.getMat().applyForce(frc);
+    }
+
+    public void applyFrc(double x, double y, double z){
+        Vect3D newFrc = new Vect3D(x,y,z);
+        this.applyPos(newFrc);
     }
 
     /**
@@ -46,5 +64,26 @@ public class Driver3D extends InOut {
     }
 
 
+
+    public void triggerForceRamp(double x, double y, double z, int timeSteps){
+        m_rampSteps = timeSteps;
+        m_targetForce.x = x;
+        m_targetForce.y = y;
+        m_targetForce.z = z;
+        m_currentForce.reset();
+        m_steps = 0;
+        m_rampActive = true;
+    }
+
+    public void triggerForceRamp(Vect3D frc, int timeSteps){
+        this.triggerForceRamp(frc.x, frc.y, frc.z, timeSteps);
+    }
+
+
+    private Vect3D m_targetForce = new Vect3D();
+    private Vect3D m_currentForce = new Vect3D();
+    private int m_steps = 0;
+    private int m_rampSteps = 0;
+    private boolean m_rampActive = false;
 
 }

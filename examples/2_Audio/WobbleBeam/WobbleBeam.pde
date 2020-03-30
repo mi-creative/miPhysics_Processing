@@ -1,3 +1,9 @@
+/*
+NOTE: Haven't ported this example yet!
+TODO: port with same logic as PinScreenCube example 
+*/
+
+
 
 import ddf.minim.*;
 import ddf.minim.ugens.*;

@@ -29,6 +29,11 @@ public class miString extends PhyModel {
         // Quick hack: a placeholder module to keep the compiler happy.
         Mass prev = new Ground3D(1, new Vect3D());
 
+        System.out.println(this.getName() + ": creating mass elements with naming pattern: "
+                + "m_[i]");
+        System.out.println(this.getName() + ": creating mass elements with naming pattern: "
+                + "i_[i]");
+
         // should definitely to some try catching in here...
         for(int i = 0; i < len; i++) {
             Mass tmp;
