@@ -16,7 +16,7 @@ PhyModel buildPyramid(String name, Medium med, int baseSize, double baseDist, in
   }
   int cpt = 0;
   for(Mass m : model.getMassList()){
-    model.addInteraction("plane" + cpt++, new PlaneContact3D(0.1, 0.1, 2, 0), m);
+    model.addInteraction("plane" + cpt++, new PlaneContact3D(0.1, 0.01, 2, 0), m);
   }
   
   // Brute force collision algorithms between elements... very expensive to compute !

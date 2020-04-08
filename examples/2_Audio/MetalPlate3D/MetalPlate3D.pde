@@ -45,6 +45,7 @@ void setup()
   mesh = createMesh(dimX, dimY, "osc", "spring", 1., gridSpacing, 0.12, 0.1);
   driver = mesh.addInOut("driver", new Driver3D(), "osc0_0");
   mesh.addInOut("listener", new Observer3D(), "osc5_5");
+  mesh.addInOut("listener2", new Observer3D(), "osc19_10");
 
   phys.mdl().addPhyModel(mesh);
 
@@ -53,6 +54,7 @@ void setup()
   renderer = new ModelRenderer(this);
 
   renderer.displayMasses(true);
+  renderer.setColor(massType.MASS3D, 105, 100, 250);
   renderer.setColor(interType.SPRINGDAMPER3D, 155, 50, 50, 70);
   renderer.setStrainGradient(interType.SPRINGDAMPER3D, true, 20);
   renderer.setStrainColor(interType.SPRINGDAMPER3D, 255, 250, 255, 255);
@@ -68,8 +70,10 @@ void draw()
 {
   camera(width/2.0, height/2.0, (height/2.0) / tan(PI*30.0 / 180.0), width/2, height/2.0, 0, 0, 1, 0);
 
-  background(0);
+  background(0, 0, 25);
 
+  directionalLight(126, 126, 126, 100, 0, -1);
+  ambientLight(182, 182, 182);
   if (showInstructions)
     displayModelInstructions();
 
@@ -77,7 +81,7 @@ void draw()
   renderer.setZoomVector(1, 1, 0.1 * zZoom);
 
   pushMatrix();
-  translate(xOffset, yOffset, 0.);
+  translate(xOffset + 20, yOffset + 20, 0.);
   renderer.renderScene(phys);
   popMatrix();
 

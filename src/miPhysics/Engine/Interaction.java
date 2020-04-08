@@ -93,6 +93,10 @@ public abstract class Interaction extends Module {
         m_dist = Math.sqrt(m_distSquared);
     }
 
+    public void init(){
+        this.initDistances();
+    }
+
     /**
      * Calculate the euclidian distance between both Mats connected to this Interaction.
      * @return

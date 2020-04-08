@@ -29,7 +29,7 @@ boolean showInstructions = true;
 void setup()
 {
   //size(1000, 700, P3D);
-  fullScreen(P3D,1);
+  fullScreen(P3D,2);
   cam = new PeasyCam(this, 100);
   cam.setMinimumDistance(50);
   cam.setMaximumDistance(5500);
@@ -50,7 +50,8 @@ void setup()
   
   driver = beam.addInOut("driver", new Driver3D(), "m_8_0_0");
   listener = beam.addInOut("listener1", new Observer3D(filterType.HIGH_PASS), "m_15_1_0");
-
+  beam.addInOut("listener2", new Observer3D(filterType.HIGH_PASS), "m_40_0_0");
+  
   phys.mdl().addPhyModel(beam);
 
   phys.init();
@@ -67,7 +68,7 @@ void setup()
 
   audioStreamHandler = miPhyAudioClient.miPhyClassic(44100, 128, 0, 2, phys);
   audioStreamHandler.setListenerAxis(listenerAxis.Y);
-  audioStreamHandler.setGain(0.02);
+  audioStreamHandler.setGain(0.03);
   audioStreamHandler.start();
 
   cam.setDistance(500);  // distance from looked-at point
@@ -77,6 +78,7 @@ void setup()
 
 void draw()
 {
+  noCursor();
   background(0, 0, 25);
   directionalLight(126, 126, 126, 100, 0, -1);
   ambientLight(182, 182, 182);

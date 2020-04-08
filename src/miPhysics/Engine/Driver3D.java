@@ -52,7 +52,7 @@ public class Driver3D extends InOut {
 
     public void applyFrc(double x, double y, double z){
         Vect3D newFrc = new Vect3D(x,y,z);
-        this.applyPos(newFrc);
+        this.applyFrc(newFrc);
     }
 
     /**

@@ -38,6 +38,7 @@ float fric = 0.001;
 
 Driver3D d;
 
+boolean showInstructions = true;
 
 // SETUP: THIS IS WHERE WE SETUP AND INITIALISE OUR MODEL
 
@@ -92,8 +93,8 @@ void draw() {
   fill(255);
   textSize(13); 
 
-  text("Friction: " + phys.getGlobalFriction(), 50, 50, 50);
-  text("Zoom: " + zZoom, 50, 100, 50);
+  if(showInstructions)
+    displayModelInstructions();
 
   
   if (mouseDragged == 1){
@@ -149,6 +150,8 @@ void keyPressed() {
         phys.init();
       }
       break;
+    case 'h':
+      showInstructions = ! showInstructions;
     default:
       break;
   }
@@ -176,4 +179,19 @@ void keyPressed() {
     default:
       break;
   }
+}
+
+void displayModelInstructions(){
+  textMode(MODEL);
+  textSize(20);
+  fill(255, 255, 255);
+  text("Press left-click and move around to excite mesh", 10, 30);
+  text("Press right-click to chisel (remove) masses and interactions", 10, 55);
+  text("LEFT and RIGHT to change Zoom", 10, 80);
+  text("UP and DOWN to change friction", 10, 105);
+  text("Press 'r' to reset the model", 10, 130);
+  text("Friction: " + fric, 10, 155);
+  text("FrameRate: " + frameRate, 10, 180);
+  text("Press 'h' to hide instructions", 10, 210);
+
 }
