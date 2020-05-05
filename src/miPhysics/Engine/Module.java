@@ -1,7 +1,7 @@
 package miPhysics.Engine;
 
 /**
- * Abstract class defining modules
+ * Abstract class defining modules (any type of physical element).
  *
  * @author James Leonard / james.leonard@gipsa-lab.fr
  *

@@ -10,6 +10,11 @@ package miPhysics.Engine;
  */
 public class Attractor3D extends Interaction {
 
+    /**
+     * Attractor module
+     * @param limitDist threshold distance below which the attraction force is null.
+     * @param attrFactor the attraction force factor.
+     */
     public Attractor3D(double limitDist, double attrFactor) {
         super(limitDist, null, null);
         m_attrFactor = attrFactor;

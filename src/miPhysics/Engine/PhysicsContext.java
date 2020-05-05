@@ -8,6 +8,9 @@ import miPhysics.Control.ParamController;
 
 import processing.core.*;
 
+/**
+ * The global physics context, inside which we can define physical models.
+ */
 public class PhysicsContext {
 
 	// myParent is a reference to the parent sketch
@@ -153,10 +156,18 @@ public class PhysicsContext {
 		return m_errorCode;
 	}
 
+	/**
+	 * Get the top level physical model of the physics context.
+	 * @return the model.
+	 */
 	public PhyModel mdl(){
 		return m_topLevelModel;
 	}
 
+	/**
+	 * Get the collision engine.
+	 * @return the engine.
+	 */
 	public CollisionEngine colEngine(){return m_colEng;}
 
 	/*************************************************/

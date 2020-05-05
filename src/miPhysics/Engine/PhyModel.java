@@ -6,8 +6,16 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import miPhysics.Utility.SpacePrint;
 
+/**
+ * Main class for physical model objects. A model may contain masses, interactions and sub-models.
+ */
 public class PhyModel extends PhyObject {
 
+    /**
+     * Create a physical model with a given name and a specific medium.
+     * @param name name of the model.
+     * @param med physical medium (defining gravity and air friction).
+     */
     public PhyModel(String name, Medium med) {
         this.setName(name);
         m_lock = new ReentrantLock();
@@ -15,6 +23,9 @@ public class PhyModel extends PhyObject {
         //System.out.println(m_medium);
     }
 
+    /**
+     * Initialise the model by calculating initial delayed distances for interactions.
+     */
     public void init(){
         /* Initialise the stored distances for the springs */
         for(Interaction inter : m_interactions)
@@ -23,6 +34,9 @@ public class PhyModel extends PhyObject {
             m.init();
     }
 
+    /**
+     * Clear the physical model (remove all elements).
+     */
     public void clear(){
         // Recursively clear all the sub "objects"...
         for(PhyModel m : m_subModels)
@@ -40,6 +54,10 @@ public class PhyModel extends PhyObject {
     }
 
     // Need to check the validity of this... Are mass/interaction phases properly timed when descending recursively?
+
+    /**
+     * Compute the phyiscal model.
+     */
     public void compute(){
         // reset the space print of this model.
         m_sp.reset();
@@ -60,6 +78,11 @@ public class PhyModel extends PhyObject {
     }
 
     // Can always apply a force to all the components of a macro object
+
+    /**
+     * Apply forces to every mass-type component in the physical model.
+     * @param force the force to apply.
+     */
     protected void applyForce(Vect3D force){
         for(Mass m : m_masses)
             m.applyForce(force);
@@ -76,6 +99,11 @@ public class PhyModel extends PhyObject {
     }
 
 
+    /**
+     * Access a mass in the model, defined by name.
+     * @param name the name of the mass module.
+     * @return the mass module.
+     */
     public Mass getMass(String name){
         if(m_massLabels.get(name) == null){
             System.out.println("Cannot find mass " + name + " in macro " + m_name);
@@ -84,6 +112,11 @@ public class PhyModel extends PhyObject {
         return m_massLabels.get(name);
     }
 
+    /**
+     * Access an interaction in the model, defined by name.
+     * @param name the name of the interaction module.
+     * @return the interaction module.
+     */
     public Interaction getInteraction(String name){
         if(m_intLabels.get(name) == null){
             System.out.println("Cannot find interaction " + name + " in macro " + m_name);
@@ -92,6 +125,11 @@ public class PhyModel extends PhyObject {
         return m_intLabels.get(name);
     }
 
+    /**
+     * Find a sub-model in this model by name.
+     * @param name name of the sub-model.
+     * @return the sub-model.
+     */
     public PhyModel getPhyModel(String name){
         if(m_subModelLabels.get(name) == null){
             System.out.println("Cannot find sub-macro " + name + " in macro " + m_name);
@@ -100,6 +138,10 @@ public class PhyModel extends PhyObject {
         return m_subModelLabels.get(name);
     }
 
+    /**
+     * Add a sub-model to this physical model
+     * @param mac the sub-model to add.
+     */
     public void addPhyModel(PhyModel mac){
         if(mac == null){
             System.out.println("Cannot add sub-macro " + mac + " !!! To " + m_name);
@@ -116,11 +158,25 @@ public class PhyModel extends PhyObject {
     }
 
 
-
+    /**
+     * Add a mass to the model.
+     * @param name name of the mass.
+     * @param m the mass object.
+     * @param <T> template type for mass.
+     * @return a reference to the mass.
+     */
     public <T extends Mass> T addMass(String name, T m){
         return addMass(name, m, m_medium);
     }
 
+    /**
+     * Add a mass to the model, specifying the medium.
+     * @param name mass name.
+     * @param m the mass object.
+     * @param med the medium.
+     * @param <T> template type for mass.
+     * @return a reference to the mass.
+     */
     public <T extends Mass> T addMass(String name, T m, Medium med){
         if (m_massLabels.get(name) == null){
             try {
@@ -154,7 +210,14 @@ public class PhyModel extends PhyObject {
     }
 
 
-
+    /**
+     * Add an interaction (special case for interactions with only one mass (Plane Contact).
+     * @param name name of the interaction.
+     * @param inter the interaction object.
+     * @param m1 connected mass.
+     * @param <T> template type for interaction.
+     * @return a reference to the interaction.
+     */
     public <T extends Interaction> T addInteraction(String name, T inter, Mass m1){
         if (inter.getType() == interType.PLANECONTACT3D){
             return addInteraction(name, inter, m1, m1);
@@ -167,13 +230,28 @@ public class PhyModel extends PhyObject {
         }
     }
 
-
+    /**
+     * Add an interaction (special case for interactions with only one mass (Plane Contact).
+     * @param name name of the interaction.
+     * @param inter the interaction object.
+     * @param m_id1 name of the connected mass.
+     * @param <T> template type for interaction.
+     * @return a reference to the interaction.
+     */
     public <T extends Interaction> T addInteraction(String name, T inter, String m_id1){
         Mass m1 = m_massLabels.get(m_id1);
         return addInteraction(name, inter, m1);
     }
 
-
+    /**
+     * Add an interaction to the model.
+     * @param name name of the interaction.
+     * @param inter the interaction object.
+     * @param m1 connected mass 1.
+     * @param m2 connected mass 2.
+     * @param <T> template type for interaction.
+     * @return a reference to the interaction.
+     */
     public <T extends Interaction> T addInteraction(String name, T inter, Mass m1, Mass m2) {
 
         if (m_intLabels.get(name) != null) {
@@ -241,6 +319,16 @@ public class PhyModel extends PhyObject {
 
     }
 
+
+    /**
+     * Add an interaction to the model.
+     * @param name name of the interaction.
+     * @param inter the interaction object.
+     * @param m_id1 name of connected mass 1.
+     * @param m_id2 name of connected mass 2.
+     * @param <T> template type for interaction.
+     * @return a reference to the interaction.
+     */
     public <T extends Interaction> T addInteraction(String name, T inter, String m_id1, String m_id2) {
         try {
             return addInteraction(name, inter, findMassFromAddress(m_id1), findMassFromAddress(m_id2));
@@ -252,7 +340,14 @@ public class PhyModel extends PhyObject {
 
     }
 
-
+    /**
+     * Add an InOut to the model.
+     * @param name name of the in/out module.
+     * @param mod the module.
+     * @param m the mass that this module is connected to.
+     * @param <T> template type for InOut module.
+     * @return reference to the module.
+     */
     public <T extends InOut> T addInOut(String name, T mod, Mass m) {
         if (m_inOutLabels.get(name) != null) {
             System.out.println("Cannot create InOut " + name
@@ -280,25 +375,46 @@ public class PhyModel extends PhyObject {
         return mod;
     }
 
-
+    /**
+     * Add an InOut to the model.
+     * @param name name of the in/out module.
+     * @param mod the module.
+     * @param m_id name of the mass that this module is connected to.
+     * @param <T> template type for InOut module.
+     * @return reference to the module.
+     */
     public <T extends InOut> T addInOut(String name, T mod, String m_id) {
         return addInOut(name, mod, findMassFromAddress(m_id));
     }
 
-
+    /**
+     * Get all sub-models inside this model.
+     * @return a list of all sub-models.
+     */
     public ArrayList<PhyModel> getSubModels(){
         return m_subModels;
     }
 
+    /**
+     * Get the list of all masses (excluding sub-models) inside this model.
+     * @return a list of masses.
+     */
     public ArrayList<Mass> getMassList(){
         return m_masses;
     }
 
-
+    /**
+     * Get a list of all interactions (excluding sub-models) inside this model.
+     * @return a list of all interactions.
+     */
     public ArrayList<Interaction> getInteractionList(){
         return m_interactions;
     }
 
+    /**
+     * Get the number of mass-type module in this model and all sub-models.
+     * @return the number of mass-type modules.
+     */
     public int numberOfMassTypes(){
         int nb = m_masses.size();
         for(PhyModel pm : m_subModels)
@@ -306,6 +422,10 @@ public class PhyModel extends PhyObject {
         return nb;
     }
 
+    /**
+     * Get the number of interaction-type module in this model and all sub-models.
+     * @return the number of mass-type modules.
+     */
     public int numberOfInterTypes(){
         int nb = m_interactions.size();
         for(PhyModel pm : m_subModels)
@@ -313,14 +433,26 @@ public class PhyModel extends PhyObject {
         return nb;
     }
 
+    /**
+     * Get number of masses (excluding sub-models)
+     * @return number of masses.
+     */
     public int getNumberOfMasses(){
         return m_masses.size();
     }
 
+    /**
+     * Get number of interactions (excluding sub-models)
+     * @return number of interactions.
+     */
     public int getNumberOfInteractions(){
         return m_interactions.size();
     }
 
+    /**
+     * Get a list of all the observers in this physical model.
+     * @return list of observers.
+     */
     public ArrayList<Observer3D> getObservers(){
         ArrayList<Observer3D> list = new ArrayList<>();
         for(PhyModel pm : m_subModels)
@@ -334,6 +466,10 @@ public class PhyModel extends PhyObject {
         return list;
     }
 
+    /**
+     * Get a list of all the drivers in this physical model.
+     * @return list of drivers.
+     */
     public ArrayList<Driver3D> getDrivers(){
         ArrayList<Driver3D> list = new ArrayList<>();
         for(PhyModel pm : m_subModels)
@@ -348,7 +484,11 @@ public class PhyModel extends PhyObject {
     }
 
 
-
+    /**
+     * Check if a mass exists in the model.
+     * @param name the name of the mass.
+     * @return true if exists, false otherwise.
+     */
     public boolean massExists(String name) {
         Mass m = m_massLabels.get(name);
         if (m == null)
@@ -357,7 +497,11 @@ public class PhyModel extends PhyObject {
             return true;
     }
 
-
+    /**
+     * Remove a mass from the physical model.
+     * @param m the mass to remove.
+     * @return true if successful.
+     */
     private int removeMass(Mass m){
         try {
             if(m_massLabels.remove(m.getName()) == null)
@@ -371,17 +515,30 @@ public class PhyModel extends PhyObject {
         }
     }
 
+    /**
+     * Set the simulation rate for this model.
+     * @param SR the simulation rate (in Hz).
+     */
     public void setSimRate(int SR){
         m_simRate = SR;
     }
 
 
+    /**
+     * Remove a mass from the model (by name)
+     * @param name name of the mass to remove
+     * @return true if success.
+     */
     private int removeMass(String name) {
         Mass m = m_massLabels.get(name);
         return removeMass(m);
     }
 
-
+    /**
+     * Remove an interaction from the model.
+     * @param l interaction to remove.
+     * @return true if success.
+     */
     public int removeInteraction(Interaction l) {
         synchronized (m_lock) {
             try {
@@ -397,12 +554,21 @@ public class PhyModel extends PhyObject {
         }
     }
 
+    /**
+     * Remove an interaction from the model (by name).
+     * @param name name of the interaction to remove.
+     * @return true if success.
+     */
     public synchronized int removeInteraction(String name) {
         Interaction l = m_intLabels.get(name);
         return removeInteraction(l);
     }
 
-
+    /**
+     * Remove a mass and connected interactions from the model.
+     * @param m mass to remove.
+     * @return true if success.
+     */
     public int removeMassAndConnectedInteractions(Mass m) {
         synchronized (m_lock) {
             try {
@@ -426,6 +592,11 @@ public class PhyModel extends PhyObject {
         return -1;
     }
 
+    /**
+     * Remove a mass and connected interactions from the model (by name).
+     * @param mName mass to remove.
+     * @return true if success.
+     */
     public int removeMassAndConnectedInteractions(String mName) {
         Mass m = m_massLabels.get(mName);
         return removeMassAndConnectedInteractions(m);
@@ -443,6 +614,11 @@ public class PhyModel extends PhyObject {
         return -1;
     }
 
+    /**
+     * Replace a material element in the model with another.
+     * @param old mass to remove.
+     * @param m mass to insert.
+     */
     private void replaceMassInModel(Mass old, Mass m){
         int idx = m_masses.indexOf(old);
         m_masses.set(idx, m);
@@ -455,13 +631,19 @@ public class PhyModel extends PhyObject {
         }
     }
 
-
+    /**
+     * Change a mass to a fixed point (by name).
+     * @param masName name of mass to change.
+     */
     public void changeToFixedPoint(String masName){
         Mass m = m_massLabels.get(masName);
         this.changeToFixedPoint(m);
     }
 
-
+    /**
+     * Change a mass to a fixed point.
+     * @param m mass to change.
+     */
     public void changeToFixedPoint(Mass m) {
         try {
 
@@ -481,15 +663,25 @@ public class PhyModel extends PhyObject {
         }
     }
 
-
+    /**
+     * Get the first mass in the model (in order of creation).
+     * @return reference to the mass.
+     */
     public Mass getFirstMass(){
         return m_masses.get(0);
     }
 
+    /**
+     * Get the last mass in the model (in order of creation).
+     * @return reference to the mass.
+     */
     public Mass getLastMass(){
         return m_masses.get(m_masses.size()-1);
     }
 
+    /**
+     * Calculate the space print of all masses in the model (used for collisions)
+     */
     public void calcSpacePrint(){
         /*ForkJoinPool pool = null;
         pool = new ForkJoinPool(8);
@@ -512,19 +704,45 @@ public class PhyModel extends PhyObject {
         */
     }
 
+    /**
+     * Get the space print for this model.
+     * @return
+     */
     public SpacePrint getSpacePrint(){
         return m_sp;
     }
 
+    /**
+     * Translate the entire model.
+     * @param tx translation along x.
+     * @param ty translation along y.
+     * @param tz translation along z.
+     */
     public void translate(float tx, float ty, float tz){
         translateAndRotate(tx, ty, tz, 0, 0, 0);
     }
 
+    /**
+     * Rotate the entire model.
+     * @param x rotation along x.
+     * @param y rotation along y.
+     * @param z rotation along z.
+     */
     public void rotate(float x, float y, float z){
         translateAndRotate(0, 0, 0, x, y, z);
     }
 
     // Currently a problem with rotations along Y and Z, need to sort this...
+
+    /**
+     * Translate and rotate the entire model.
+     * @param tx translation along x.
+     * @param ty translation along y.
+     * @param tz translation along z.
+     * @param x_angle rotation along x.
+     * @param y_angle rotation along y.
+     * @param z_angle rotation along z.
+     */
     public void translateAndRotate(float tx, float ty, float tz, float x_angle, float y_angle, float z_angle){
 
         Vect3D mdlPos;

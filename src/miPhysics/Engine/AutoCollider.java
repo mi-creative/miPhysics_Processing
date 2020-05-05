@@ -10,6 +10,9 @@ import java.util.Map;
 
 //TODO : If you change the underlying physical model during simulation, it will break! Make safer
 
+/**
+ * Autocollision handling mechanism for a physical model
+ */
 public class AutoCollider {
 
     PhyModel m_model;
@@ -118,6 +121,16 @@ public class AutoCollider {
         }
     }
 
+    /**
+     * Setup an auto-collider system for a given physical model.
+     * @param mdl the model.
+     * @param size the size of individual voxels
+     * @param nbX voxels along X dimension
+     * @param nbY voxels along Y dimension
+     * @param nbZ voxels along Z dimension
+     * @param K stiffness of autocollision interactions
+     * @param Z damping of autocollision interactions
+     */
     public AutoCollider(PhyModel mdl, double size, int nbX, int nbY, int nbZ, double K, double Z){
         // save the model reference
         this.m_model = mdl;

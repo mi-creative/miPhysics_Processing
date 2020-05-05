@@ -4,6 +4,9 @@ import javafx.util.Pair;
 import miPhysics.Utility.SpacePrint;
 import java.util.ArrayList;
 
+/**
+ * Collider class handling collision between two physical models.
+ */
 public class MassCollider {
 
     private Pair<PhyModel, PhyModel> m_colMdls;

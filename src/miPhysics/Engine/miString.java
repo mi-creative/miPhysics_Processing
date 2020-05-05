@@ -3,6 +3,9 @@ package miPhysics.Engine;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/**
+ * A basic integrated string class.
+ */
 public class miString extends PhyModel {
 
     double m_K;

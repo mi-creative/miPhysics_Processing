@@ -1,3 +1,9 @@
+/* 
+  WARNING : Haptic models haven't been ported to the new API yet
+  this model won't currently build 
+  */
+
+
 /**
  **********************************************************************************************************************
  */

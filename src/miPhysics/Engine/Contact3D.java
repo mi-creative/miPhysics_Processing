@@ -17,11 +17,9 @@ public class Contact3D extends Interaction {
 
     private double interSize;
     /**
-     * @param distance
-     * @param K_param
-     * @param Z_param
-     * @param m1
-     * @param m2
+     * A conctact interaction defined between two points
+     * @param K_param the stiffness of the collision interaction.
+     * @param Z_param the damping of the collision interaction.
      */
     public Contact3D(double K_param, double Z_param) {
         super(0, null, null);

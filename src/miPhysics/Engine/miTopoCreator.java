@@ -1,6 +1,9 @@
 package miPhysics.Engine;
 import java.util.*;
 
+/**
+ * Topology Creator Model class. This allows to procedurally generate regular topologies.
+ */
 public class miTopoCreator extends PhyModel {
 
     private int m_dimX = 1;

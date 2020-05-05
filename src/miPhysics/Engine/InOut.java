@@ -11,10 +11,8 @@ package miPhysics.Engine;
 public abstract class InOut extends Module {
 
     /**
-     * Constructor method.
-     * @param distance resting distance of the Interaction.
-     * @param m1 connected Mass at one end.
-     * @param m2 connected Mass at other end.
+     * Generic in/out module constructor
+     * @param m
      */
     public InOut(Mass m) {
         m_mat = m;
@@ -22,14 +20,14 @@ public abstract class InOut extends Module {
     }
 
     /**
-     * Compute behavior of the Interaction (depends on the concrete implementation of concerned module).
+     * Compute behavior of the In/Out (depends on the concrete implementation of concerned module).
      *
      */
     public abstract void compute();
 
     /**
      * Connect the InOut module to one Mass module.
-     * @param m connected Mass.
+     * @param m1 connected Mass.
      */
     public void connect (Mass m1) {
         m_mat = m1;

@@ -10,7 +10,11 @@ package miPhysics.Engine;
 
 public class Observer3D extends InOut {
 
-
+    /**
+     * Create an observer
+     * @param f a possible filter type on the observed output.
+     * @param m the mass to observe.
+     */
     public Observer3D(filterType f, Mass m) {
         super(m);
         setType(inOutType.OBSERVER3D);

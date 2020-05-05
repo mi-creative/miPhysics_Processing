@@ -1,11 +1,16 @@
 package miPhysics.Engine;
 
 /**
- * Fixed point Mass module.
+ * 3D Fixed point Mass module.
  * @author James Leonard / james.leonard@gipsa-lab.fr
  *
  */
 public class Ground3D extends Mass {
+
+	/**
+	 * @param size radius of the module.
+	 * @param initPos initial position.
+	 */
 	public Ground3D(double size, Vect3D initPos) {
 		super(1., size,  initPos, initPos); // the mass parameter is unused.
 		setType(massType.GROUND3D);

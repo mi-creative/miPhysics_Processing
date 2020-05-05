@@ -12,6 +12,7 @@ public abstract class Mass extends PhyObject {
      * Constructor method.
      *
      * @param M mass value.
+     * @param size radius of the mass.
      * @param initPos initial position.
      * @param initPosR delayed initial position.
      */

@@ -20,6 +20,10 @@ import org.jaudiolibs.audioservers.ext.Connections;
 import miPhysics.Engine.*;
 
 /* Based on SineAudioClient, in the example project of jaudiolibs */
+
+/**
+ * Audio client to setup calculation of the physical model inside an audio callback.
+ */
 public class miPhyAudioClient implements  AudioClient{
     private volatile boolean exit = false;
 
@@ -41,7 +45,15 @@ public class miPhyAudioClient implements  AudioClient{
 
     private Thread runner;
 
-
+    /**
+     * Set up an audio client for Jack. Creates the audio thread.
+     * @param sampleRate sample rate of the simulation
+     * @param bufS the buffer size
+     * @param inputChannelCount the number of input channels
+     * @param outputChannelCount the number of output channels
+     * @param c the physics context.
+     * @return
+     */
     public static miPhyAudioClient miPhyJack(float sampleRate,int bufS, int inputChannelCount, int outputChannelCount, PhysicsContext c)
     {
         try {
@@ -54,6 +66,15 @@ public class miPhyAudioClient implements  AudioClient{
         return null;
     }
 
+    /**
+     * Set up an audio client using JAudio. Creates the audio thread.
+     * @param sampleRate sample rate of the simulation
+     * @param bufS the buffer size
+     * @param inputChannelCount the number of input channels
+     * @param outputChannelCount the number of output channels
+     * @param c the physics context.
+     * @return
+     */
     public static miPhyAudioClient miPhyClassic(float sampleRate, int bufS, int inputChannelCount, int outputChannelCount, PhysicsContext c)
     {
         try {

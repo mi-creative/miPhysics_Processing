@@ -1,7 +1,14 @@
 package miPhysics.Engine;
 
+/**
+ * One dimensional fixed point module.
+ */
 public class Ground1D extends Mass {
 
+	/**
+	 * @param size radius of the module.
+	 * @param initPos initial position.
+	 */
 	public Ground1D(double size, Vect3D initPos) {
 		super(1., size, initPos, initPos); // the mass parameter is unused.
 		setType(massType.GROUND1D);

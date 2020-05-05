@@ -2,6 +2,10 @@ package miPhysics.Engine;
 
 import java.util.ArrayList;
 
+/**
+ * The global collision engine for the physics context. It can handle both collisions between
+ * two sub-models (physical models) and auto-collision of the masses inside a physical model.
+ */
 public class CollisionEngine {
 
     ArrayList<MassCollider> m_colliders = new ArrayList<>();
@@ -11,6 +15,13 @@ public class CollisionEngine {
 
     }
 
+    /**
+     * Register a collision between two sub-models.
+     * @param m1 the first physical model.
+     * @param m2 the second physical model.
+     * @param stiffness stiffness of the collisions.
+     * @param damping damping of the collisions.
+     */
     public void addCollision(PhyModel m1, PhyModel m2, double stiffness, double damping){
 
         recursiveColliders(m1, m2, stiffness, damping,  m_colliders);
@@ -21,6 +32,14 @@ public class CollisionEngine {
     }
 
 
+    /**
+     * Register auto-collision between the masses of a physical model.
+     * @param mdl the physical model.
+     * @param size size of the auto-collision voxels.
+     * @param dim gid size (number of voxels).
+     * @param stiffness stiffness of collisions.
+     * @param damping damping of collisions.
+     */
     public void addAutoCollision(PhyModel mdl, double size, int dim, double stiffness, double damping){
         m_autoColliders.add(new AutoCollider(mdl, size, dim, dim, dim, stiffness, damping));
     }
@@ -42,6 +61,9 @@ public class CollisionEngine {
         }
     }
 
+    /**
+     * Compute all collusions and auto-collisions.
+     */
     public void runCollisions(){
         for(MassCollider mc : m_colliders){
             mc.detectCollisions();

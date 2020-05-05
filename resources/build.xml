@@ -155,6 +155,7 @@ ${line}
 				<path refid="classpath" />
 			</classpath>
 			<compilerarg value="-Xlint" />
+
 		</javac>
 		<copy todir="${project.bin.data}">
 			<fileset dir="${project.data}" excludes="README" />
@@ -181,6 +182,12 @@ ${line}
 				<exclude name="**/*README*" />
 				<!-- not including the ModelLoader examples for now -->
 				<exclude name="**/5_ModelLoader/**" />
+				<exclude name="**/2_Audio/control/**" />
+				<exclude name="**/2_Audio/BeamBender/**" />
+				<exclude name="**/4_TopoGenerator/**" />
+				<exclude name="**/TestExample/**" />
+				<exclude name="**/collisionEngineTester/**" />
+				<exclude name="**/TopoCreatorTest**/**" />
 			</fileset>
 		</copy>
 		<copy todir="${project.tmp}/${project.name}/src">

@@ -9,6 +9,10 @@ package miPhysics.Engine;
 
 public class Driver3D extends InOut {
 
+    /**
+     * Create the driver and attach it to a mass module
+     * @param m the to drive.
+     */
     public Driver3D(Mass m) {
         super(m);
         setType(inOutType.DRIVER3D);
@@ -30,7 +34,7 @@ public class Driver3D extends InOut {
     }
 
     /**
-     * Apply position to connected Mass element
+     * Apply an input position to the mass element controlled by the driver.
      * @param pos the position to apply
      */
     public void applyPos(Vect3D pos){
@@ -43,7 +47,7 @@ public class Driver3D extends InOut {
     }
 
     /**
-     * Apply force to connected Mass module
+     * Apply an input force to the mass controlled by the driver.
      * @param frc the Vec3D containing the force to apply
      */
     public void applyFrc(Vect3D frc){
@@ -64,7 +68,13 @@ public class Driver3D extends InOut {
     }
 
 
-
+    /**
+     * Trigger a force ramp applied to the controlled mass.
+     * @param x force amount along X.
+     * @param y force amount along Y.
+     * @param z force amount along Z.
+     * @param timeSteps steps in samples over which the force ramp is applied.
+     */
     public void triggerForceRamp(double x, double y, double z, int timeSteps){
         m_rampSteps = timeSteps;
         m_targetForce.x = x;
@@ -75,6 +85,11 @@ public class Driver3D extends InOut {
         m_rampActive = true;
     }
 
+    /**
+     * Trigger a force ramp applied to the controlled mass.
+     * @param frc 3D vector containing the force to apply.
+     * @param timeSteps steps in samples over which the force ramp is applied.
+     */
     public void triggerForceRamp(Vect3D frc, int timeSteps){
         this.triggerForceRamp(frc.x, frc.y, frc.z, timeSteps);
     }

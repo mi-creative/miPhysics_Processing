@@ -14,8 +14,6 @@ public class Bubble3D extends Interaction {
      * @param distance distance (radius) between both Mats.
      * @param K_param stiffness parameter.
      * @param Z_param damping parameter.
-     * @param m1 first (enclosed) Mass module.
-     * @param m2 second (enclosing) Mass module.
      */
     public Bubble3D(double distance, double K_param, double Z_param) {
         super(distance, null, null);
